@@ -24,6 +24,11 @@ public class Sistema implements IControladorSistema {
     private EdicionEvento edicionSeleccionada;
     private Organizador organizadorSeleccionado;
 
+    // Referencias retenidas durante un alta de usuario en curso
+    private DTUsuario datosUsuarioRecordados;
+    private TipoUsuario tipoUsuarioRecordado;
+    private Asistente asistenteRecordado;
+
     public Sistema() {
         this.categorias = new ArrayList<>();
         this.usuarios = new ArrayList<>();
@@ -146,6 +151,74 @@ public class Sistema implements IControladorSistema {
         }
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
         return true;
+    }
+
+    // ===== Alta de Usuario =====
+
+    @Override
+    public boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) {
+        // 1: uN := find(datos.nickname)  /  2: uC := find(datos.correo)
+        Usuario uN = find(datos.getNickname());
+        Usuario uC = findPorCorreo(datos.getCorreo());
+        if (uN != null || uC != null) {
+            return false;
+        }
+        this.datosUsuarioRecordados = datos;
+        this.tipoUsuarioRecordado = tipo;
+        return true;
+    }
+
+    @Override
+    public void ingresarDatosAsistente(String apellido, DTFecha fechaNac) {
+        // a := create(nickname, nombre, correo, apellido, fechaNac)  /  add(a)
+        Asistente a = new Asistente(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
+                datosUsuarioRecordados.getCorreo(), apellido, fechaNac.aLocalDate());
+        usuarios.add(a);
+        this.asistenteRecordado = a;
+    }
+
+    @Override
+    public void seleccionarInstitucion(String nombreInstitucion) {
+        // i := find(nombreInstitucion)
+        Institucion i = findInstitucion(nombreInstitucion);
+        asistenteRecordado.setInstitucion(i);
+    }
+
+    @Override
+    public void ingresarDatosOrganizador(String descripcion, String sitioWeb) {
+        // o := create(nickname, nombre, correo, descripcion, sitioWeb)  /  add(o)
+        Organizador o = new Organizador(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
+                datosUsuarioRecordados.getCorreo(), descripcion, sitioWeb);
+        usuarios.add(o);
+    }
+
+    @Override
+    public Set<String> listarNombresInstituciones() {
+        Set<String> resultado = new HashSet<>();
+        for (Institucion i : instituciones) {
+            resultado.add(i.getNombre());
+        }
+        return resultado;
+    }
+
+    /** Busqueda interna de Sistema sobre su propia coleccion de Usuario. */
+    private Usuario findPorCorreo(String correo) {
+        for (Usuario u : usuarios) {
+            if (u.getCorreoElectronico().equals(correo)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    /** Busqueda interna de Sistema sobre su propia coleccion de Institucion. */
+    private Institucion findInstitucion(String nombre) {
+        for (Institucion i : instituciones) {
+            if (i.getNombre().equals(nombre)) {
+                return i;
+            }
+        }
+        return null;
     }
 
     /**

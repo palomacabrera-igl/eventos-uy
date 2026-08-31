@@ -4,15 +4,16 @@ import java.time.LocalDate;
 
 /**
  * Usuario de tipo asistente. Ademas de los datos de {@link Usuario}, tiene
- * apellido y fecha de nacimiento (ver letra, seccion 4).
- *
- * TODO: agregar la asociacion opcional con Institucion cuando esa clase de
- * dominio este creada (un asistente puede pertenecer a una institucion).
+ * apellido y fecha de nacimiento (ver letra, seccion 4). Opcionalmente puede
+ * estar asociado a una Institucion (ver caso de uso "Alta de Usuario":
+ * la asociacion se hace despues de crear el Asistente, mediante
+ * seleccionarInstitucion(), no en el alta).
  */
 public class Asistente extends Usuario {
 
     private String apellido;
     private LocalDate fechaNacimiento;
+    private Institucion institucion;
 
     public Asistente(String nickname, String nombre, String correoElectronico,
                      String apellido, LocalDate fechaNacimiento) {
@@ -35,6 +36,14 @@ public class Asistente extends Usuario {
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public Institucion getInstitucion() {
+        return institucion;
+    }
+
+    public void setInstitucion(Institucion institucion) {
+        this.institucion = institucion;
     }
 
     @Override

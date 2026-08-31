@@ -47,6 +47,11 @@ public class VentanaPrincipal extends JFrame {
         itemModificarUsuario.addActionListener(e -> abrirModificarUsuario());
         menuUsuarios.add(itemModificarUsuario);
 
+        // ===== Marti: Alta de Usuario =====
+        JMenuItem itemAltaUsuario = new JMenuItem("Alta de Usuario");
+        itemAltaUsuario.addActionListener(e -> abrirAltaUsuario());
+        menuUsuarios.add(itemAltaUsuario);
+
         // ===== Paloma: Alta de Edicion de Evento =====
         JMenuItem itemAltaEdicion = new JMenuItem("Alta de Edicion de Evento");
         itemAltaEdicion.addActionListener(e -> abrirAltaEdicion());
@@ -57,7 +62,7 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaPatrocinio.addActionListener(e -> abrirConsultaPatrocinio());
         menuInstituciones.add(itemConsultaPatrocinio);
 
-        // TODO (Elias / Marti / Leandro / Sebastian): agregar aca su propio
+        // TODO (Elias / Leandro / Sebastian): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
         // 2) itemXXX.addActionListener(e -> abrirXXX());
@@ -76,6 +81,12 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirModificarUsuario() {
         VentanaModificarUsuario ventana = new VentanaModificarUsuario(controlador);
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirAltaUsuario() {
+        VentanaAltaUsuario ventana = new VentanaAltaUsuario();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }

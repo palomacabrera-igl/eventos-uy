@@ -57,4 +57,24 @@ public interface IControladorSistema {
      */
     boolean ingresarDatosEdicion(DTEdicionEvento dt);
 
+    // ===== Alta de Usuario =====
+
+    /** Precondicion: tipo corresponde a asistente u organizador. */
+    boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo);
+
+    /** Precondicion: ingresarDatosUsuario() se ejecuto con exito y el tipo recordado es ASISTENTE. */
+    void ingresarDatosAsistente(String apellido, DTFecha fechaNac);
+
+    /**
+     * Precondicion: ingresarDatosAsistente() se ejecuto previamente durante
+     * la misma alta, y existe una Institucion con ese nombre.
+     */
+    void seleccionarInstitucion(String nombreInstitucion);
+
+    /** Precondicion: ingresarDatosUsuario() se ejecuto con exito y el tipo recordado es ORGANIZADOR. */
+    void ingresarDatosOrganizador(String descripcion, String sitioWeb);
+
+    /** Precondicion: ninguna. */
+    Set<String> listarNombresInstituciones();
+
 }
