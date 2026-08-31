@@ -15,7 +15,7 @@ public class Asistente extends Usuario {
     private LocalDate fechaNacimiento;
 
     public Asistente(String nickname, String nombre, String correoElectronico,
-                      String apellido, LocalDate fechaNacimiento) {
+                     String apellido, LocalDate fechaNacimiento) {
         super(nickname, nombre, correoElectronico);
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
@@ -35,5 +35,24 @@ public class Asistente extends Usuario {
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
+    }
+
+    @Override
+    public DTUsuario obtenerDT() {
+        return new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
+                apellido, DTFecha.desde(fechaNacimiento));
+    }
+
+    @Override
+    public TipoUsuario obtenerTipoUsuario() {
+        return TipoUsuario.ASISTENTE;
+    }
+
+    @Override
+    public void modificarDatos(DTUsuario dt) {
+        super.modificarDatos(dt);
+        DTAsistente da = (DTAsistente) dt;
+        this.apellido = da.getApellido();
+        this.fechaNacimiento = da.getFechaNacimiento().aLocalDate();
     }
 }

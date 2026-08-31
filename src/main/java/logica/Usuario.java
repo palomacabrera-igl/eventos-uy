@@ -37,4 +37,26 @@ public abstract class Usuario {
     public String getCorreoElectronico() {
         return correoElectronico;
     }
+
+    /**
+     * Polimorfico: cada subtipo concreto arma su propio DT (DTAsistente o
+     * DTOrganizador), que extiende a DTUsuario con sus campos propios.
+     */
+    public abstract DTUsuario obtenerDT();
+
+    /**
+     * Polimorfico: cada subtipo concreto dice quien es. Lo usa
+     * listarOrganizadores() para filtrar la coleccion de Usuario.
+     */
+    public abstract TipoUsuario obtenerTipoUsuario();
+
+    /**
+     * Modifica el nombre (comun a todo Usuario). Las subclases sobreescriben,
+     * llaman a super.modificarDatos(dt) y ademas actualizan sus campos
+     * propios, casteando dt al DT concreto correspondiente. nickname y
+     * correoElectronico nunca se modifican (son final).
+     */
+    public void modificarDatos(DTUsuario dt) {
+        this.nombre = dt.getNombre();
+    }
 }

@@ -8,7 +8,7 @@ public class Registro {
 
     public Registro(Double costo, LocalDate fechaRegistro){
         this.costo = costo;
-        this.LocalDate = fechaRegistro;
+        this.fechaRegistro = fechaRegistro;
     }
 
     public Double getCosto() {return costo;}
