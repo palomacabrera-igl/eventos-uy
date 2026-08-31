@@ -16,10 +16,18 @@
     </properties>
 
     <!--
-        Por ahora no hay dependencias: las clases de dominio son Java puro.
-        Cuando lleguemos a la capa de presentacion (Swing) vamos a sumar
-        forms_rt y flatlaf.
+        forms_rt: soporte en tiempo de ejecucion para paneles creados con el
+        Swing UI Designer de IntelliJ (com.intellij.uiDesigner.core.*).
+        Necesario para compilar y ejecutar los .form tambien desde el Maven
+        Wrapper (mvnw), no solo desde dentro de IntelliJ.
     -->
+    <dependencies>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

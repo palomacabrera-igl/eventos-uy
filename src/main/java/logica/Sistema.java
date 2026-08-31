@@ -72,7 +72,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTEvento> listarEventos() {
-        // 1*[foreach]: e := next()  /  2*: dt := obtenerDT()
         Set<DTEvento> resultado = new HashSet<>();
         for (Evento e : eventos) {
             resultado.add(e.obtenerDT());
@@ -82,8 +81,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTEdicionEvento> listarEdicionesDeEvento(String nombreEvento) {
-        // 1: eventoSeleccionado := find(nombreEvento)
-        // 2: dts := eventoSeleccionado.obtenerEdiciones()
         Evento e = findEvento(nombreEvento);
         this.eventoSeleccionado = e;
         return e.obtenerEdiciones();
@@ -91,8 +88,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion) {
-        // 1: edicionSeleccionada := eventoSeleccionado.buscarEdicion(nombreEdicion)
-        // 2: dts := edicionSeleccionada.obtenerPatrocinios()
         EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
         this.edicionSeleccionada = ed;
         return ed.obtenerPatrocinios();
@@ -100,8 +95,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTPatrocinio mostrarPatrocinio(int codigoPatrocinio) {
-        // 1: p := edicionSeleccionada.buscarPatrocinio(codigoPatrocinio)
-        // 2: dt := obtenerDT()
         Patrocinio p = edicionSeleccionada.buscarPatrocinio(codigoPatrocinio);
         return p.obtenerDT();
     }
