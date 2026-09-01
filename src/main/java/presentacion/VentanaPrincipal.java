@@ -57,10 +57,10 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaPatrocinio.addActionListener(e -> abrirConsultaPatrocinio());
         menuInstituciones.add(itemConsultaPatrocinio);
 
-        /*// ===== Sebastian : Consulta de Usuario =====
+        // ===== Sebastian : Consulta de Usuario =====
         JMenuItem itemConsultaUsuario = new JMenuItem("Consulta de Usuario");
         itemConsultaUsuario.addActionListener(e -> abrirConsultaUsuario());
-        menuUsuarios.add(itemConsultaUsuario);*/
+        menuUsuarios.add(itemConsultaUsuario);
 
 
         // TODO (Elias / Marti / Leandro / Sebastian): agregar aca su propio
@@ -98,11 +98,11 @@ public class VentanaPrincipal extends JFrame {
         escritorio.add(ventana);
     }
 
-    /*private void abrirConsultaUsuario() {
+    private void abrirConsultaUsuario() {
         VentanaConsultaUsuario ventana = new VentanaConsultaUsuario(controlador);
         ventana.setVisible(true);
         escritorio.add(ventana);
-    }*/
+    }
 
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de

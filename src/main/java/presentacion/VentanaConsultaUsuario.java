@@ -1,131 +1,217 @@
-/*package presentacion;
+package presentacion;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
 import logica.DTAsistente;
-import logica.DTFecha;
-import logica.DTOrganizador;
-import logica.DTUsuario;
-import logica.Fabrica;
-import logica.DTRegistro;
-import logica.DTTipoRegistro;
 import logica.DTEdicionCompleto;
+import logica.DTEdicionEvento;
+import logica.DTOrganizador;
 import logica.DTRegistro;
+import logica.DTUsuario;
 import logica.IControladorSistema;
 
-
-import logica.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Set;
+import java.util.Comparator;
 
 public class VentanaConsultaUsuario extends JInternalFrame {
 
-    private final IControladorSistema controlador;
-
+    private JPanel panelPrincipal;
     private JComboBox<DTUsuario> comboUsuarios;
-    private JComboBox<DTEdicionEvento> comboEdiciones;
-    private JComboBox<DTRegistro> comboRegistros;
-
-    private JTextField campoNickname, campoNombre, campoApellido, campoCorreo, campoTipo;
-    private JTextArea campoDetalle;
-
-    private DTUsuario usuarioActual;
+    private JTextArea areaDetalle;
+    private JPanel panelSeleccion;
+    private JPanel panelAsociaciones;
+    private JPanel panelEdiciones;
+    private JPanel panelRegistros;
+    private JList<DTEdicionEvento> listaEdiciones;
+    private JList<DTRegistro> listaRegistros;
+    private JLabel Usuario;
+    private JPanel PanelDetalle;
+    private final IControladorSistema controlador;
+    private CardLayout cardLayout;
 
     public VentanaConsultaUsuario(IControladorSistema controlador) {
         super("Consulta de Usuario", true, true, true, true);
         this.controlador = controlador;
-        construirUI();
+
+        setContentPane(panelPrincipal);
+
+        configurarComponentes();
         cargarUsuarios();
-        setSize(500, 500);
+
+        pack();
     }
 
-    private void construirUI() {
-        setLayout(new BorderLayout(10, 10));
+    private void configurarComponentes() {
+        areaDetalle.setEditable(false);
 
-        // Panel selección de usuario
-        JPanel panelSeleccion = new JPanel();
-        panelSeleccion.setLayout(new BoxLayout(panelSeleccion, BoxLayout.Y_AXIS));
+        cardLayout = new CardLayout();
+        panelAsociaciones.setLayout(cardLayout);
 
-        comboUsuarios = new JComboBox<>();
+        // Los paneles fueron creados dentro de panelAsociaciones en el .form.
+        // Se re-agregan con los nombres que utilizará CardLayout.
+        panelAsociaciones.removeAll();
+        panelAsociaciones.add(panelEdiciones, "EDICIONES");
+        panelAsociaciones.add(panelRegistros, "REGISTROS");
+
         comboUsuarios.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof DTUsuario u) setText(u.getNickname());
+            public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+
+                super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+
+                if (value instanceof DTUsuario usuario) {
+                    String tipo = usuario instanceof DTOrganizador
+                            ? "Organizador"
+                            : "Asistente";
+
+                    setText(usuario.getNickname() + " (" + tipo + ")");
+                }
+
                 return this;
             }
         });
-        comboUsuarios.addActionListener(e -> mostrarUsuario());
-        panelSeleccion.add(construirFila("Usuario:", comboUsuarios));
 
-        add(panelSeleccion, BorderLayout.NORTH);
+        listaEdiciones.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
 
-        // Panel detalle
-        JPanel panelDetalle = new JPanel();
-        panelDetalle.setLayout(new BoxLayout(panelDetalle, BoxLayout.Y_AXIS));
-        panelDetalle.setBorder(BorderFactory.createTitledBorder("Datos del usuario"));
+                super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
 
-        campoNickname = campoSoloLectura();
-        campoNombre = campoSoloLectura();
-        campoApellido = campoSoloLectura();
-        campoCorreo = campoSoloLectura();
-        campoTipo = campoSoloLectura();
+                if (value instanceof DTEdicionEvento edicion) {
+                    setText(edicion.getNombre());
+                }
 
-        panelDetalle.add(construirFila("Nickname:", campoNickname));
-        panelDetalle.add(construirFila("Nombre:", campoNombre));
-        panelDetalle.add(construirFila("Apellido:", campoApellido));
-        panelDetalle.add(construirFila("Correo:", campoCorreo));
-        panelDetalle.add(construirFila("Tipo:", campoTipo));
+                return this;
+            }
+        });
 
-        add(panelDetalle, BorderLayout.CENTER);
+        listaRegistros.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
 
-        // Panel inferior dinámico
-        campoDetalle = new JTextArea();
-        campoDetalle.setEditable(false);
-        add(new JScrollPane(campoDetalle), BorderLayout.SOUTH);
-    }
+                super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
 
-    private JPanel construirFila(String etiqueta, JComponent campo) {
-        JPanel fila = new JPanel(new BorderLayout(5, 0));
-        fila.add(new JLabel(etiqueta), BorderLayout.WEST);
-        fila.add(campo, BorderLayout.CENTER);
-        return fila;
-    }
+                if (value instanceof DTRegistro registro) {
+                    setText(registro.getNombreEdicion()
+                            + " — " + registro.getTipoRegistro());
+                }
 
-    private JTextField campoSoloLectura() {
-        JTextField campo = new JTextField();
-        campo.setEditable(false);
-        campo.setBackground(Color.LIGHT_GRAY);
-        return campo;
-    }
+                return this;
+            }
+        });
 
-    private void cargarUsuarios() {
-        Set<DTUsuario> usuarios = controlador.listarUsuarios();
-        for (DTUsuario u : usuarios) comboUsuarios.addItem(u);
-    }
+        comboUsuarios.addActionListener(e -> seleccionarUsuario());
 
-    private void seleccionarUsuario() {
-        String nickname = (String) comboUsuarios.getSelectedItem();
-        if (nickname == null) return;
-        // Campos comunes
-        campoNickname.setText(usuarioActual.getNickname());
-        campoCorreo.setText(usuarioActual.getCorreo());
-        campoNombre.setText(usuarioActual.getNombre());
-
-        // Diferenciar según tipo
-        if (usuarioActual instanceof DTAsistente da) {
-            campoApellido.setText(da.getApellido());
-            spinnerDia.setValue(da.getFechaNacimiento().getDia());
-            spinnerMes.setValue(da.getFechaNacimiento().getMes());
-            spinnerAnio.setValue(da.getFechaNacimiento().getAnio());
-            cardLayout.show(panelEspecifico, "ASISTENTE");
-
-        } else if (usuarioActual instanceof DTOrganizador dorg) {
-            campoDescripcion.setText(dorg.getDescripcion());
-            campoSitioWeb.setText(dorg.getSitioWeb());
-            cardLayout.show(panelEspecifico, "ORGANIZADOR");
+        listaEdiciones.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            mostrarEdicion();
         }
+    });
+
+        listaRegistros.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            mostrarRegistro();
+        }
+    });
+}
+
+private void cargarUsuarios() {
+    comboUsuarios.removeAllItems();
+
+    controlador.listarUsuarios().stream()
+            .sorted(Comparator.comparing(DTUsuario::getNickname))
+            .forEach(comboUsuarios::addItem);
+}
+
+private void seleccionarUsuario() {
+    DTUsuario usuario = (DTUsuario) comboUsuarios.getSelectedItem();
+
+    if (usuario == null) {
+        return;
     }
-}*/
+
+    DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
+
+    if (datos instanceof DTOrganizador organizador) {
+        areaDetalle.setText(
+                "Nickname: " + organizador.getNickname()
+                        + "\nNombre: " + organizador.getNombre()
+                        + "\nCorreo: " + organizador.getCorreo()
+                        + "\nDescripción: " + organizador.getDescripcion()
+                        + "\nSitio web: " + organizador.getSitioWeb()
+        );
+
+        listaRegistros.setListData(new DTRegistro[0]);
+        listaEdiciones.setListData(
+                controlador.listarEdiciones().toArray(new DTEdicionEvento[0])
+        );
+
+        cardLayout.show(panelAsociaciones, "EDICIONES");
+
+    } else if (datos instanceof DTAsistente asistente) {
+        areaDetalle.setText(
+                "Nickname: " + asistente.getNickname()
+                        + "\nNombre: " + asistente.getNombre()
+                        + "\nApellido: " + asistente.getApellido()
+                        + "\nCorreo: " + asistente.getCorreo()
+                        + "\nFecha de nacimiento: "
+                        + asistente.getFechaNacimiento().aLocalDate()
+        );
+
+        listaEdiciones.setListData(new DTEdicionEvento[0]);
+        listaRegistros.setListData(
+                controlador.listarRegistroUsuario(asistente.getNickname())
+                        .toArray(new DTRegistro[0])
+        );
+
+        cardLayout.show(panelAsociaciones, "REGISTROS");
+    }
+}
+
+private void mostrarEdicion() {
+    DTEdicionEvento item = listaEdiciones.getSelectedValue();
+
+    if (item == null) {
+        return;
+    }
+
+    DTEdicionCompleto edicion =
+            controlador.seleccionarEdicion(item.getNombre());
+
+    areaDetalle.setText(
+            "Edición: " + edicion.getNombre()
+                    + "\nSigla: " + edicion.getSigla()
+                    + "\nFecha de alta: " + edicion.getFechaAlta()
+                    + "\nInicio: " + edicion.getFechaIni()
+                    + "\nFin: " + edicion.getFechaFin()
+                    + "\nCiudad: " + edicion.getCiudad()
+                    + "\nPaís: " + edicion.getPais()
+    );
+}
+
+private void mostrarRegistro() {
+    DTRegistro item = listaRegistros.getSelectedValue();
+
+    if (item == null) {
+        return;
+    }
+
+    DTRegistro registro =
+            controlador.obtenerRegistro(item.getNombreEdicion());
+
+    areaDetalle.setText(
+            "Edición: " + registro.getNombreEdicion()
+                    + "\nTipo de registro: " + registro.getTipoRegistro()
+                    + "\nCosto: " + registro.getCosto()
+                    + "\nFecha de registro: " + registro.getFechaRegistro()
+    );
+}
+}
