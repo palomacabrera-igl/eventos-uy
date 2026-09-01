@@ -235,6 +235,27 @@ public class Sistema implements IControladorSistema {
         return null;
     }
 
+    // ===== Alta de Tipo de Registro =====
+
+    @Override
+    public void seleccionarEdicionEvento(String nombreEdicion) {
+        // ed := buscarEdicion(nombreEdicion)
+        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = ed;
+    }
+
+    @Override
+    public boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
+        // 1: tr := buscarTipoRegistro(nombre)
+        TipoRegistro tr = edicionSeleccionada.buscarTipoRegistro(nombre);
+        if (tr != null) {
+            return false;
+        }
+        // 2: [tr == null] tr := crearTipoRegistro(nombre, descripcion, costo, cupo)
+        edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
+        return true;
+    }
+
     /**
      * TEMPORAL: hasta que Alta de Usuario, Alta de Evento y Alta de
      * Patrocinio esten implementados, precarga en memoria un Usuario, un
@@ -262,8 +283,23 @@ public class Sistema implements IControladorSistema {
                 LocalDate.of(2026, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
         jiap.agregarEdicion(jiap2026);
 
+        EdicionEvento jiap2025 = new EdicionEvento("JIAP 2025", "JIAP25",
+                LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 3),
+                LocalDate.of(2025, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
+        jiap.agregarEdicion(jiap2025);
+
+        Evento semanaIngenieria = new Evento("Semana de la Ingenieria", "SI",
+                "Charlas y talleres de ingenieria", LocalDate.of(2025, 3, 1));
+        eventos.add(semanaIngenieria);
+
+        EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
+                LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
+                LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
+        semanaIngenieria.agregarEdicion(si2026);
+
         TipoRegistro entradaGeneral = new TipoRegistro("General", "Entrada general",
                 50.0, 200);
+        jiap2026.agregarTipoRegistro(entradaGeneral);
 
         Patrocinio patrocinioUtec = new Patrocinio(LocalDate.of(2026, 2, 1), 5000.0,
                 10, 1001, NivelPatrocinio.ORO, utec, entradaGeneral);
