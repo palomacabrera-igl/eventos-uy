@@ -1,4 +1,4 @@
-package presentacion;
+/*package presentacion;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -20,7 +20,7 @@ import java.util.Set;
  * Asistente/Organizador (panelEspecifico) se arma en codigo porque cambia
  * dinamicamente segun el tipo de usuario seleccionado.
  */
-public class ModificarUsuarioPanel {
+/*public class ModificarUsuarioPanel {
 
     private JPanel mainPanel;
     private JComboBox comboUsuarios;
@@ -67,7 +67,7 @@ public class ModificarUsuarioPanel {
     }
 
     /** Define que hacer cuando el panel pide cerrarse (lo decide la ventana principal). */
-    public void setAccionCerrar(Runnable accionCerrar) {
+    /*public void setAccionCerrar(Runnable accionCerrar) {
         this.accionCerrar = accionCerrar;
     }
 
@@ -181,7 +181,7 @@ public class ModificarUsuarioPanel {
      *
      * @noinspection ALL
      */
-    private void $$$setupUI$$$() {
+    /*private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(6, 2, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
@@ -218,7 +218,7 @@ public class ModificarUsuarioPanel {
     /**
      * @noinspection ALL
      */
-    public JComponent $$$getRootComponent$$$() {
+   /* public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
-}
+}*/

@@ -23,6 +23,7 @@ public class Sistema implements IControladorSistema {
     private Evento eventoSeleccionado;
     private EdicionEvento edicionSeleccionada;
     private Organizador organizadorSeleccionado;
+    private Asistente asistenteSeleccionado;
 
     // Referencias retenidas durante un alta de usuario en curso
     private DTUsuario datosUsuarioRecordados;
@@ -51,11 +52,20 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTUsuario seleccionarUsuario(String nickname) {
-        // 1: u := find(nickname)  /  2: dt := obtenerDT()
         Usuario u = find(nickname);
         this.usuarioSeleccionado = u;
+
+        if (u instanceof Asistente) {
+            this.asistenteSeleccionado = (Asistente) u;
+            this.organizadorSeleccionado = null; // limpiar si antes había uno
+        } else if (u instanceof Organizador) {
+            this.organizadorSeleccionado = (Organizador) u;
+            this.asistenteSeleccionado = null; // limpiar si antes había uno
+        }
+
         return u.obtenerDT();
     }
+
 
     @Override
     public void modificarDatosUsuario(DTUsuario dt) {
@@ -63,7 +73,9 @@ public class Sistema implements IControladorSistema {
         usuarioSeleccionado.modificarDatos(dt);
     }
 
-    /** Busqueda interna de Sistema sobre su propia coleccion de Usuario. */
+    /**
+     * Busqueda interna de Sistema sobre su propia coleccion de Usuario.
+     */
     private Usuario find(String nickname) {
         for (Usuario u : usuarios) {
             if (u.getNickname().equals(nickname)) {
@@ -104,7 +116,9 @@ public class Sistema implements IControladorSistema {
         return p.obtenerDT();
     }
 
-    /** Busqueda interna de Sistema sobre su propia coleccion de Evento. */
+    /**
+     * Busqueda interna de Sistema sobre su propia coleccion de Evento.
+     */
     private Evento findEvento(String nombre) {
         for (Evento e : eventos) {
             if (e.getNombre().equals(nombre)) {
@@ -254,6 +268,49 @@ public class Sistema implements IControladorSistema {
         Patrocinio patrocinioUtec = new Patrocinio(LocalDate.of(2026, 2, 1), 5000.0,
                 10, 1001, NivelPatrocinio.ORO, utec, entradaGeneral);
         jiap2026.agregarPatrocinio(patrocinioUtec);
+
+        Asistente paloma = (Asistente) usuarios.get(0);
+
+        Registro registroPaloma = new Registro(
+                paloma,
+                jiap2026,
+                entradaGeneral,
+                50.0,
+                LocalDate.of(2026, 9, 1)
+        );
+
+        paloma.agregarRegistro(registroPaloma);
+    }
+
+
+    // ===== Consulta de Usuario =====
+    public Set<DTEdicionEvento> listarEdiciones() {
+        Set<DTEdicionEvento> resultado = new HashSet<>();
+        for (EdicionEvento ed : this.organizadorSeleccionado.getEdiciones()) {
+            resultado.add(ed.obtenerDT());
+        }
+        return resultado;
+    }
+
+    public DTEdicionCompleto seleccionarEdicion(String nombreEdicion) {
+        // Obtener directamente la edición desde el organizador actual
+        EdicionEvento ed = organizadorSeleccionado.buscarEdicion(nombreEdicion);
+
+        // Retornar el DTO completo de la edición
+        return ed.obtenerDTCompleto();
+    }
+
+    public Set<DTRegistro> listarRegistroUsuario(String nickname) {
+        Set<DTRegistro> resultado = new HashSet<>();
+        for (Registro reg : this.asistenteSeleccionado.getRegistros()) {
+            resultado.add(reg.obtenerDT());
+        }
+        return resultado;
+    }
+
+    public DTRegistro obtenerRegistro(String nombreEdicion) {
+        Asistente asistente = this.asistenteSeleccionado;
+        return asistente.darRegistro(nombreEdicion);
     }
 
 }

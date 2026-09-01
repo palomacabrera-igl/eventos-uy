@@ -62,7 +62,12 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaPatrocinio.addActionListener(e -> abrirConsultaPatrocinio());
         menuInstituciones.add(itemConsultaPatrocinio);
 
-        // TODO (Elias / Leandro / Sebastian): agregar aca su propio
+        // ===== Sebastian : Consulta de Usuario =====
+        JMenuItem itemConsultaUsuario = new JMenuItem("Consulta de Usuario");
+        itemConsultaUsuario.addActionListener(e -> abrirConsultaUsuario());
+        menuUsuarios.add(itemConsultaUsuario);
+
+        // TODO (Elias / Leandro): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
         // 2) itemXXX.addActionListener(e -> abrirXXX());
@@ -99,6 +104,12 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirConsultaPatrocinio() {
         VentanaConsultaPatrocinio ventana = new VentanaConsultaPatrocinio(controlador);
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirConsultaUsuario() {
+        VentanaConsultaUsuario ventana = new VentanaConsultaUsuario(controlador);
         ventana.setVisible(true);
         escritorio.add(ventana);
     }

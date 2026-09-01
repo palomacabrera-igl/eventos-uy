@@ -77,4 +77,14 @@ public interface IControladorSistema {
     /** Precondicion: ninguna. */
     Set<String> listarNombresInstituciones();
 
+    // ===== Consulta de Usuario =====
+
+    Set<DTEdicionEvento> listarEdiciones();
+
+    DTEdicionCompleto seleccionarEdicion(String nombreEdicion);
+
+    Set<DTRegistro> listarRegistroUsuario(String nickname);
+
+    DTRegistro obtenerRegistro(String nombreEdicion);
+
 }
