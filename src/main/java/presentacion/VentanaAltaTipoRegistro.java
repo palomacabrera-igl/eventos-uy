@@ -3,7 +3,7 @@ package presentacion;
 import javax.swing.JInternalFrame;
 
 /**
- * Pantalla del caso de uso Alta de Tipo de Registro. 
+ * Pantalla del caso de uso Alta de Tipo de Registro.
  */
 public class VentanaAltaTipoRegistro extends JInternalFrame {
 

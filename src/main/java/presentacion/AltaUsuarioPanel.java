@@ -40,6 +40,7 @@ public class AltaUsuarioPanel {
     private JTextField textField1;
     private JTextField textField2;
     private JButton confirmarButton;
+    private JButton cancelarButton;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -55,6 +56,7 @@ public class AltaUsuarioPanel {
         asistenteRadioButton.addActionListener(e -> mostrarPanelEspecifico());
         organizadorRadioButton.addActionListener(e -> mostrarPanelEspecifico());
         confirmarButton.addActionListener(e -> confirmar());
+        cancelarButton.addActionListener(e -> accionCerrar.run());
     }
 
     public JPanel getMainPanel() {
@@ -240,6 +242,9 @@ public class AltaUsuarioPanel {
         confirmarButton = new JButton();
         confirmarButton.setText("Confirmar");
         mainPanel.add(confirmarButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelarButton = new JButton();
+        cancelarButton.setText("Cancelar");
+        mainPanel.add(cancelarButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(asistenteRadioButton);
