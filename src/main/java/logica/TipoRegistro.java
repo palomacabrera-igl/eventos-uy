@@ -22,4 +22,8 @@ public class TipoRegistro {
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setCosto(Double costo) {this.costo = costo;}
     public void setCupo(int cupo) {this.cupo = cupo;}
+
+    public DTTipoRegistro obtenerDT() {
+        return new DTTipoRegistro(nombre, descripcion, costo, cupo);
+    }
 }

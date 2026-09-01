@@ -16,6 +16,8 @@ public class EdicionEvento {
     private String pais;
     private Organizador organizador;
     private final List<Patrocinio> patrocinios;
+    private final List<TipoRegistro> tipoRegistros;
+    private final List<Registro> registros;
 
     public EdicionEvento(String nombre, String sigla, LocalDate fechaIni,
                          LocalDate fechaFin, LocalDate fechaAlta, String ciudad,
@@ -29,6 +31,8 @@ public class EdicionEvento {
         this.pais = pais;
         this.organizador = organizador;
         this.patrocinios = new ArrayList<>();
+        this.tipoRegistros = new ArrayList<>();
+        this.registros = new ArrayList<>();
     }
 
     public String getNombre() {return nombre;}
@@ -76,4 +80,27 @@ public class EdicionEvento {
         }
         return null;
     }
+
+    public DTEdicionCompleto obtenerDTCompleto() {
+        Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
+        for (Patrocinio p : patrocinios) {
+            dtPatrocinios.add(p.obtenerDT());
+        }
+
+        Set<DTTipoRegistro> dtTipos = new HashSet<>();
+        for (TipoRegistro t : tipoRegistros) {
+            dtTipos.add(t.obtenerDT());
+        }
+
+        Set<DTRegistro> dtRegistros = new HashSet<>();
+        for (Registro r : registros) {
+            dtRegistros.add(r.obtenerDT());
+        }
+
+        DTOrganizador dtOrg = organizador.obtenerDT();
+
+        return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
+                pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios);
+    }
+
 }

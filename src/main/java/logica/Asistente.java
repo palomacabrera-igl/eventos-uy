@@ -1,6 +1,8 @@
 package logica;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Usuario de tipo asistente. Ademas de los datos de {@link Usuario}, tiene
@@ -13,12 +15,14 @@ public class Asistente extends Usuario {
 
     private String apellido;
     private LocalDate fechaNacimiento;
+    private final List<Registro> registros;
 
     public Asistente(String nickname, String nombre, String correoElectronico,
                      String apellido, LocalDate fechaNacimiento) {
         super(nickname, nombre, correoElectronico);
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
+        this.registros = new ArrayList<>();
     }
 
     public String getApellido() {
@@ -55,4 +59,22 @@ public class Asistente extends Usuario {
         this.apellido = da.getApellido();
         this.fechaNacimiento = da.getFechaNacimiento().aLocalDate();
     }
+
+    public void agregarRegistro(Registro registro) {
+        registros.add(registro);
+    }
+
+    public List<Registro> getRegistros() {
+        return registros;
+    }
+
+    public DTRegistro darRegistro(String nombreEdicion) {
+        for (Registro reg : registros) {
+            if (reg.getEdicion().getNombre().equals(nombreEdicion)) {
+                return reg.obtenerDT();
+            }
+        }
+        return null;
+    }
+
 }
