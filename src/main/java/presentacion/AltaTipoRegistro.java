@@ -110,6 +110,11 @@ public class AltaTipoRegistro {
                     "Alta de Tipo de Registro", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        if (costo < 0) {
+            JOptionPane.showMessageDialog(mainPanel, "El costo no puede ser negativo.",
+                    "Alta de Tipo de Registro", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         int cupo = (Integer) CupoSpinner.getValue();
 
         // ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo) : boolean
