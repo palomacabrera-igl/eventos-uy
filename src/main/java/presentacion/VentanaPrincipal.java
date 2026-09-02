@@ -107,7 +107,7 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private void abrirAltaEdicion() {
-        VentanaAltaEdicion ventana = new VentanaAltaEdicion(controlador);
+        VentanaAltaEdicion ventana = new VentanaAltaEdicion();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
