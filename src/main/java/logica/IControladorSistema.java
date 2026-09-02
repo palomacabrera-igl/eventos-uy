@@ -77,6 +77,38 @@ public interface IControladorSistema {
     /** Precondicion: ninguna. */
     Set<String> listarNombresInstituciones();
 
+    // ===== Alta de Tipo de Registro =====
+    // (listarEventos() ya esta declarado arriba y se reutiliza; listarEdicionesDeEvento()
+    // ya esta declarado arriba, en Consulta de Patrocinio, y tambien recuerda el Evento
+    // seleccionado, asi que no hace falta un seleccionarEvento() aparte aca)
+
+    /**
+     * Precondicion: se ejecuto listarEdicionesDeEvento() previamente (recuerda
+     * el Evento seleccionado), y existe una EdicionEvento con ese nombre
+     * asociada a dicho evento.
+     *
+     * Nota: el DSS de este caso de uso (y tambien el de Consulta de Evento,
+     * que reutiliza esta misma operacion) la llama "seleccionarEdicion", pero
+     * ese nombre ya lo usa Consulta de Usuario con otra firma (retorna
+     * DTEdicionCompleto en vez de DTEdicionEvento, y busca dentro del
+     * organizador seleccionado en vez del evento seleccionado). Java no
+     * permite dos metodos iguales que solo difieran en el tipo de retorno,
+     * asi que esta operacion se llama seleccionarEdicionEvento() en el codigo.
+     */
+    DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion);
+
+    /** Precondicion: se ejecuto seleccionarEdicionEvento() previamente. */
+    boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo);
+
+    // ===== Consulta de Evento =====
+    // (listarEventos() ya esta declarado arriba y se reutiliza como consultarEvento();
+    // seleccionarEvento() ya esta declarado arriba, en Alta de Edicion de Evento, con la
+    // misma firma y semantica exacta que pide este DSS; listarEdicionesDeEvento() ya esta
+    // declarado arriba, en Consulta de Patrocinio, para llenar el combo de ediciones; y
+    // seleccionarEdicionEvento() ya esta declarado arriba, en Alta de Tipo de Registro,
+    // devolviendo el DTEdicionEvento que este caso de uso necesita mostrar. No hace falta
+    // ningun metodo nuevo para Consulta de Evento.
+
     // ===== Consulta de Usuario =====
 
     Set<DTEdicionEvento> listarEdiciones();

@@ -10,6 +10,7 @@ import logica.TipoUsuario;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -40,6 +41,7 @@ public class AltaUsuarioPanel {
     private JTextField textField1;
     private JTextField textField2;
     private JButton confirmarButton;
+    private JButton cancelarButton;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -55,6 +57,7 @@ public class AltaUsuarioPanel {
         asistenteRadioButton.addActionListener(e -> mostrarPanelEspecifico());
         organizadorRadioButton.addActionListener(e -> mostrarPanelEspecifico());
         confirmarButton.addActionListener(e -> confirmar());
+        cancelarButton.addActionListener(e -> accionCerrar.run());
     }
 
     public JPanel getMainPanel() {
@@ -102,7 +105,20 @@ public class AltaUsuarioPanel {
             return;
         }
 
+        if (!correo.contains("@")) {
+            JOptionPane.showMessageDialog(mainPanel, "El correo no es válido (tiene que contener @).",
+                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         TipoUsuario tipo = asistenteRadioButton.isSelected() ? TipoUsuario.ASISTENTE : TipoUsuario.ORGANIZADOR;
+
+        // Se valida la fecha de nacimiento ANTES de tocar a Sistema (si aplica), para
+        // no dejar datos a medio recordar si el usuario todavia tiene que corregir algo.
+        if (tipo == TipoUsuario.ASISTENTE && !fechaNacimientoValida()) {
+            return;
+        }
+
         DTUsuario datos = new DTUsuario(nickname, nombre, correo);
 
         // ingresarDatosUsuario(datos, tipo) : boolean
@@ -124,6 +140,28 @@ public class AltaUsuarioPanel {
                 "Crear Cuenta", JOptionPane.INFORMATION_MESSAGE);
         limpiar();
         accionCerrar.run();
+    }
+
+    private boolean fechaNacimientoValida() {
+        int dia = (Integer) FechaNacDiaCBox.getSelectedItem();
+        int mes = (Integer) FechaNacMesCBox.getSelectedItem();
+        int anio = (Integer) FechaNacAnioCBox.getSelectedItem();
+        LocalDate fechaNac;
+        try {
+            fechaNac = LocalDate.of(anio, mes, dia);
+        } catch (DateTimeException ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "La fecha de nacimiento no existe (revisá el día para ese mes).",
+                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (!fechaNac.isBefore(LocalDate.now())) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "La fecha de nacimiento no puede ser hoy ni una fecha futura.",
+                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     private void confirmarAsistente() {
@@ -240,6 +278,9 @@ public class AltaUsuarioPanel {
         confirmarButton = new JButton();
         confirmarButton.setText("Confirmar");
         mainPanel.add(confirmarButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelarButton = new JButton();
+        cancelarButton.setText("Cancelar");
+        mainPanel.add(cancelarButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(asistenteRadioButton);

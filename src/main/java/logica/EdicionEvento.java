@@ -58,6 +58,12 @@ public class EdicionEvento {
         patrocinios.add(patrocinio);
     }
 
+    /** Paquete-visible: la usa Sistema para cargar datos de prueba. No es
+     * parte del contrato de la GUI (el alta real pasa por crearTipoRegistro()). */
+    void agregarTipoRegistro(TipoRegistro tipoRegistro) {
+        tipoRegistros.add(tipoRegistro);
+    }
+
     public DTEdicionEvento obtenerDT() {
         return new DTEdicionEvento(nombre, sigla, ciudad, pais,
                 DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta));
@@ -79,6 +85,23 @@ public class EdicionEvento {
             }
         }
         return null;
+    }
+
+    /** Busqueda interna de EdicionEvento sobre su propia coleccion de TipoRegistro. */
+    public TipoRegistro buscarTipoRegistro(String nombre) {
+        for (TipoRegistro t : tipoRegistros) {
+            if (t.getNombre().equals(nombre)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    /** Crea un TipoRegistro y lo agrega a esta edicion (Creator: EdicionEvento contiene la coleccion). */
+    public TipoRegistro crearTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
+        TipoRegistro tr = new TipoRegistro(nombre, descripcion, costo, cupo);
+        tipoRegistros.add(tr);
+        return tr;
     }
 
     public DTEdicionCompleto obtenerDTCompleto() {
