@@ -85,7 +85,7 @@ public class VentanaPrincipal extends JFrame {
     // ===== Metodos que abren cada pantalla =====
 
     private void abrirModificarUsuario() {
-        VentanaModificarUsuario ventana = new VentanaModificarUsuario(controlador);
+        VentanaModificarUsuario ventana = new VentanaModificarUsuario();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
