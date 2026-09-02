@@ -113,7 +113,7 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private void abrirConsultaPatrocinio() {
-        VentanaConsultaPatrocinio ventana = new VentanaConsultaPatrocinio(controlador);
+        VentanaConsultaPatrocinio ventana = new VentanaConsultaPatrocinio();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
