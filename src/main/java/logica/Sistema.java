@@ -238,10 +238,11 @@ public class Sistema implements IControladorSistema {
     // ===== Alta de Tipo de Registro =====
 
     @Override
-    public void seleccionarEdicionEvento(String nombreEdicion) {
+    public DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion) {
         // ed := buscarEdicion(nombreEdicion)
         EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
         this.edicionSeleccionada = ed;
+        return ed.obtenerDT();
     }
 
     @Override

@@ -72,6 +72,11 @@ public class VentanaPrincipal extends JFrame {
         itemAltaTipoRegistro.addActionListener(e -> abrirAltaTipoRegistro());
         menuRegistros.add(itemAltaTipoRegistro);
 
+        // ===== Marti: Consulta de Evento =====
+        JMenuItem itemConsultaEvento = new JMenuItem("Consulta de Evento");
+        itemConsultaEvento.addActionListener(e -> abrirConsultaEvento());
+        menuEventos.add(itemConsultaEvento);
+
         // TODO (Elias / Leandro): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
@@ -121,6 +126,12 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirAltaTipoRegistro() {
         VentanaAltaTipoRegistro ventana = new VentanaAltaTipoRegistro();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirConsultaEvento() {
+        VentanaConsultaEvento ventana = new VentanaConsultaEvento();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
