@@ -16,5 +16,4 @@ public class DTUsuario {
     public String getNombre() {return nombre;}
     public String getCorreo() {return correo;}
 
-    public void setNombre(String nombre) {this.nombre = nombre;}
 }

@@ -15,6 +15,4 @@ public class DTOrganizador extends DTUsuario {
     public String getDescripcion() {return descripcion;}
     public String getSitioWeb() {return sitioWeb;}
 
-    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
-    public void setSitioWeb(String sitioWeb) {this.sitioWeb = sitioWeb;}
 }

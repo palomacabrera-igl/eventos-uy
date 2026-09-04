@@ -171,7 +171,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) {
-        // 1: uN := find(datos.nickname)  /  2: uC := find(datos.correo)
         Usuario uN = find(datos.getNickname());
         Usuario uC = findPorCorreo(datos.getCorreo());
         if (uN != null || uC != null) {
@@ -184,7 +183,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void ingresarDatosAsistente(String apellido, DTFecha fechaNac) {
-        // a := create(nickname, nombre, correo, apellido, fechaNac)  /  add(a)
         Asistente a = new Asistente(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), apellido, fechaNac.aLocalDate());
         usuarios.add(a);
@@ -193,14 +191,12 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void seleccionarInstitucion(String nombreInstitucion) {
-        // i := find(nombreInstitucion)
         Institucion i = findInstitucion(nombreInstitucion);
         asistenteRecordado.setInstitucion(i);
     }
 
     @Override
     public void ingresarDatosOrganizador(String descripcion, String sitioWeb) {
-        // o := create(nickname, nombre, correo, descripcion, sitioWeb)  /  add(o)
         Organizador o = new Organizador(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), descripcion, sitioWeb);
         usuarios.add(o);
@@ -247,12 +243,10 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
-        // 1: tr := buscarTipoRegistro(nombre)
         TipoRegistro tr = edicionSeleccionada.buscarTipoRegistro(nombre);
         if (tr != null) {
             return false;
         }
-        // 2: [tr == null] tr := crearTipoRegistro(nombre, descripcion, costo, cupo)
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
         return true;
     }
@@ -323,11 +317,13 @@ public class Sistema implements IControladorSistema {
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
                 LocalDate.of(2026, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
         jiap.agregarEdicion(jiap2026);
+        organizadorUtec.agregarEdicion(jiap2026);
 
         EdicionEvento jiap2025 = new EdicionEvento("JIAP 2025", "JIAP25",
                 LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 3),
                 LocalDate.of(2025, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
         jiap.agregarEdicion(jiap2025);
+        organizadorUtec.agregarEdicion(jiap2025);
 
         Evento semanaIngenieria = new Evento("Semana de la Ingenieria", "SI",
                 "Charlas y talleres de ingenieria", LocalDate.of(2025, 3, 1));
@@ -337,6 +333,7 @@ public class Sistema implements IControladorSistema {
                 LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
                 LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
         semanaIngenieria.agregarEdicion(si2026);
+        organizadorUtec.agregarEdicion(si2026);
 
         TipoRegistro entradaGeneral = new TipoRegistro("General", "Entrada general",
                 50.0, 200);
@@ -370,10 +367,7 @@ public class Sistema implements IControladorSistema {
     }
 
     public DTEdicionCompleto seleccionarEdicion(String nombreEdicion) {
-        // Obtener directamente la edición desde el organizador actual
         EdicionEvento ed = organizadorSeleccionado.buscarEdicion(nombreEdicion);
-
-        // Retornar el DTO completo de la edición
         return ed.obtenerDTCompleto();
     }
 
