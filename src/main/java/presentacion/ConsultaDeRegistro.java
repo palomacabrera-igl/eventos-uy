@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * Flujo (DSS ConsultaRegistro):
  *  1) listarUsuarios()                  -> llena UsuarioCBox
- *  2) listarRegistroUsuario(nickname)   -> llena RegistroCBox
+ *  2) listarRegistroUsuario(nickname)   -> llena EdicionCBox
  *     (antes se llama seleccionarUsuario(nickname), que recuerda el asistente,
  *      porque listarRegistroUsuario() toma los registros del asistente recordado)
  *  3) obtenerRegistro(nickname, nombre) -> llena los campos de detalle
@@ -27,14 +27,13 @@ import java.util.Set;
 public class ConsultaDeRegistro {
 
     private JComboBox UsuarioCBox;
-    private JComboBox RegistroCBox;
+    private JComboBox EdicionCBox;
     private JPanel mainPanel;
     private JTextField EdicionTxt;
     private JTextField TipoRegistroTxt;
     private JTextField CostoTxt;
     private JTextField FechaRegistroTxt;
     private JButton cerrarButton;
-    private JLabel edicionLbl;
     private JLabel tipoRegistroLbl;
     private JLabel costoLbl;
     private JLabel fechaRegistroLbl;
@@ -47,7 +46,6 @@ public class ConsultaDeRegistro {
         controlador = Fabrica.getInstancia().getControladorSistema();
 
         // Los campos de detalle son de solo lectura (es una consulta).
-        EdicionTxt.setEditable(false);
         TipoRegistroTxt.setEditable(false);
         CostoTxt.setEditable(false);
         FechaRegistroTxt.setEditable(false);
@@ -55,7 +53,7 @@ public class ConsultaDeRegistro {
         cargarUsuarios();
 
         UsuarioCBox.addActionListener(e -> cargarRegistros());
-        RegistroCBox.addActionListener(e -> mostrarRegistro());
+        EdicionCBox.addActionListener(e -> mostrarRegistro());
         cerrarButton.addActionListener(e -> accionCerrar.run());
     }
 
@@ -78,7 +76,7 @@ public class ConsultaDeRegistro {
     }
 
     private void cargarRegistros() {
-        RegistroCBox.removeAllItems();
+        EdicionCBox.removeAllItems();
         limpiarDetalle();
 
         String nickname = (String) UsuarioCBox.getSelectedItem();
@@ -97,14 +95,14 @@ public class ConsultaDeRegistro {
         // listarRegistroUsuario(nickname) : set<DTRegistro>
         Set<DTRegistro> registros = controlador.listarRegistroUsuario(nickname);
         for (DTRegistro r : registros) {
-            RegistroCBox.addItem(r.getNombreEdicion());
+            EdicionCBox.addItem(r.getNombreEdicion());
         }
         mostrarRegistro();
     }
 
     private void mostrarRegistro() {
         String nickname = (String) UsuarioCBox.getSelectedItem();
-        String nombreEdicion = (String) RegistroCBox.getSelectedItem();
+        String nombreEdicion = (String) EdicionCBox.getSelectedItem();
         if (nickname == null || nombreEdicion == null) {
             limpiarDetalle();
             return;
@@ -116,14 +114,12 @@ public class ConsultaDeRegistro {
             limpiarDetalle();
             return;
         }
-        EdicionTxt.setText(reg.getNombreEdicion());
         TipoRegistroTxt.setText(reg.getTipoRegistro());
         CostoTxt.setText(String.valueOf(reg.getCosto()));
         FechaRegistroTxt.setText(String.valueOf(reg.getFechaRegistro()));
     }
 
     private void limpiarDetalle() {
-        EdicionTxt.setText("");
         TipoRegistroTxt.setText("");
         CostoTxt.setText("");
         FechaRegistroTxt.setText("");
@@ -156,16 +152,13 @@ public class ConsultaDeRegistro {
         final JLabel label2 = new JLabel();
         label2.setText("Usuario");
         mainPanel.add(label2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        RegistroCBox = new JComboBox();
+        EdicionCBox = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
-        RegistroCBox.setModel(defaultComboBoxModel2);
-        mainPanel.add(RegistroCBox, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        EdicionCBox.setModel(defaultComboBoxModel2);
+        mainPanel.add(EdicionCBox, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("Registro");
         mainPanel.add(label3, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        EdicionTxt = new JTextField();
-        EdicionTxt.setText("");
-        mainPanel.add(EdicionTxt, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         TipoRegistroTxt = new JTextField();
         mainPanel.add(TipoRegistroTxt, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         CostoTxt = new JTextField();
@@ -173,9 +166,6 @@ public class ConsultaDeRegistro {
         cerrarButton = new JButton();
         cerrarButton.setText("Cerrar");
         mainPanel.add(cerrarButton, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        edicionLbl = new JLabel();
-        edicionLbl.setText("Edición");
-        mainPanel.add(edicionLbl, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tipoRegistroLbl = new JLabel();
         tipoRegistroLbl.setText("Tipo de Registro");
         mainPanel.add(tipoRegistroLbl, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
