@@ -1,5 +1,8 @@
 package presentacion;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import logica.DTAsistente;
 import logica.DTEdicionCompleto;
 import logica.DTEdicionEvento;
@@ -111,107 +114,191 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         comboUsuarios.addActionListener(e -> seleccionarUsuario());
 
         listaEdiciones.addListSelectionListener(e -> {
-        if (!e.getValueIsAdjusting()) {
-            mostrarEdicion();
-        }
-    });
+            if (!e.getValueIsAdjusting()) {
+                mostrarEdicion();
+            }
+        });
 
         listaRegistros.addListSelectionListener(e -> {
-        if (!e.getValueIsAdjusting()) {
-            mostrarRegistro();
+            if (!e.getValueIsAdjusting()) {
+                mostrarRegistro();
+            }
+        });
+    }
+
+    private void cargarUsuarios() {
+        comboUsuarios.removeAllItems();
+
+        controlador.listarUsuarios().stream()
+                .sorted(Comparator.comparing(DTUsuario::getNickname))
+                .forEach(comboUsuarios::addItem);
+    }
+
+    private void seleccionarUsuario() {
+        DTUsuario usuario = (DTUsuario) comboUsuarios.getSelectedItem();
+
+        if (usuario == null) {
+            return;
         }
-    });
-}
 
-private void cargarUsuarios() {
-    comboUsuarios.removeAllItems();
+        DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
 
-    controlador.listarUsuarios().stream()
-            .sorted(Comparator.comparing(DTUsuario::getNickname))
-            .forEach(comboUsuarios::addItem);
-}
+        if (datos instanceof DTOrganizador organizador) {
+            areaDetalle.setText(
+                    "Nickname: " + organizador.getNickname()
+                            + "\nNombre: " + organizador.getNombre()
+                            + "\nCorreo: " + organizador.getCorreo()
+                            + "\nDescripción: " + organizador.getDescripcion()
+                            + "\nSitio web: " + organizador.getSitioWeb()
+            );
 
-private void seleccionarUsuario() {
-    DTUsuario usuario = (DTUsuario) comboUsuarios.getSelectedItem();
+            listaRegistros.setListData(new DTRegistro[0]);
+            listaEdiciones.setListData(
+                    controlador.listarEdiciones().toArray(new DTEdicionEvento[0])
+            );
 
-    if (usuario == null) {
-        return;
+            cardLayout.show(panelAsociaciones, "EDICIONES");
+
+        } else if (datos instanceof DTAsistente asistente) {
+            areaDetalle.setText(
+                    "Nickname: " + asistente.getNickname()
+                            + "\nNombre: " + asistente.getNombre()
+                            + "\nApellido: " + asistente.getApellido()
+                            + "\nCorreo: " + asistente.getCorreo()
+                            + "\nFecha de nacimiento: "
+                            + asistente.getFechaNacimiento().aLocalDate()
+            );
+
+            listaEdiciones.setListData(new DTEdicionEvento[0]);
+            listaRegistros.setListData(
+                    controlador.listarRegistroUsuario(asistente.getNickname())
+                            .toArray(new DTRegistro[0])
+            );
+
+            cardLayout.show(panelAsociaciones, "REGISTROS");
+        }
     }
 
-    DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
+    private void mostrarEdicion() {
+        DTEdicionEvento item = listaEdiciones.getSelectedValue();
 
-    if (datos instanceof DTOrganizador organizador) {
+        if (item == null) {
+            return;
+        }
+
+        DTEdicionCompleto edicion =
+                controlador.seleccionarEdicion(item.getNombre());
+
         areaDetalle.setText(
-                "Nickname: " + organizador.getNickname()
-                        + "\nNombre: " + organizador.getNombre()
-                        + "\nCorreo: " + organizador.getCorreo()
-                        + "\nDescripción: " + organizador.getDescripcion()
-                        + "\nSitio web: " + organizador.getSitioWeb()
+                "Edición: " + edicion.getNombre()
+                        + "\nSigla: " + edicion.getSigla()
+                        + "\nFecha de alta: " + edicion.getFechaAlta()
+                        + "\nInicio: " + edicion.getFechaIni()
+                        + "\nFin: " + edicion.getFechaFin()
+                        + "\nCiudad: " + edicion.getCiudad()
+                        + "\nPaís: " + edicion.getPais()
         );
+    }
 
-        listaRegistros.setListData(new DTRegistro[0]);
-        listaEdiciones.setListData(
-                controlador.listarEdiciones().toArray(new DTEdicionEvento[0])
-        );
+    private void mostrarRegistro() {
+        DTRegistro item = listaRegistros.getSelectedValue();
 
-        cardLayout.show(panelAsociaciones, "EDICIONES");
+        if (item == null) {
+            return;
+        }
 
-    } else if (datos instanceof DTAsistente asistente) {
+        DTRegistro registro =
+                controlador.obtenerRegistro(item.getNombreEdicion());
+
         areaDetalle.setText(
-                "Nickname: " + asistente.getNickname()
-                        + "\nNombre: " + asistente.getNombre()
-                        + "\nApellido: " + asistente.getApellido()
-                        + "\nCorreo: " + asistente.getCorreo()
-                        + "\nFecha de nacimiento: "
-                        + asistente.getFechaNacimiento().aLocalDate()
+                "Edición: " + registro.getNombreEdicion()
+                        + "\nTipo de registro: " + registro.getTipoRegistro()
+                        + "\nCosto: " + registro.getCosto()
+                        + "\nFecha de registro: " + registro.getFechaRegistro()
         );
-
-        listaEdiciones.setListData(new DTEdicionEvento[0]);
-        listaRegistros.setListData(
-                controlador.listarRegistroUsuario(asistente.getNickname())
-                        .toArray(new DTRegistro[0])
-        );
-
-        cardLayout.show(panelAsociaciones, "REGISTROS");
-    }
-}
-
-private void mostrarEdicion() {
-    DTEdicionEvento item = listaEdiciones.getSelectedValue();
-
-    if (item == null) {
-        return;
     }
 
-    DTEdicionCompleto edicion =
-            controlador.seleccionarEdicion(item.getNombre());
-
-    areaDetalle.setText(
-            "Edición: " + edicion.getNombre()
-                    + "\nSigla: " + edicion.getSigla()
-                    + "\nFecha de alta: " + edicion.getFechaAlta()
-                    + "\nInicio: " + edicion.getFechaIni()
-                    + "\nFin: " + edicion.getFechaFin()
-                    + "\nCiudad: " + edicion.getCiudad()
-                    + "\nPaís: " + edicion.getPais()
-    );
-}
-
-private void mostrarRegistro() {
-    DTRegistro item = listaRegistros.getSelectedValue();
-
-    if (item == null) {
-        return;
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
     }
 
-    DTRegistro registro =
-            controlador.obtenerRegistro(item.getNombreEdicion());
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panelAsociaciones = new JPanel();
+        panelAsociaciones.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelPrincipal.add(panelAsociaciones, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panelEdiciones = new JPanel();
+        panelEdiciones.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelAsociaciones.add(panelEdiciones, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setText("Ediciones Organizadas:");
+        panelEdiciones.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panelEdiciones.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        panelEdiciones.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        panelEdiciones.add(scrollPane1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        listaEdiciones = new JList();
+        scrollPane1.setViewportView(listaEdiciones);
+        final Spacer spacer3 = new Spacer();
+        panelAsociaciones.add(spacer3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer4 = new Spacer();
+        panelAsociaciones.add(spacer4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panelRegistros = new JPanel();
+        panelRegistros.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelAsociaciones.add(panelRegistros, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Registros a Ediciones: ");
+        panelRegistros.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        panelRegistros.add(spacer5, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer6 = new Spacer();
+        panelRegistros.add(spacer6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JScrollPane scrollPane2 = new JScrollPane();
+        panelRegistros.add(scrollPane2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        listaRegistros = new JList();
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        listaRegistros.setModel(defaultListModel1);
+        scrollPane2.setViewportView(listaRegistros);
+        panelSeleccion = new JPanel();
+        panelSeleccion.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelPrincipal.add(panelSeleccion, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        Usuario = new JLabel();
+        Usuario.setText("Usuario:");
+        panelSeleccion.add(Usuario, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer7 = new Spacer();
+        panelSeleccion.add(spacer7, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        comboUsuarios = new JComboBox();
+        panelSeleccion.add(comboUsuarios, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        PanelDetalle = new JPanel();
+        PanelDetalle.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panelPrincipal.add(PanelDetalle, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JScrollPane scrollPane3 = new JScrollPane();
+        PanelDetalle.add(scrollPane3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        areaDetalle = new JTextArea();
+        scrollPane3.setViewportView(areaDetalle);
+        final JLabel label3 = new JLabel();
+        label3.setText("Datos del Usuario");
+        PanelDetalle.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
 
-    areaDetalle.setText(
-            "Edición: " + registro.getNombreEdicion()
-                    + "\nTipo de registro: " + registro.getTipoRegistro()
-                    + "\nCosto: " + registro.getCosto()
-                    + "\nFecha de registro: " + registro.getFechaRegistro()
-    );
-}
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panelPrincipal;
+    }
+
 }
