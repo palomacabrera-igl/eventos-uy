@@ -109,6 +109,30 @@ public interface IControladorSistema {
     // devolviendo el DTEdicionEvento que este caso de uso necesita mostrar. No hace falta
     // ningun metodo nuevo para Consulta de Evento.
 
+    // ===== Registro a Edicion de Evento =====
+    // (listarEventos() ya esta declarado arriba y se reutiliza para llenar el combo
+    // de eventos; listarEdicionesDeEvento() ya esta declarado arriba, en Consulta de
+    // Patrocinio, y ademas recuerda el Evento seleccionado, asi que se reutiliza para
+    // el combo de ediciones.)
+
+    /**
+     * Precondicion: se ejecuto listarEdicionesDeEvento() previamente (recuerda
+     * el Evento seleccionado) y existe una EdicionEvento con ese nombre en dicho
+     * evento. Recuerda la Edicion seleccionada. Retorna un DTDatosRegistro con
+     * los tipos de registro de la edicion y todos los asistentes existentes.
+     */
+    DTDatosRegistro listarDatosRegistro(String nombreEdicion);
+
+    /**
+     * Precondicion: se ejecuto listarDatosRegistro() previamente (recuerda la
+     * Edicion seleccionada); existen un Asistente con ese nickname y un
+     * TipoRegistro con ese nombre en la edicion.
+     * Retorna ERROR y no crea nada si el asistente ya esta registrado en la
+     * edicion o el tipo de registro no tiene cupo; en caso contrario crea el
+     * registro (fecha actual, costo = costo del tipo) y retorna OK.
+     */
+    Status altaRegistro(String nickname, String nombreEdicion, String nombreTipo);
+
     // ===== Consulta de Usuario =====
 
     Set<DTEdicionEvento> listarEdiciones();
@@ -118,5 +142,22 @@ public interface IControladorSistema {
     Set<DTRegistro> listarRegistroUsuario(String nickname);
 
     DTRegistro obtenerRegistro(String nombreEdicion);
+
+    // ===== Consulta de Registro =====
+    // (listarUsuarios() y listarRegistroUsuario(nickname) ya estan declarados arriba
+    // y se reutilizan. Para llenar los registros de un usuario, la capa de
+    // presentacion llama antes a seleccionarUsuario(nickname), que deja recordado
+    // el asistente seleccionado del que listarRegistroUsuario() toma los registros.)
+
+    /**
+     * Precondicion: existe un Asistente con ese nickname y un Registro suyo en
+     * la edicion 'nombre'. Retorna el DTRegistro detallado (edicion, tipo de
+     * registro, costo y fecha) de ese registro.
+     *
+     * Sobrecarga propia de Consulta de Registro (su DSS pide
+     * obtenerRegistro(nickname, nombre)); no reemplaza al obtenerRegistro(nombreEdicion)
+     * de Consulta de Usuario, convive con el como sobrecarga.
+     */
+    DTRegistro obtenerRegistro(String nickname, String nombre);
 
 }

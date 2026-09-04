@@ -257,6 +257,46 @@ public class Sistema implements IControladorSistema {
         return true;
     }
 
+    // ===== Registro a Edicion de Evento =====
+
+    @Override
+    public DTDatosRegistro listarDatosRegistro(String nombreEdicion) {
+        // 1.1: ed := find(nombreEdicion)  (dentro del evento recordado)
+        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = ed;
+        // 1.2: registros := obtenerTiposRegistro() : Set<DTTipoRegistro>
+        Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
+        // 2*/4*: dt := obtenerDT() : DTAsistente  (todos los asistentes existentes)
+        Set<DTAsistente> asistentes = listarAsistentes();
+        return new DTDatosRegistro(tiposRegistro, asistentes);
+    }
+
+    @Override
+    public Status altaRegistro(String nickname, String nombreEdicion, String nombreTipo) {
+        // La Edicion es la recordada por listarDatosRegistro().
+        EdicionEvento ed = edicionSeleccionada;
+        TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
+        // 1: yaRegistrado := estaRegistrado(nickname)  /  2: hayCupo := hayCupo()
+        if (ed.estaRegistrado(nickname) || !ed.hayCupo(tr)) {
+            return Status.ERROR;
+        }
+        // 2. [!yaRegistrado y hayCupo] R := create(nickname, nombreTipo)
+        Asistente a = (Asistente) find(nickname);
+        ed.altaRegistro(a, tr, LocalDate.now());
+        return Status.OK;
+    }
+
+    /** Todos los asistentes existentes como DTs. La usa listarDatosRegistro(). */
+    private Set<DTAsistente> listarAsistentes() {
+        Set<DTAsistente> resultado = new HashSet<>();
+        for (Usuario u : usuarios) {
+            if (u.obtenerTipoUsuario() == TipoUsuario.ASISTENTE) {
+                resultado.add((DTAsistente) u.obtenerDT());
+            }
+        }
+        return resultado;
+    }
+
     /**
      * TEMPORAL: hasta que Alta de Usuario, Alta de Evento y Alta de
      * Patrocinio esten implementados, precarga en memoria un Usuario, un
@@ -348,6 +388,15 @@ public class Sistema implements IControladorSistema {
     public DTRegistro obtenerRegistro(String nombreEdicion) {
         Asistente asistente = this.asistenteSeleccionado;
         return asistente.darRegistro(nombreEdicion);
+    }
+
+    // ===== Consulta de Registro =====
+
+    @Override
+    public DTRegistro obtenerRegistro(String nickname, String nombre) {
+        // 1: u := find(nickname)  /  2: darRegistro(nombre) : DTRegistro
+        Usuario u = find(nickname);
+        return ((Asistente) u).darRegistro(nombre);
     }
 
 }
