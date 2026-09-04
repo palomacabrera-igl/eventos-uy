@@ -77,7 +77,17 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaEvento.addActionListener(e -> abrirConsultaEvento());
         menuEventos.add(itemConsultaEvento);
 
-        // TODO (Elias / Leandro): agregar aca su propio
+        // ===== Leandro: Registro a Edicion de Evento =====
+        JMenuItem itemRegistroEdicion = new JMenuItem("Registro a Edicion de Evento");
+        itemRegistroEdicion.addActionListener(e -> abrirRegistroEdicion());
+        menuRegistros.add(itemRegistroEdicion);
+
+        // ===== Leandro: Consulta de Registro =====
+        JMenuItem itemConsultaRegistro = new JMenuItem("Consulta de Registro");
+        itemConsultaRegistro.addActionListener(e -> abrirConsultaRegistro());
+        menuRegistros.add(itemConsultaRegistro);
+
+        // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
         // 2) itemXXX.addActionListener(e -> abrirXXX());
@@ -132,6 +142,18 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirConsultaEvento() {
         VentanaConsultaEvento ventana = new VentanaConsultaEvento();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirRegistroEdicion() {
+        VentanaRegistroEdicionDeEvento ventana = new VentanaRegistroEdicionDeEvento();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirConsultaRegistro() {
+        VentanaConsultaDeRegistro ventana = new VentanaConsultaDeRegistro();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }

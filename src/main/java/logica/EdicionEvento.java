@@ -104,6 +104,59 @@ public class EdicionEvento {
         return tr;
     }
 
+    // ===== Registro a Edicion de Evento =====
+
+    /**
+     * Tipos de registro de esta edicion como DTs.
+     * 1.2.1*[foreach]: tr := next()  /  1.2.2*: dt := obtenerDT()
+     */
+    public Set<DTTipoRegistro> obtenerTiposRegistro() {
+        Set<DTTipoRegistro> resultado = new HashSet<>();
+        for (TipoRegistro t : tipoRegistros) {
+            resultado.add(t.obtenerDT());
+        }
+        return resultado;
+    }
+
+    /**
+     * true si el asistente (identificado por su nickname) ya tiene un registro
+     * en esta edicion.
+     */
+    public boolean estaRegistrado(String nickname) {
+        for (Registro r : registros) {
+            if (r.getAsistente().getNickname().equals(nickname)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * true si el tipo de registro todavia tiene cupo, es decir, si la cantidad
+     * de registros de ese tipo en esta edicion es menor a su cupo.
+     */
+    public boolean hayCupo(TipoRegistro tipoRegistro) {
+        int cantidad = 0;
+        for (Registro r : registros) {
+            if (r.getTipoRegistro() == tipoRegistro) {
+                cantidad++;
+            }
+        }
+        return cantidad < tipoRegistro.getCupo();
+    }
+
+    /**
+     * Crea un Registro con la fecha y el costo indicados (costo = t.costo) y lo
+     * vincula con esta edicion y con el asistente. Creator: EdicionEvento
+     * contiene la coleccion de Registro.
+     */
+    public Registro altaRegistro(Asistente asistente, TipoRegistro tipoRegistro, LocalDate fecha) {
+        Registro r = new Registro(asistente, this, tipoRegistro, tipoRegistro.getCosto(), fecha);
+        registros.add(r);
+        asistente.agregarRegistro(r);
+        return r;
+    }
+
     public DTEdicionCompleto obtenerDTCompleto() {
         Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
         for (Patrocinio p : patrocinios) {
