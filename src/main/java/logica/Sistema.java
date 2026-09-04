@@ -345,15 +345,8 @@ public class Sistema implements IControladorSistema {
 
         Asistente paloma = (Asistente) usuarios.get(0);
 
-        Registro registroPaloma = new Registro(
-                paloma,
-                jiap2026,
-                entradaGeneral,
-                50.0,
-                LocalDate.of(2026, 9, 1)
-        );
+        jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
 
-        paloma.agregarRegistro(registroPaloma);
     }
 
 
