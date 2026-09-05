@@ -38,12 +38,9 @@ public class Evento {
     }
 
     public EdicionEvento altaEdicion(DTEdicionEvento dt, Organizador organizador) {
-        // 3.1: nuevaEdicion := create(dt.nombre, dt.sigla, dt.ciudad, dt.pais,
-        //      dt.fechaInicio, dt.fechaFin, dt.fechaAlta, organizadorSeleccionado)
         EdicionEvento nuevaEdicion = new EdicionEvento(dt.getNombre(), dt.getSigla(),
                 dt.getFechaInicio().aLocalDate(), dt.getFechaFin().aLocalDate(),
                 dt.getFechaAlta().aLocalDate(), dt.getCiudad(), dt.getPais(), organizador);
-        // 3.2: add(nuevaEdicion)
         agregarEdicion(nuevaEdicion);
         organizador.agregarEdicion(nuevaEdicion);
         return nuevaEdicion;
@@ -54,7 +51,6 @@ public class Evento {
     }
 
     public Set<DTEdicionEvento> obtenerEdiciones() {
-        // 2.1*[foreach]: ed := next()  /  2.2*: dt := obtenerDT()
         Set<DTEdicionEvento> resultado = new HashSet<>();
         for (EdicionEvento ed : ediciones) {
             resultado.add(ed.obtenerDT());
