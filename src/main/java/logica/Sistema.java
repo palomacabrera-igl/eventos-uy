@@ -366,7 +366,8 @@ public class Sistema implements IControladorSistema {
 
     public Set<DTRegistro> listarRegistroUsuario(String nickname) {
         Set<DTRegistro> resultado = new HashSet<>();
-        for (Registro reg : this.asistenteSeleccionado.getRegistros()) {
+        Asistente asistente = (Asistente) find(nickname);
+        for (Registro reg : asistente.getRegistros()) {
             resultado.add(reg.obtenerDT());
         }
         return resultado;
