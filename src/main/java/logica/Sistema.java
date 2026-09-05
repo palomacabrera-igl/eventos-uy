@@ -399,4 +399,32 @@ public class Sistema implements IControladorSistema {
         return ((Asistente) u).darRegistro(nombre);
     }
 
+    // ===== Consulta de Tipo de Registro =====
+
+    @Override
+    public Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion) {
+        EdicionEvento edicion = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = edicion;
+        return edicion.obtenerTiposRegistro();
+    }
+
+    @Override
+    public DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro) {
+        TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(nombreTipoRegistro);
+        return tipo.obtenerDT();
+    }
+
+    // ===== Alta institucion =====
+    public Status altaInstitucion(String nombre, String descripcion, String sitioWeb) {
+        if (findInstitucion(nombre) != null) {
+            return Status.ERROR;
+        }
+        Institucion institucion = new Institucion(
+                nombre,
+                descripcion,
+                sitioWeb
+        );
+        instituciones.add(institucion);
+        return Status.OK;
+    }
 }

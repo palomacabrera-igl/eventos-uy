@@ -45,6 +45,7 @@ public class Evento {
                 dt.getFechaAlta().aLocalDate(), dt.getCiudad(), dt.getPais(), organizador);
         // 3.2: add(nuevaEdicion)
         agregarEdicion(nuevaEdicion);
+        organizador.agregarEdicion(nuevaEdicion);
         return nuevaEdicion;
     }
 

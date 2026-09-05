@@ -186,6 +186,12 @@ private void mostrarEdicion() {
     DTEdicionCompleto edicion =
             controlador.seleccionarEdicion(item.getNombre());
 
+    String patrocinios = edicion.getPatrocinios().isEmpty()
+            ? "Sin patrocinios"
+            : edicion.getPatrocinios().stream()
+            .map(p -> p.getInstitucion() + " (" + p.getNivel() + ")")
+            .collect(java.util.stream.Collectors.joining("\n- ", "- ", ""));
+
     areaDetalle.setText(
             "Edición: " + edicion.getNombre()
                     + "\nSigla: " + edicion.getSigla()
@@ -194,6 +200,7 @@ private void mostrarEdicion() {
                     + "\nFin: " + edicion.getFechaFin()
                     + "\nCiudad: " + edicion.getCiudad()
                     + "\nPaís: " + edicion.getPais()
+                    + "\n\nPatrocinios:\n" + patrocinios
     );
 }
 
