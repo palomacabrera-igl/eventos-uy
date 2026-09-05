@@ -345,15 +345,8 @@ public class Sistema implements IControladorSistema {
 
         Asistente paloma = (Asistente) usuarios.get(0);
 
-        Registro registroPaloma = new Registro(
-                paloma,
-                jiap2026,
-                entradaGeneral,
-                50.0,
-                LocalDate.of(2026, 9, 1)
-        );
+        jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
 
-        paloma.agregarRegistro(registroPaloma);
     }
 
 
@@ -373,7 +366,8 @@ public class Sistema implements IControladorSistema {
 
     public Set<DTRegistro> listarRegistroUsuario(String nickname) {
         Set<DTRegistro> resultado = new HashSet<>();
-        for (Registro reg : this.asistenteSeleccionado.getRegistros()) {
+        Asistente asistente = (Asistente) find(nickname);
+        for (Registro reg : asistente.getRegistros()) {
             resultado.add(reg.obtenerDT());
         }
         return resultado;
@@ -393,4 +387,32 @@ public class Sistema implements IControladorSistema {
         return ((Asistente) u).darRegistro(nombre);
     }
 
+    // ===== Consulta de Tipo de Registro =====
+
+    @Override
+    public Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion) {
+        EdicionEvento edicion = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = edicion;
+        return edicion.obtenerTiposRegistro();
+    }
+
+    @Override
+    public DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro) {
+        TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(nombreTipoRegistro);
+        return tipo.obtenerDT();
+    }
+
+    // ===== Alta institucion =====
+    public Status altaInstitucion(String nombre, String descripcion, String sitioWeb) {
+        if (findInstitucion(nombre) != null) {
+            return Status.ERROR;
+        }
+        Institucion institucion = new Institucion(
+                nombre,
+                descripcion,
+                sitioWeb
+        );
+        instituciones.add(institucion);
+        return Status.OK;
+    }
 }

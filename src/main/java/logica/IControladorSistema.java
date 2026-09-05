@@ -160,4 +160,11 @@ public interface IControladorSistema {
      */
     DTRegistro obtenerRegistro(String nickname, String nombre);
 
+    // ===== Consulta de Tipo de Registro =====
+    Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
+
+    DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro);
+
+    // ===== Alta Institucion  =====
+    Status altaInstitucion(String nombre, String descripcion, String sitioWeb);
 }
