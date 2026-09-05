@@ -15,13 +15,11 @@
         <maven.compiler.release>25</maven.compiler.release>
     </properties>
 
-    <!--
-        forms_rt: soporte en tiempo de ejecucion para paneles creados con el
-        Swing UI Designer de IntelliJ (com.intellij.uiDesigner.core.*).
-        Necesario para compilar y ejecutar los .form tambien desde el Maven
-        Wrapper (mvnw), no solo desde dentro de IntelliJ.
-    -->
     <dependencies>
+        <!--
+            forms_rt: soporte en tiempo de ejecucion para los paneles creados con el
+            Swing UI Designer de IntelliJ (com.intellij.uiDesigner.core.*).
+        -->
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
@@ -35,6 +33,36 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
+            </plugin>
+
+            <!--
+                maven-jar-plugin: escribe la clase de arranque en el MANIFEST del .jar,
+                para que "java -jar target/eventos-uy-1.0-SNAPSHOT.jar" funcione.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>presentacion.VentanaPrincipal</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!--
+                exec-maven-plugin: permite correr la aplicacion con "./mvnw exec:java"
+                (o ".\mvnw.cmd exec:java" en Windows) sin abrir IntelliJ.
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <mainClass>presentacion.VentanaPrincipal</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

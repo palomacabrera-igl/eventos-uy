@@ -171,7 +171,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) {
-        // 1: uN := find(datos.nickname)  /  2: uC := find(datos.correo)
         Usuario uN = find(datos.getNickname());
         Usuario uC = findPorCorreo(datos.getCorreo());
         if (uN != null || uC != null) {
@@ -184,7 +183,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void ingresarDatosAsistente(String apellido, DTFecha fechaNac) {
-        // a := create(nickname, nombre, correo, apellido, fechaNac)  /  add(a)
         Asistente a = new Asistente(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), apellido, fechaNac.aLocalDate());
         usuarios.add(a);
@@ -193,14 +191,12 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void seleccionarInstitucion(String nombreInstitucion) {
-        // i := find(nombreInstitucion)
         Institucion i = findInstitucion(nombreInstitucion);
         asistenteRecordado.setInstitucion(i);
     }
 
     @Override
     public void ingresarDatosOrganizador(String descripcion, String sitioWeb) {
-        // o := create(nickname, nombre, correo, descripcion, sitioWeb)  /  add(o)
         Organizador o = new Organizador(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), descripcion, sitioWeb);
         usuarios.add(o);
@@ -247,14 +243,52 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
-        // 1: tr := buscarTipoRegistro(nombre)
         TipoRegistro tr = edicionSeleccionada.buscarTipoRegistro(nombre);
         if (tr != null) {
             return false;
         }
-        // 2: [tr == null] tr := crearTipoRegistro(nombre, descripcion, costo, cupo)
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
         return true;
+    }
+
+    // ===== Registro a Edicion de Evento =====
+
+    @Override
+    public DTDatosRegistro listarDatosRegistro(String nombreEdicion) {
+        // 1.1: ed := find(nombreEdicion)  (dentro del evento recordado)
+        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = ed;
+        // 1.2: registros := obtenerTiposRegistro() : Set<DTTipoRegistro>
+        Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
+        // 2*/4*: dt := obtenerDT() : DTAsistente  (todos los asistentes existentes)
+        Set<DTAsistente> asistentes = listarAsistentes();
+        return new DTDatosRegistro(tiposRegistro, asistentes);
+    }
+
+    @Override
+    public Status altaRegistro(String nickname, String nombreEdicion, String nombreTipo) {
+        // La Edicion es la recordada por listarDatosRegistro().
+        EdicionEvento ed = edicionSeleccionada;
+        TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
+        // 1: yaRegistrado := estaRegistrado(nickname)  /  2: hayCupo := hayCupo()
+        if (ed.estaRegistrado(nickname) || !ed.hayCupo(tr)) {
+            return Status.ERROR;
+        }
+        // 2. [!yaRegistrado y hayCupo] R := create(nickname, nombreTipo)
+        Asistente a = (Asistente) find(nickname);
+        ed.altaRegistro(a, tr, LocalDate.now());
+        return Status.OK;
+    }
+
+    /** Todos los asistentes existentes como DTs. La usa listarDatosRegistro(). */
+    private Set<DTAsistente> listarAsistentes() {
+        Set<DTAsistente> resultado = new HashSet<>();
+        for (Usuario u : usuarios) {
+            if (u.obtenerTipoUsuario() == TipoUsuario.ASISTENTE) {
+                resultado.add((DTAsistente) u.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     /**
@@ -283,11 +317,13 @@ public class Sistema implements IControladorSistema {
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
                 LocalDate.of(2026, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
         jiap.agregarEdicion(jiap2026);
+        organizadorUtec.agregarEdicion(jiap2026);
 
         EdicionEvento jiap2025 = new EdicionEvento("JIAP 2025", "JIAP25",
                 LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 3),
                 LocalDate.of(2025, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
         jiap.agregarEdicion(jiap2025);
+        organizadorUtec.agregarEdicion(jiap2025);
 
         Evento semanaIngenieria = new Evento("Semana de la Ingenieria", "SI",
                 "Charlas y talleres de ingenieria", LocalDate.of(2025, 3, 1));
@@ -297,6 +333,7 @@ public class Sistema implements IControladorSistema {
                 LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
                 LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
         semanaIngenieria.agregarEdicion(si2026);
+        organizadorUtec.agregarEdicion(si2026);
 
         TipoRegistro entradaGeneral = new TipoRegistro("General", "Entrada general",
                 50.0, 200);
@@ -308,15 +345,8 @@ public class Sistema implements IControladorSistema {
 
         Asistente paloma = (Asistente) usuarios.get(0);
 
-        Registro registroPaloma = new Registro(
-                paloma,
-                jiap2026,
-                entradaGeneral,
-                50.0,
-                LocalDate.of(2026, 9, 1)
-        );
+        jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
 
-        paloma.agregarRegistro(registroPaloma);
     }
 
 
@@ -330,16 +360,14 @@ public class Sistema implements IControladorSistema {
     }
 
     public DTEdicionCompleto seleccionarEdicion(String nombreEdicion) {
-        // Obtener directamente la edición desde el organizador actual
         EdicionEvento ed = organizadorSeleccionado.buscarEdicion(nombreEdicion);
-
-        // Retornar el DTO completo de la edición
         return ed.obtenerDTCompleto();
     }
 
     public Set<DTRegistro> listarRegistroUsuario(String nickname) {
         Set<DTRegistro> resultado = new HashSet<>();
-        for (Registro reg : this.asistenteSeleccionado.getRegistros()) {
+        Asistente asistente = (Asistente) find(nickname);
+        for (Registro reg : asistente.getRegistros()) {
             resultado.add(reg.obtenerDT());
         }
         return resultado;
@@ -350,4 +378,41 @@ public class Sistema implements IControladorSistema {
         return asistente.darRegistro(nombreEdicion);
     }
 
+    // ===== Consulta de Registro =====
+
+    @Override
+    public DTRegistro obtenerRegistro(String nickname, String nombre) {
+        // 1: u := find(nickname)  /  2: darRegistro(nombre) : DTRegistro
+        Usuario u = find(nickname);
+        return ((Asistente) u).darRegistro(nombre);
+    }
+
+    // ===== Consulta de Tipo de Registro =====
+
+    @Override
+    public Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion) {
+        EdicionEvento edicion = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = edicion;
+        return edicion.obtenerTiposRegistro();
+    }
+
+    @Override
+    public DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro) {
+        TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(nombreTipoRegistro);
+        return tipo.obtenerDT();
+    }
+
+    // ===== Alta institucion =====
+    public Status altaInstitucion(String nombre, String descripcion, String sitioWeb) {
+        if (findInstitucion(nombre) != null) {
+            return Status.ERROR;
+        }
+        Institucion institucion = new Institucion(
+                nombre,
+                descripcion,
+                sitioWeb
+        );
+        instituciones.add(institucion);
+        return Status.OK;
+    }
 }
