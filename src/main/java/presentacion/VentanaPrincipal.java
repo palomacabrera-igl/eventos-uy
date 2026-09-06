@@ -87,6 +87,11 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaRegistro.addActionListener(e -> abrirConsultaRegistro());
         menuRegistros.add(itemConsultaRegistro);
 
+        // ===== Leandro: Alta de Categoria =====
+        JMenuItem itemAltaCategoria = new JMenuItem("Alta de Categoria");
+        itemAltaCategoria.addActionListener(e -> abrirAltaCategoria());
+        menuCategorias.add(itemAltaCategoria);
+
         // ===== Sebastian: Consulta Tipo de Registro =====
         JMenuItem itemConsultaTipoRegistro = new JMenuItem("Consulta de Tipo de Registro");
         itemConsultaTipoRegistro.addActionListener(e -> abrirConsultaTipoRegistro());
@@ -169,6 +174,12 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirConsultaRegistro() {
         VentanaConsultaDeRegistro ventana = new VentanaConsultaDeRegistro();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirAltaCategoria() {
+        VentanaAltaCategoria ventana = new VentanaAltaCategoria();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
