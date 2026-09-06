@@ -3,6 +3,22 @@ package presentacion;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
+import logica.DTEdicionEvento;
+import logica.DTEvento;
+import logica.DTFecha;
+import logica.DTPatrocinio;
+import logica.DTTipoRegistro;
+import logica.Fabrica;
+import logica.IControladorSistema;
+import logica.NivelPatrocinio;
+import logica.ReglaNegocioException;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.Color;
+import java.awt.Component;
+import java.time.LocalDate;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -22,6 +38,256 @@ public class AltaPatrocinioPanel {
     private JButton confirmarButton;
     private JButton cancelarButton;
     private JLabel ResumenLbl;
+
+    private static final String TITULO = "Alta de Patrocinio";
+
+    private final transient IControladorSistema controlador;
+    private transient Runnable accionCerrar = () -> {
+    };
+
+    private boolean cargando = false;
+
+    public AltaPatrocinioPanel() {
+        controlador = Fabrica.getInstancia().getControladorSistema();
+
+        RegistrosSpinner.setModel(new SpinnerNumberModel(0, 0, 100000, 1));
+        bronceRadioButton.setSelected(true);
+
+        configurarRenderers();
+        cargarEventos();
+        cargarInstituciones();
+
+        EventoCBox.addActionListener(e -> seleccionarEvento());
+        EdicionCBox.addActionListener(e -> seleccionarEdicion());
+        TipoRegistroCBox.addActionListener(e -> actualizarResumen());
+        RegistrosSpinner.addChangeListener(e -> actualizarResumen());
+
+        AporteTxt.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { actualizarResumen(); }
+            @Override public void removeUpdate(DocumentEvent e) { actualizarResumen(); }
+            @Override public void changedUpdate(DocumentEvent e) { actualizarResumen(); }
+        });
+
+        confirmarButton.addActionListener(e -> confirmar());
+        cancelarButton.addActionListener(e -> accionCerrar.run());
+
+        actualizarResumen();
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    public void setAccionCerrar(Runnable accionCerrar) {
+        this.accionCerrar = accionCerrar;
+    }
+
+    private void configurarRenderers() {
+        EventoCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTEvento ev) setText(ev.getNombre());
+                return this;
+            }
+        });
+        EdicionCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTEdicionEvento ed) setText(ed.getNombre());
+                return this;
+            }
+        });
+        TipoRegistroCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTTipoRegistro tr) {
+                    setText(tr.getNombre() + "  ($" + tr.getCosto() + ")");
+                }
+                return this;
+            }
+        });
+    }
+
+    private void cargarEventos() {
+        cargando = true;
+        EventoCBox.removeAllItems();
+        for (DTEvento e : controlador.listarEventos()) {
+            EventoCBox.addItem(e);
+        }
+        EventoCBox.setSelectedIndex(-1);
+        cargando = false;
+    }
+
+    private void cargarInstituciones() {
+        cargando = true;
+        InstitucionCBox.removeAllItems();
+        for (String nombre : controlador.listarNombresInstituciones()) {
+            InstitucionCBox.addItem(nombre);
+        }
+        InstitucionCBox.setSelectedIndex(-1);
+        cargando = false;
+    }
+
+    private void seleccionarEvento() {
+        if (cargando) return;
+        DTEvento evento = (DTEvento) EventoCBox.getSelectedItem();
+        cargando = true;
+        try {
+            EdicionCBox.removeAllItems();
+            TipoRegistroCBox.removeAllItems();
+            if (evento != null) {
+                for (DTEdicionEvento ed : controlador.listarEdicionesDeEvento(evento.getNombre())) {
+                    EdicionCBox.addItem(ed);
+                }
+            }
+            EdicionCBox.setSelectedIndex(-1);
+            TipoRegistroCBox.setSelectedIndex(-1);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "No se pudieron cargar las ediciones: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            cargando = false;
+            actualizarResumen();
+        }
+    }
+
+    private void seleccionarEdicion() {
+        if (cargando) return;
+        DTEdicionEvento edicion = (DTEdicionEvento) EdicionCBox.getSelectedItem();
+        cargando = true;
+        try {
+            TipoRegistroCBox.removeAllItems();
+            if (edicion != null) {
+                // Ademas de listar, Sistema retiene esta edicion como edicionSeleccionada.
+                for (DTTipoRegistro tr : controlador.listarTiposRegistroDeEdicion(edicion.getNombre())) {
+                    TipoRegistroCBox.addItem(tr);
+                }
+            }
+            TipoRegistroCBox.setSelectedIndex(-1);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "No se pudieron cargar los tipos de registro: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            cargando = false;
+            actualizarResumen();
+        }
+    }
+
+    private void actualizarResumen() {
+        DTTipoRegistro tipo = (DTTipoRegistro) TipoRegistroCBox.getSelectedItem();
+        Double aporte = leerAporte();
+
+        if (tipo == null || aporte == null || aporte <= 0) {
+            ResumenLbl.setText("Elegi un tipo de registro y un aporte para ver el calculo.");
+            ResumenLbl.setForeground(Color.DARK_GRAY);
+            return;
+        }
+
+        int cantidad = (Integer) RegistrosSpinner.getValue();
+        double valorGratis = tipo.getCosto() * cantidad;
+        double tope = aporte * 0.20;
+
+        ResumenLbl.setText(String.format(
+                "Valor de los gratis: $%.2f (%d x $%.2f)   ·   Tope 20%%: $%.2f",
+                valorGratis, cantidad, tipo.getCosto(), tope));
+        ResumenLbl.setForeground(valorGratis > tope
+                ? new Color(200, 40, 40)      // rojo: no va a pasar la validacion
+                : new Color(30, 130, 60));    // verde: OK
+    }
+
+    /** @return el aporte, o null si el texto no es un numero valido */
+    private Double leerAporte() {
+        try {
+            return Double.parseDouble(AporteTxt.getText().trim().replace(',', '.'));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private NivelPatrocinio nivelSeleccionado() {
+        if (platinoRadioButton.isSelected()) return NivelPatrocinio.PLATINO;
+        if (oroRadioButton.isSelected()) return NivelPatrocinio.ORO;
+        if (plataRadioButton.isSelected()) return NivelPatrocinio.PLATA;
+        return NivelPatrocinio.BRONCE;
+    }
+
+    private void confirmar() {
+        DTEvento evento = (DTEvento) EventoCBox.getSelectedItem();
+        DTEdicionEvento edicion = (DTEdicionEvento) EdicionCBox.getSelectedItem();
+        DTTipoRegistro tipo = (DTTipoRegistro) TipoRegistroCBox.getSelectedItem();
+        String institucion = (String) InstitucionCBox.getSelectedItem();
+
+        if (evento == null || edicion == null || tipo == null || institucion == null) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "Elegi evento, edicion, tipo de registro e institucion.",
+                    TITULO, JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int codigo;
+        try {
+            codigo = Integer.parseInt(CodigoTxt.getText().trim());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "El codigo de patrocinio tiene que ser un numero entero.",
+                    TITULO, JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Double aporte = leerAporte();
+        if (aporte == null || aporte <= 0) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "El aporte economico tiene que ser un numero mayor a cero.",
+                    TITULO, JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int cantidad = (Integer) RegistrosSpinner.getValue();
+
+        DTPatrocinio dt = new DTPatrocinio(codigo, DTFecha.desde(LocalDate.now()), aporte,
+                nivelSeleccionado(), cantidad, institucion, tipo.getNombre());
+
+        try {
+            // Re-ancla la seleccion en Sistema por si otra ventana interna la cambio.
+            controlador.listarEdicionesDeEvento(evento.getNombre());
+            controlador.listarTiposRegistroDeEdicion(edicion.getNombre());
+
+            controlador.altaPatrocinio(dt);
+
+            JOptionPane.showMessageDialog(mainPanel,
+                    "Patrocinio dado de alta correctamente.",
+                    TITULO, JOptionPane.INFORMATION_MESSAGE);
+            limpiar();
+            accionCerrar.run();
+
+        } catch (ReglaNegocioException ex) {
+            // LOOP del caso de uso: se informa y la ventana NO se cierra,
+            // el administrador puede editar los datos o cancelar.
+            JOptionPane.showMessageDialog(mainPanel, ex.getMessage(),
+                    "No se pudo dar de alta", JOptionPane.WARNING_MESSAGE);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "Ocurrio un error inesperado: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void limpiar() {
+        CodigoTxt.setText("");
+        AporteTxt.setText("");
+        RegistrosSpinner.setValue(0);
+        bronceRadioButton.setSelected(true);
+        actualizarResumen();
+    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer

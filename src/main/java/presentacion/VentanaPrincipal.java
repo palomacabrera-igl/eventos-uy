@@ -112,12 +112,10 @@ public class VentanaPrincipal extends JFrame {
         itemAltaEvento.addActionListener(e -> abrirAltaEvento());
         menuEventos.add(itemAltaEvento);
 
-        // TODO (Elias): agregar aca su propio
-        // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
-        // 1) crear el JMenuItem con el nombre del caso de uso
-        // 2) itemXXX.addActionListener(e -> abrirXXX());
-        // 3) menuYYY.add(itemXXX);
-        // 4) agregar su propio metodo privado abrirXXX() mas abajo.
+        // ===== Elias: Alta de Patrocinio =====
+        JMenuItem itemAltaPatrocinio = new JMenuItem("Alta de Patrocinio");
+        itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
+        menuInstituciones.add(itemAltaPatrocinio);
 
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
@@ -214,6 +212,11 @@ public class VentanaPrincipal extends JFrame {
         escritorio.add(ventana);
     }
 
+    private void abrirAltaPatrocinio() {
+        VentanaAltaPatrocinio ventana = new VentanaAltaPatrocinio();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
 
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de
