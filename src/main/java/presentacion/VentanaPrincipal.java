@@ -87,6 +87,11 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaRegistro.addActionListener(e -> abrirConsultaRegistro());
         menuRegistros.add(itemConsultaRegistro);
 
+        // ===== Leandro: Alta de Categoria =====
+        JMenuItem itemAltaCategoria = new JMenuItem("Alta de Categoria");
+        itemAltaCategoria.addActionListener(e -> abrirAltaCategoria());
+        menuCategorias.add(itemAltaCategoria);
+
         // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
@@ -154,6 +159,12 @@ public class VentanaPrincipal extends JFrame {
 
     private void abrirConsultaRegistro() {
         VentanaConsultaDeRegistro ventana = new VentanaConsultaDeRegistro();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirAltaCategoria() {
+        VentanaAltaCategoria ventana = new VentanaAltaCategoria();
         ventana.setVisible(true);
         escritorio.add(ventana);
     }

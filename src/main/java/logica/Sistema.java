@@ -399,4 +399,38 @@ public class Sistema implements IControladorSistema {
         return ((Asistente) u).darRegistro(nombre);
     }
 
+    // ===== Alta de Categoria =====
+
+    @Override
+    public Set<DTCategoria> listarCategorias() {
+        // 1*[foreach]: cat := next()  /  2*: dt := obtenerDT() : DTCategoria
+        Set<DTCategoria> resultado = new HashSet<>();
+        for (Categoria cat : categorias) {
+            resultado.add(cat.obtenerDT());
+        }
+        return resultado;
+    }
+
+    @Override
+    public Status altaCategoria(String nombre) {
+        // 1: existente := find(nombre) : Categoria
+        Categoria existente = findCategoria(nombre);
+        if (existente != null) {
+            return Status.ERROR;
+        }
+        // 2: [existente == null] cat := create(nombre)  /  3: add(cat)
+        categorias.add(new Categoria(nombre));
+        return Status.OK;
+    }
+
+    /** Busqueda interna de Sistema sobre su propia coleccion de Categoria. */
+    private Categoria findCategoria(String nombre) {
+        for (Categoria cat : categorias) {
+            if (cat.getNombre().equals(nombre)) {
+                return cat;
+            }
+        }
+        return null;
+    }
+
 }

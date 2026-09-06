@@ -160,4 +160,16 @@ public interface IControladorSistema {
      */
     DTRegistro obtenerRegistro(String nickname, String nombre);
 
+    // ===== Alta de Categoria =====
+
+    /** Precondicion: ninguna. Retorna las categorias existentes en la plataforma. */
+    Set<DTCategoria> listarCategorias();
+
+    /**
+     * Precondicion: ninguna. Si ya existe una Categoria con ese nombre retorna
+     * ERROR y no crea nada; en caso contrario crea la Categoria (c.nombre =
+     * nombre) y retorna OK.
+     */
+    Status altaCategoria(String nombre);
+
 }
