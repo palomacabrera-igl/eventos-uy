@@ -1,5 +1,7 @@
 package logica;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -195,4 +197,6 @@ public interface IControladorSistema {
      * edicionSeleccionada.
      */
     DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion);
+
+    Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias);
 }

@@ -107,6 +107,11 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaEdicion.addActionListener(e -> abrirConsultaEdicion());
         menuEventos.add(itemConsultaEdicion);
 
+        // ===== Sebastián: Alta de Evento =====
+        JMenuItem itemAltaEvento = new JMenuItem("Alta de Evento");
+        itemAltaEvento.addActionListener(e -> abrirAltaEvento());
+        menuEventos.add(itemAltaEvento);
+
         // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
@@ -202,6 +207,13 @@ public class VentanaPrincipal extends JFrame {
         ventana.setLocation(30, 30);
         escritorio.add(ventana);
     }
+
+    private void abrirAltaEvento() {
+        VentanaAltaEvento ventana = new VentanaAltaEvento();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
 
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de
