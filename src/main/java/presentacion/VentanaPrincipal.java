@@ -12,7 +12,7 @@ import javax.swing.*;
  *
  * Convencion para el grupo: cada integrante agrega SU propio JMenuItem en
  * construirMenu() (en el JMenu que corresponda) y SU propio metodo
- * abrirXXX() que crea su JInternalFrame. Asi cada uno toca lineas
+ * abrirXXX() que crea su JInternalFrame. Asi cada uno toca líneas
  * distintas del archivo y se evitan conflictos de merge.
  */
 public class VentanaPrincipal extends JFrame {

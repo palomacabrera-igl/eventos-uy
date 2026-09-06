@@ -415,4 +415,13 @@ public class Sistema implements IControladorSistema {
         instituciones.add(institucion);
         return Status.OK;
     }
+
+    // ===== Consulta de Edicion de Evento =====
+
+    @Override
+    public DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion) {
+        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        this.edicionSeleccionada = ed;
+        return ed.obtenerDTCompleto();
+    }
 }
