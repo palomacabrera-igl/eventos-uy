@@ -12,14 +12,15 @@ public class Organizador extends Usuario {
 
     private String descripcion;
     private String sitioWeb;
-    private final List<EdicionEvento> ediciones;
+    private List<EdicionEvento> ediciones = new  ArrayList<>();
+
+    protected Organizador() {}
 
     public Organizador(String nickname, String nombre, String correoElectronico,
                        String descripcion, String sitioWeb) {
         super(nickname, nombre, correoElectronico);
         this.descripcion = descripcion;
         this.sitioWeb = sitioWeb;
-        this.ediciones = new ArrayList<>();
     }
 
     public String getDescripcion() {

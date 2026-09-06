@@ -11,6 +11,8 @@ public class Patrocinio {
     private Institucion institucion;
     private TipoRegistro tipoRegistro;
 
+    protected Patrocinio() {}
+
     public Patrocinio(LocalDate fechaIni, Double monto, int cantRegistrosGratis,
                       int codigo, NivelPatrocinio nivelPatro,
                       Institucion institucion, TipoRegistro tipoRegistro){

@@ -5,6 +5,8 @@ public class Institucion {
     private String descripcion;
     private String sitioWeb;
 
+    protected Institucion() {}
+
     public Institucion(String nombre, String descripcion, String sitioWeb){
         this.nombre = nombre;
         this.descripcion = descripcion;

@@ -9,6 +9,8 @@ public class Registro {
     private Double costo;
     private LocalDate fechaRegistro;
 
+    protected Registro() {}
+
     public Registro(Asistente asistente, EdicionEvento edicion, TipoRegistro tipoRegistro, Double costo, LocalDate fechaRegistro) {
         this.asistente = asistente;
         this.edicion = edicion;
