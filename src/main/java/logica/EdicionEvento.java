@@ -15,9 +15,11 @@ public class EdicionEvento {
     private String ciudad;
     private String pais;
     private Organizador organizador;
-    private final List<Patrocinio> patrocinios;
-    private final List<TipoRegistro> tipoRegistros;
-    private final List<Registro> registros;
+    private List<Patrocinio> patrocinios = new ArrayList<>();
+    private List<TipoRegistro> tipoRegistros = new ArrayList<>();
+    private List<Registro> registros = new ArrayList<>();
+
+    protected EdicionEvento() {}
 
     public EdicionEvento(String nombre, String sigla, LocalDate fechaIni,
                          LocalDate fechaFin, LocalDate fechaAlta, String ciudad,
@@ -30,9 +32,6 @@ public class EdicionEvento {
         this.ciudad = ciudad;
         this.pais = pais;
         this.organizador = organizador;
-        this.patrocinios = new ArrayList<>();
-        this.tipoRegistros = new ArrayList<>();
-        this.registros = new ArrayList<>();
     }
 
     public String getNombre() {return nombre;}

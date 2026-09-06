@@ -16,14 +16,15 @@ public class Asistente extends Usuario {
     private String apellido;
     private LocalDate fechaNacimiento;
     private Institucion institucion;
-    private final List<Registro> registros;
+    private List<Registro> registros = new  ArrayList<>();
+
+    protected Asistente() {}
 
     public Asistente(String nickname, String nombre, String correoElectronico,
                      String apellido, LocalDate fechaNacimiento) {
         super(nickname, nombre, correoElectronico);
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
-        this.registros = new ArrayList<>();
     }
 
     public String getApellido() {

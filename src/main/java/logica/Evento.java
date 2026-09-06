@@ -11,16 +11,17 @@ public class Evento {
     private String sigla;
     private String descripcion;
     private LocalDate fechaAlta;
-    private final List<EdicionEvento> ediciones;
-    private final List<Categoria> categorias;
+    private List<EdicionEvento> ediciones = new ArrayList<>();
+    private List<Categoria> categorias = new ArrayList<>();
+
+    protected Evento() {}
 
     public Evento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<Categoria> categorias) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.fechaAlta = fechaAlta;
         this.sigla = sigla;
-        this.ediciones = new ArrayList<>();
-        this.categorias = new ArrayList<>(categorias);
+        this.categorias.addAll(categorias);
     }
 
 

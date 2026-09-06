@@ -12,9 +12,11 @@ package logica;
  */
 public abstract class Usuario {
 
-    private final String nickname;
+    private String nickname;
     private String nombre;
-    private final String correoElectronico;
+    private String correoElectronico;
+
+    protected Usuario() {}
 
     protected Usuario(String nickname, String nombre, String correoElectronico) {
         this.nickname = nickname;

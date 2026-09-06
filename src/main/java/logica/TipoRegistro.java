@@ -6,6 +6,8 @@ public class TipoRegistro {
     private Double costo;
     private int cupo;
 
+    protected TipoRegistro() {}
+
     public TipoRegistro(String nombre, String descripcion, Double costo, int cupo){
         this.nombre = nombre;
         this.descripcion = descripcion;
