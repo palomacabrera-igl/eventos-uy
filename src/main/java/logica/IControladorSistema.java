@@ -198,5 +198,21 @@ public interface IControladorSistema {
      */
     DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion);
 
+    // ===== Alta de Patrocinio =====
+
+    /**
+     * Precondicion: se ejecuto listarTiposRegistroDeEdicion() previamente
+     * (Sistema recuerda la EdicionEvento), existe una Institucion con el
+     * nombre de dt.institucion y un TipoRegistro con el nombre de
+     * dt.tipoRegistro en esa edicion.
+     *
+     * Postcondicion: se crea un Patrocinio asociado a la edicion recordada,
+     * a la institucion y al tipo de registro indicados.
+     *
+     * @throws ReglaNegocioException si la institucion ya tiene un patrocinio
+     *         para esa edicion, o si el valor de los registros gratuitos
+     *         supera el 20% del aporte economico.
+     */
+    void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException;
     Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias);
 }
