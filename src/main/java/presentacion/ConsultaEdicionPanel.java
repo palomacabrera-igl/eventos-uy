@@ -4,6 +4,22 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
+import logica.DTEdicionCompleto;
+import logica.DTEdicionEvento;
+import logica.DTEvento;
+import logica.DTFecha;
+import logica.DTPatrocinio;
+import logica.DTRegistro;
+import logica.DTTipoRegistro;
+import logica.Fabrica;
+import logica.IControladorSistema;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -41,6 +57,261 @@ public class ConsultaEdicionPanel {
     private JTextField PatFechaTxt;
     private JButton CerrarButton;
     private JPanel DetallePatrocinioPanel;
+
+    private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    private final transient IControladorSistema controlador;
+    private transient Runnable accionCerrar = () -> {
+    };
+
+    /** Ignora los eventos que dispara el propio codigo al recargar los combos. */
+    private boolean cargando = false;
+
+    public ConsultaEdicionPanel() {
+        controlador = Fabrica.getInstancia().getControladorSistema();
+
+        configurarCamposSoloLectura();
+        configurarRenderers();
+
+        TiposList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        PatrociniosList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        cargarEventos();
+
+        EventosCBox.addActionListener(e -> seleccionarEvento());
+        EdicionesCBox.addActionListener(e -> seleccionarEdicion());
+
+        TiposList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) mostrarTipoRegistro();
+        });
+        PatrociniosList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) mostrarPatrocinio();
+        });
+
+        CerrarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    public void setAccionCerrar(Runnable accionCerrar) {
+        this.accionCerrar = accionCerrar;
+    }
+
+    private void configurarCamposSoloLectura() {
+        for (JTextField f : new JTextField[]{
+                NombreTxt, SiglaTxt, CiudadTxt, PaisTxt, InicioTxt, FinTxt, AltaTxt, OrganizadorTxt,
+                TRNombreTxt, TRDescripcionTxt, TRCostoTxt, TRCupoTxt,
+                PatCodigoTxt, PatInstitucionTxt, PatTipoRegistroTxt, PatNivelTxt,
+                PatAporteTxt, PatCantGratisTxt, PatFechaTxt}) {
+            f.setEditable(false);
+            f.setBackground(Color.LIGHT_GRAY);
+        }
+    }
+    private void configurarRenderers() {
+        EventosCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTEvento ev) setText(ev.getNombre());
+                return this;
+            }
+        });
+
+        EdicionesCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTEdicionEvento ed) setText(ed.getNombre());
+                return this;
+            }
+        });
+
+        TiposList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTTipoRegistro tr) setText(tr.getNombre());
+                return this;
+            }
+        });
+
+        RegistrosList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTRegistro r)
+                    setText(r.getNickname() + "  —  " + r.getTipoRegistro() + "  —  $" + r.getCosto() + "  —  " + formatear(r.getFechaRegistro()));
+                return this;
+            }
+        });
+
+        PatrociniosList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DTPatrocinio p) setText(p.getCodigoPatrocinio() + " - " + p.getInstitucion());
+                return this;
+            }
+        });
+    }
+
+    // ===== Carga y cascada =====
+
+    private void cargarEventos() {
+        cargando = true;
+        EventosCBox.removeAllItems();
+        for (DTEvento e : controlador.listarEventos()) {
+            EventosCBox.addItem(e);
+        }
+        EventosCBox.setSelectedIndex(-1);
+        cargando = false;
+    }
+
+    private void seleccionarEvento() {
+        if (cargando) return;
+        DTEvento evento = (DTEvento) EventosCBox.getSelectedItem();
+        cargando = true;
+        try {
+            EdicionesCBox.removeAllItems();
+            limpiarTodo();
+            if (evento != null) {
+                for (DTEdicionEvento ed : controlador.listarEdicionesDeEvento(evento.getNombre())) {
+                    EdicionesCBox.addItem(ed);
+                }
+            }
+            EdicionesCBox.setSelectedIndex(-1);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "No se pudieron cargar las ediciones: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            cargando = false;
+        }
+    }
+
+    private void seleccionarEdicion() {
+        if (cargando) return;
+        DTEdicionEvento sel = (DTEdicionEvento) EdicionesCBox.getSelectedItem();
+        if (sel == null) {
+            limpiarTodo();
+            return;
+        }
+        try {
+            DTEdicionCompleto ed = controlador.seleccionarEdicionCompleta(sel.getNombre());
+
+            NombreTxt.setText(ed.getNombre());
+            SiglaTxt.setText(ed.getSigla());
+            CiudadTxt.setText(ed.getCiudad());
+            PaisTxt.setText(ed.getPais());
+            InicioTxt.setText(formatear(ed.getFechaIni()));
+            FinTxt.setText(formatear(ed.getFechaFin()));
+            AltaTxt.setText(formatear(ed.getFechaAlta()));
+            OrganizadorTxt.setText(ed.getOrganizador().getNickname());
+
+            TiposList.setListData(ed.getTiposRegistro().stream()
+                    .sorted(Comparator.comparing(DTTipoRegistro::getNombre))
+                    .toArray(DTTipoRegistro[]::new));
+
+            RegistrosList.setListData(ed.getRegistros().stream()
+                    .sorted(Comparator.comparing(DTRegistro::getNickname))
+                    .toArray(DTRegistro[]::new));
+
+            PatrociniosList.setListData(ed.getPatrocinios().stream()
+                    .sorted(Comparator.comparingInt(DTPatrocinio::getCodigoPatrocinio))
+                    .toArray(DTPatrocinio[]::new));
+
+        } catch (Exception ex) {
+            limpiarTodo();
+            JOptionPane.showMessageDialog(mainPanel,
+                    "No se pudo cargar la edicion: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ===== Detalles =====
+
+    private void mostrarTipoRegistro() {
+        DTTipoRegistro tr = (DTTipoRegistro) TiposList.getSelectedValue();
+        if (tr == null) {
+            limpiarDetalleTipo();
+            return;
+        }
+        TRNombreTxt.setText(tr.getNombre());
+        TRDescripcionTxt.setText(tr.getDescripcion());
+        TRCostoTxt.setText(String.valueOf(tr.getCosto()));
+        TRCupoTxt.setText(String.valueOf(tr.getCupo()));
+    }
+
+    private void mostrarPatrocinio() {
+        DTPatrocinio p = (DTPatrocinio) PatrociniosList.getSelectedValue();
+        if (p == null) {
+            limpiarDetallePatrocinio();
+            return;
+        }
+        PatCodigoTxt.setText(String.valueOf(p.getCodigoPatrocinio()));
+        PatInstitucionTxt.setText(p.getInstitucion());
+        PatTipoRegistroTxt.setText(p.getTipoRegistro());
+        PatNivelTxt.setText(p.getNivel().toString());
+        PatAporteTxt.setText(String.valueOf(p.getMonto()));
+        PatCantGratisTxt.setText(String.valueOf(p.getCantRegistrosGratis()));
+        DTFecha f = p.getFecha();
+        PatFechaTxt.setText(f.getDia() + "/" + f.getMes() + "/" + f.getAnio());
+    }
+
+    // ===== Helpers =====
+
+    private static String formatear(LocalDate fecha) {
+        return fecha == null ? "" : fecha.format(FORMATO);
+    }
+
+    private void limpiarDatosEdicion() {
+        NombreTxt.setText("");
+        SiglaTxt.setText("");
+        CiudadTxt.setText("");
+        PaisTxt.setText("");
+        InicioTxt.setText("");
+        FinTxt.setText("");
+        AltaTxt.setText("");
+        OrganizadorTxt.setText("");
+    }
+
+    private void limpiarDetalleTipo() {
+        TRNombreTxt.setText("");
+        TRDescripcionTxt.setText("");
+        TRCostoTxt.setText("");
+        TRCupoTxt.setText("");
+    }
+
+    private void limpiarDetallePatrocinio() {
+        PatCodigoTxt.setText("");
+        PatInstitucionTxt.setText("");
+        PatTipoRegistroTxt.setText("");
+        PatNivelTxt.setText("");
+        PatAporteTxt.setText("");
+        PatCantGratisTxt.setText("");
+        PatFechaTxt.setText("");
+    }
+
+    private void limpiarListas() {
+        TiposList.setListData(new DTTipoRegistro[0]);
+        RegistrosList.setListData(new DTRegistro[0]);
+        PatrociniosList.setListData(new DTPatrocinio[0]);
+    }
+
+    private void limpiarTodo() {
+        limpiarDatosEdicion();
+        limpiarListas();
+        limpiarDetalleTipo();
+        limpiarDetallePatrocinio();
+    }
+
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
