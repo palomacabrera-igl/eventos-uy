@@ -13,6 +13,7 @@ import logica.IControladorSistema;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.time.LocalDate;
 
 public class AltaEdicionPanel {
 
@@ -43,15 +44,16 @@ public class AltaEdicionPanel {
     public AltaEdicionPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
 
+        int anioActual = LocalDate.now().getYear();
         rango(spinnerDiaInicio, 1, 1, 31);
         rango(spinnerMesInicio, 1, 1, 12);
-        rango(spinnerAnioInicio, 2026, 2020, 2035);
+        rango(spinnerAnioInicio, anioActual, anioActual - 5, anioActual + 10);
         rango(spinnerDiaFin, 1, 1, 31);
         rango(spinnerMesFin, 1, 1, 12);
-        rango(spinnerAnioFin, 2026, 2020, 2035);
+        rango(spinnerAnioFin, anioActual, anioActual - 5, anioActual + 10);
         rango(spinnerDiaAlta, 1, 1, 31);
         rango(spinnerMesAlta, 1, 1, 12);
-        rango(spinnerAnioAlta, 2026, 2020, 2035);
+        rango(spinnerAnioAlta, anioActual, anioActual - 5, anioActual + 10);
 
         configurarRenderers();
         cargarEventosYOrganizadores();
@@ -162,6 +164,13 @@ public class AltaEdicionPanel {
             DTFecha fechaInicio = fechaDe(spinnerDiaInicio, spinnerMesInicio, spinnerAnioInicio);
             DTFecha fechaFin = fechaDe(spinnerDiaFin, spinnerMesFin, spinnerAnioFin);
             DTFecha fechaAlta = fechaDe(spinnerDiaAlta, spinnerMesAlta, spinnerAnioAlta);
+
+            if (fechaFin.aLocalDate().isBefore(fechaInicio.aLocalDate())) {
+                JOptionPane.showMessageDialog(mainPanel,
+                        "La fecha de fin no puede ser anterior a la fecha de inicio.",
+                        "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             DTEdicionEvento dt = new DTEdicionEvento(nombre, sigla, ciudad, pais,
                     fechaInicio, fechaFin, fechaAlta);

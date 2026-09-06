@@ -172,4 +172,27 @@ public interface IControladorSistema {
      */
     Status altaCategoria(String nombre);
 
+    // ===== Consulta de Tipo de Registro =====
+    Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
+
+    DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro);
+
+    // ===== Alta Institucion  =====
+    Status altaInstitucion(String nombre, String descripcion, String sitioWeb);
+
+    // ===== Consulta de Edicion de Evento =====
+
+    /**
+     * Precondicion: se ejecuto listarEdicionesDeEvento() o seleccionarEvento()
+     * previamente (Sistema recuerda el Evento seleccionado), y existe una
+     * EdicionEvento con ese nombre dentro de ese evento.
+     *
+     * Nota: el DSS de este caso de uso la llama "seleccionarEdicion", pero ese
+     * nombre ya lo usa Consulta de Usuario, que busca la edicion dentro del
+     * organizador seleccionado en vez de dentro del evento seleccionado.
+     *
+     * Ademas de retornar el DT, Sistema retiene la edicion como
+     * edicionSeleccionada.
+     */
+    DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion);
 }

@@ -12,7 +12,7 @@ import javax.swing.*;
  *
  * Convencion para el grupo: cada integrante agrega SU propio JMenuItem en
  * construirMenu() (en el JMenu que corresponda) y SU propio metodo
- * abrirXXX() que crea su JInternalFrame. Asi cada uno toca lineas
+ * abrirXXX() que crea su JInternalFrame. Asi cada uno toca líneas
  * distintas del archivo y se evitan conflictos de merge.
  */
 public class VentanaPrincipal extends JFrame {
@@ -92,6 +92,21 @@ public class VentanaPrincipal extends JFrame {
         itemAltaCategoria.addActionListener(e -> abrirAltaCategoria());
         menuCategorias.add(itemAltaCategoria);
 
+        // ===== Sebastian: Consulta Tipo de Registro =====
+        JMenuItem itemConsultaTipoRegistro = new JMenuItem("Consulta de Tipo de Registro");
+        itemConsultaTipoRegistro.addActionListener(e -> abrirConsultaTipoRegistro());
+        menuRegistros.add(itemConsultaTipoRegistro);
+
+        // ===== Sebastian: Alta Institucion =====
+        JMenuItem itemAltaInstitucion = new JMenuItem("Alta de Institución");
+        itemAltaInstitucion.addActionListener(e -> abrirAltaInstitucion());
+        menuInstituciones.add(itemAltaInstitucion);
+
+        // ===== Elias: Consulta de Edicion de Evento =====
+        JMenuItem itemConsultaEdicion = new JMenuItem("Consulta de Edicion de Evento");
+        itemConsultaEdicion.addActionListener(e -> abrirConsultaEdicion());
+        menuEventos.add(itemConsultaEdicion);
+
         // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
@@ -169,6 +184,25 @@ public class VentanaPrincipal extends JFrame {
         escritorio.add(ventana);
     }
 
+    private void abrirConsultaTipoRegistro() {
+        VentanaConsultaTipoRegistro ventana = new VentanaConsultaTipoRegistro();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirAltaInstitucion() {
+        VentanaAltaInstitucion ventana = new VentanaAltaInstitucion();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private void abrirConsultaEdicion() {
+        VentanaConsultaEdicion ventana = new VentanaConsultaEdicion();
+        ventana.setVisible(true);
+        ventana.setLocation(30, 30);
+        escritorio.add(ventana);
+    }
+
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de
      * los otros casos de uso no tenga su pantalla real todavia, puede
@@ -182,6 +216,7 @@ public class VentanaPrincipal extends JFrame {
         ventana.setVisible(true);
         escritorio.add(ventana);
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
