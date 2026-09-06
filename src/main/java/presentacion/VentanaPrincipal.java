@@ -87,6 +87,11 @@ public class VentanaPrincipal extends JFrame {
         itemConsultaRegistro.addActionListener(e -> abrirConsultaRegistro());
         menuRegistros.add(itemConsultaRegistro);
 
+        // ===== Leandro: Alta de Categoria =====
+        JMenuItem itemAltaCategoria = new JMenuItem("Alta de Categoria");
+        itemAltaCategoria.addActionListener(e -> abrirAltaCategoria());
+        menuCategorias.add(itemAltaCategoria);
+
         // ===== Sebastian: Consulta Tipo de Registro =====
         JMenuItem itemConsultaTipoRegistro = new JMenuItem("Consulta de Tipo de Registro");
         itemConsultaTipoRegistro.addActionListener(e -> abrirConsultaTipoRegistro());
@@ -101,6 +106,11 @@ public class VentanaPrincipal extends JFrame {
         JMenuItem itemConsultaEdicion = new JMenuItem("Consulta de Edicion de Evento");
         itemConsultaEdicion.addActionListener(e -> abrirConsultaEdicion());
         menuEventos.add(itemConsultaEdicion);
+
+        // ===== Sebastián: Alta de Evento =====
+        JMenuItem itemAltaEvento = new JMenuItem("Alta de Evento");
+        itemAltaEvento.addActionListener(e -> abrirAltaEvento());
+        menuEventos.add(itemAltaEvento);
 
         // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
@@ -173,6 +183,12 @@ public class VentanaPrincipal extends JFrame {
         escritorio.add(ventana);
     }
 
+    private void abrirAltaCategoria() {
+        VentanaAltaCategoria ventana = new VentanaAltaCategoria();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
     private void abrirConsultaTipoRegistro() {
         VentanaConsultaTipoRegistro ventana = new VentanaConsultaTipoRegistro();
         ventana.setVisible(true);
@@ -191,6 +207,13 @@ public class VentanaPrincipal extends JFrame {
         ventana.setLocation(30, 30);
         escritorio.add(ventana);
     }
+
+    private void abrirAltaEvento() {
+        VentanaAltaEvento ventana = new VentanaAltaEvento();
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
 
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de

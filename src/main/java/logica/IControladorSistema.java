@@ -1,5 +1,7 @@
 package logica;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -160,6 +162,18 @@ public interface IControladorSistema {
      */
     DTRegistro obtenerRegistro(String nickname, String nombre);
 
+    // ===== Alta de Categoria =====
+
+    /** Precondicion: ninguna. Retorna las categorias existentes en la plataforma. */
+    Set<DTCategoria> listarCategorias();
+
+    /**
+     * Precondicion: ninguna. Si ya existe una Categoria con ese nombre retorna
+     * ERROR y no crea nada; en caso contrario crea la Categoria (c.nombre =
+     * nombre) y retorna OK.
+     */
+    Status altaCategoria(String nombre);
+
     // ===== Consulta de Tipo de Registro =====
     Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
 
@@ -200,4 +214,5 @@ public interface IControladorSistema {
      *         supera el 20% del aporte economico.
      */
     void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException;
+    Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias);
 }

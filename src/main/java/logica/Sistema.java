@@ -1,10 +1,7 @@
 package logica;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Controlador del sistema (patron GRASP Controller, mapea a :Sistema en
@@ -305,13 +302,27 @@ public class Sistema implements IControladorSistema {
                 "Organizador institucional de UTEC", "https://utec.edu.uy");
         usuarios.add(organizadorUtec);
 
+        Categoria catIngenieria = new Categoria("Ingeniería");
+        categorias.add(catIngenieria);
+        Categoria catCharlas = new Categoria("Charlas");
+        categorias.add(catCharlas);
+        Categoria catTalleres = new Categoria("Talleres");
+        categorias.add(catTalleres);
+        Categoria catAplicaciones = new Categoria("Aplicaciones");
+        categorias.add(catAplicaciones);
         Institucion utec = new Institucion("UTEC", "Universidad Tecnologica",
                 "https://utec.edu.uy");
         instituciones.add(utec);
 
-        Evento jiap = new Evento("JIAP", "JIAP", "Jornadas de Ingenieria y Aplicaciones",
-                LocalDate.of(2025, 1, 10));
+        Evento jiap = new Evento(
+                "JIAP", // nombre
+                "Jornadas de Ingeniería y Aplicaciones", // descripción
+                LocalDate.of(2025, 1, 10), // fechaAlta
+                "JIAP", // sigla
+                Arrays.asList(catIngenieria, catAplicaciones) // categorías
+        );
         eventos.add(jiap);
+
 
         EdicionEvento jiap2026 = new EdicionEvento("JIAP 2026", "JIAP26",
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
@@ -325,9 +336,14 @@ public class Sistema implements IControladorSistema {
         jiap.agregarEdicion(jiap2025);
         organizadorUtec.agregarEdicion(jiap2025);
 
-        Evento semanaIngenieria = new Evento("Semana de la Ingenieria", "SI",
-                "Charlas y talleres de ingenieria", LocalDate.of(2025, 3, 1));
+        Evento semanaIngenieria = new Evento("Semana de la Ingeniería",
+                "Charlas y talleres de ingeniería",
+                LocalDate.of(2025, 3, 1),
+                "SI", // sigla
+                Arrays.asList(catIngenieria, catCharlas, catTalleres)
+        );
         eventos.add(semanaIngenieria);
+
 
         EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
                 LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
@@ -385,6 +401,40 @@ public class Sistema implements IControladorSistema {
         // 1: u := find(nickname)  /  2: darRegistro(nombre) : DTRegistro
         Usuario u = find(nickname);
         return ((Asistente) u).darRegistro(nombre);
+    }
+
+    // ===== Alta de Categoria =====
+
+    @Override
+    public Set<DTCategoria> listarCategorias() {
+        // 1*[foreach]: cat := next()  /  2*: dt := obtenerDT() : DTCategoria
+        Set<DTCategoria> resultado = new HashSet<>();
+        for (Categoria cat : categorias) {
+            resultado.add(cat.obtenerDT());
+        }
+        return resultado;
+    }
+
+    @Override
+    public Status altaCategoria(String nombre) {
+        // 1: existente := find(nombre) : Categoria
+        Categoria existente = findCategoria(nombre);
+        if (existente != null) {
+            return Status.ERROR;
+        }
+        // 2: [existente == null] cat := create(nombre)  /  3: add(cat)
+        categorias.add(new Categoria(nombre));
+        return Status.OK;
+    }
+
+    /** Busqueda interna de Sistema sobre su propia coleccion de Categoria. */
+    private Categoria findCategoria(String nombre) {
+        for (Categoria cat : categorias) {
+            if (cat.getNombre().equals(nombre)) {
+                return cat;
+            }
+        }
+        return null;
     }
 
     // ===== Consulta de Tipo de Registro =====
@@ -456,4 +506,35 @@ public class Sistema implements IControladorSistema {
                 institucion, tipo);
         edicionSeleccionada.agregarPatrocinio(p);
     }
+    // ===== Alta Evento =====
+    public Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias) {
+        // Validar unicidad del evento
+        if (findEvento(nombre) != null) {
+            return Status.ERROR;
+        }
+
+        // Convertir nombres en objetos Categoria
+        List<Categoria> categoriasEvento = new ArrayList<>();
+        for (String nombreCat : nombresCategorias) {
+            Categoria cat = findCategoria(nombreCat);
+            if (cat != null) {
+                categoriasEvento.add(cat);
+            } else {
+                // Si alguna categoría no existe, podés decidir si abortar o ignorar
+                return Status.ERROR;
+            }
+        }
+
+        // Validar que haya al menos una categoría
+        if (categoriasEvento.isEmpty()) {
+            return Status.ERROR;
+        }
+
+        // Crear y agregar el evento
+        Evento evento = new Evento(nombre, descripcion, fechaAlta, sigla, categoriasEvento);
+        eventos.add(evento);
+
+        return Status.OK;
+    }
+
 }
