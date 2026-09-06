@@ -87,6 +87,20 @@ public class EdicionEvento {
         return null;
     }
 
+    /**
+     * true si la institucion ya tiene un patrocinio en esta edicion.
+     * Regla de la letra: una institucion puede tener como maximo un
+     * patrocinio para una misma edicion de evento.
+     */
+    public boolean tienePatrocinioDe(String nombreInstitucion) {
+        for (Patrocinio p : patrocinios) {
+            if (p.getInstitucion().getNombre().equals(nombreInstitucion)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Busqueda interna de EdicionEvento sobre su propia coleccion de TipoRegistro. */
     public TipoRegistro buscarTipoRegistro(String nombre) {
         for (TipoRegistro t : tipoRegistros) {
@@ -178,5 +192,4 @@ public class EdicionEvento {
         return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
                 pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios);
     }
-
 }

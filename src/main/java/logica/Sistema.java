@@ -424,4 +424,36 @@ public class Sistema implements IControladorSistema {
         this.edicionSeleccionada = ed;
         return ed.obtenerDTCompleto();
     }
+
+    // ===== Alta de Patrocinio =====
+
+    @Override
+    public void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException {
+        Institucion institucion = findInstitucion(dt.getInstitucion());
+        TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(dt.getTipoRegistro());
+
+        // Regla 1: una institucion no puede patrocinar dos veces la misma edicion.
+        if (edicionSeleccionada.tienePatrocinioDe(dt.getInstitucion())) {
+            throw new ReglaNegocioException("La institucion " + dt.getInstitucion()
+                    + " ya tiene un patrocinio para la edicion "
+                    + edicionSeleccionada.getNombre() + ".");
+        }
+
+        // Regla 2: el valor de los registros gratuitos no puede superar
+        // el 20% del aporte economico.
+        double valorGratis = tipo.getCosto() * dt.getCantRegistrosGratis();
+        double tope = dt.getMonto() * 0.20;
+        if (valorGratis > tope) {
+            throw new ReglaNegocioException(String.format(
+                    "El valor de los registros gratuitos ($%.2f = %d x $%.2f) supera "
+                            + "el 20%% del aporte ($%.2f). Maximo permitido: $%.2f.",
+                    valorGratis, dt.getCantRegistrosGratis(), tipo.getCosto(),
+                    dt.getMonto(), tope));
+        }
+
+        Patrocinio p = new Patrocinio(dt.getFecha().aLocalDate(), dt.getMonto(),
+                dt.getCantRegistrosGratis(), dt.getCodigoPatrocinio(), dt.getNivel(),
+                institucion, tipo);
+        edicionSeleccionada.agregarPatrocinio(p);
+    }
 }
