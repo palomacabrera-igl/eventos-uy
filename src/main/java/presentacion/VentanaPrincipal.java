@@ -1,9 +1,11 @@
 package presentacion;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import logica.Fabrica;
 import logica.IControladorSistema;
 
 import javax.swing.*;
+import java.beans.PropertyVetoException;
 
 /**
  * Ventana principal de la Estacion de Trabajo (GUI Swing). Contiene el
@@ -12,13 +14,15 @@ import javax.swing.*;
  *
  * Convencion para el grupo: cada integrante agrega SU propio JMenuItem en
  * construirMenu() (en el JMenu que corresponda) y SU propio metodo
- * abrirXXX() que crea su JInternalFrame. Asi cada uno toca líneas
- * distintas del archivo y se evitan conflictos de merge.
+ * abrirXXX() de una linea que llama a abrir(new VentanaXXX()).
  */
 public class VentanaPrincipal extends JFrame {
 
     private final IControladorSistema controlador;
     private final JDesktopPane escritorio;
+
+    /** Desplazamiento para escalonar cada ventana nueva y que no se apilen. */
+    private int offset = 0;
 
     public VentanaPrincipal() {
         super("eventos.uy - Estacion de Trabajo");
@@ -42,77 +46,77 @@ public class VentanaPrincipal extends JFrame {
         JMenu menuCategorias = new JMenu("Categorias");
         JMenu menuRegistros = new JMenu("Registros");
 
-        // ===== Paloma: Modificar Datos de Usuario =====
+        // ===== Modificar Datos de Usuario =====
         JMenuItem itemModificarUsuario = new JMenuItem("Modificar Datos de Usuario");
         itemModificarUsuario.addActionListener(e -> abrirModificarUsuario());
         menuUsuarios.add(itemModificarUsuario);
 
-        // ===== Marti: Alta de Usuario =====
+        // ===== Alta de Usuario =====
         JMenuItem itemAltaUsuario = new JMenuItem("Alta de Usuario");
         itemAltaUsuario.addActionListener(e -> abrirAltaUsuario());
         menuUsuarios.add(itemAltaUsuario);
 
-        // ===== Paloma: Alta de Edicion de Evento =====
+        // ===== Alta de Edicion de Evento =====
         JMenuItem itemAltaEdicion = new JMenuItem("Alta de Edicion de Evento");
         itemAltaEdicion.addActionListener(e -> abrirAltaEdicion());
         menuEventos.add(itemAltaEdicion);
 
-        // ===== Paloma: Consulta de Patrocinio =====
+        // ===== Consulta de Patrocinio =====
         JMenuItem itemConsultaPatrocinio = new JMenuItem("Consulta de Patrocinio");
         itemConsultaPatrocinio.addActionListener(e -> abrirConsultaPatrocinio());
         menuInstituciones.add(itemConsultaPatrocinio);
 
-        // ===== Sebastian : Consulta de Usuario =====
+        // ===== Consulta de Usuario =====
         JMenuItem itemConsultaUsuario = new JMenuItem("Consulta de Usuario");
         itemConsultaUsuario.addActionListener(e -> abrirConsultaUsuario());
         menuUsuarios.add(itemConsultaUsuario);
 
-        // ===== Marti: Alta de Tipo de Registro =====
+        // ===== Alta de Tipo de Registro =====
         JMenuItem itemAltaTipoRegistro = new JMenuItem("Alta de Tipo de Registro");
         itemAltaTipoRegistro.addActionListener(e -> abrirAltaTipoRegistro());
         menuRegistros.add(itemAltaTipoRegistro);
 
-        // ===== Marti: Consulta de Evento =====
+        // ===== Consulta de Evento =====
         JMenuItem itemConsultaEvento = new JMenuItem("Consulta de Evento");
         itemConsultaEvento.addActionListener(e -> abrirConsultaEvento());
         menuEventos.add(itemConsultaEvento);
 
-        // ===== Leandro: Registro a Edicion de Evento =====
+        // ===== Registro a Edicion de Evento =====
         JMenuItem itemRegistroEdicion = new JMenuItem("Registro a Edicion de Evento");
         itemRegistroEdicion.addActionListener(e -> abrirRegistroEdicion());
         menuRegistros.add(itemRegistroEdicion);
 
-        // ===== Leandro: Consulta de Registro =====
+        // ===== Consulta de Registro =====
         JMenuItem itemConsultaRegistro = new JMenuItem("Consulta de Registro");
         itemConsultaRegistro.addActionListener(e -> abrirConsultaRegistro());
         menuRegistros.add(itemConsultaRegistro);
 
-        // ===== Leandro: Alta de Categoria =====
+        // ===== Alta de Categoria =====
         JMenuItem itemAltaCategoria = new JMenuItem("Alta de Categoria");
         itemAltaCategoria.addActionListener(e -> abrirAltaCategoria());
         menuCategorias.add(itemAltaCategoria);
 
-        // ===== Sebastian: Consulta Tipo de Registro =====
+        // ===== Consulta Tipo de Registro =====
         JMenuItem itemConsultaTipoRegistro = new JMenuItem("Consulta de Tipo de Registro");
         itemConsultaTipoRegistro.addActionListener(e -> abrirConsultaTipoRegistro());
         menuRegistros.add(itemConsultaTipoRegistro);
 
-        // ===== Sebastian: Alta Institucion =====
+        // ===== Alta Institucion =====
         JMenuItem itemAltaInstitucion = new JMenuItem("Alta de Institución");
         itemAltaInstitucion.addActionListener(e -> abrirAltaInstitucion());
         menuInstituciones.add(itemAltaInstitucion);
 
-        // ===== Elias: Consulta de Edicion de Evento =====
+        // ===== Consulta de Edicion de Evento =====
         JMenuItem itemConsultaEdicion = new JMenuItem("Consulta de Edicion de Evento");
         itemConsultaEdicion.addActionListener(e -> abrirConsultaEdicion());
         menuEventos.add(itemConsultaEdicion);
 
-        // ===== Sebastián: Alta de Evento =====
+        // ===== Alta de Evento =====
         JMenuItem itemAltaEvento = new JMenuItem("Alta de Evento");
         itemAltaEvento.addActionListener(e -> abrirAltaEvento());
         menuEventos.add(itemAltaEvento);
 
-        // ===== Elias: Alta de Patrocinio =====
+        // ===== Alta de Patrocinio =====
         JMenuItem itemAltaPatrocinio = new JMenuItem("Alta de Patrocinio");
         itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
         menuInstituciones.add(itemAltaPatrocinio);
@@ -125,115 +129,52 @@ public class VentanaPrincipal extends JFrame {
         return menuBar;
     }
 
-    // ===== Metodos que abren cada pantalla =====
+    // ===== Abrir cada pantalla =====
+    // Cada metodo es una linea que delega en abrir(...). Para agregar un caso
+    // de uso nuevo: crear su VentanaXXX y agregar aca "abrir(new VentanaXXX());".
 
-    private void abrirModificarUsuario() {
-        VentanaModificarUsuario ventana = new VentanaModificarUsuario();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaUsuario() {
-        VentanaAltaUsuario ventana = new VentanaAltaUsuario();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaEdicion() {
-        VentanaAltaEdicion ventana = new VentanaAltaEdicion();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaPatrocinio() {
-        VentanaConsultaPatrocinio ventana = new VentanaConsultaPatrocinio();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaUsuario() {
-        VentanaConsultaUsuario ventana = new VentanaConsultaUsuario(controlador);
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaTipoRegistro() {
-        VentanaAltaTipoRegistro ventana = new VentanaAltaTipoRegistro();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaEvento() {
-        VentanaConsultaEvento ventana = new VentanaConsultaEvento();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirRegistroEdicion() {
-        VentanaRegistroEdicionDeEvento ventana = new VentanaRegistroEdicionDeEvento();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaRegistro() {
-        VentanaConsultaDeRegistro ventana = new VentanaConsultaDeRegistro();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaCategoria() {
-        VentanaAltaCategoria ventana = new VentanaAltaCategoria();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaTipoRegistro() {
-        VentanaConsultaTipoRegistro ventana = new VentanaConsultaTipoRegistro();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaInstitucion() {
-        VentanaAltaInstitucion ventana = new VentanaAltaInstitucion();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirConsultaEdicion() {
-        VentanaConsultaEdicion ventana = new VentanaConsultaEdicion();
-        ventana.setVisible(true);
-        ventana.setLocation(30, 30);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaEvento() {
-        VentanaAltaEvento ventana = new VentanaAltaEvento();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
-
-    private void abrirAltaPatrocinio() {
-        VentanaAltaPatrocinio ventana = new VentanaAltaPatrocinio();
-        ventana.setVisible(true);
-        escritorio.add(ventana);
-    }
+    private void abrirModificarUsuario()   { abrir(new VentanaModificarUsuario()); }
+    private void abrirAltaUsuario()        { abrir(new VentanaAltaUsuario()); }
+    private void abrirAltaEdicion()        { abrir(new VentanaAltaEdicion()); }
+    private void abrirConsultaPatrocinio() { abrir(new VentanaConsultaPatrocinio()); }
+    private void abrirConsultaUsuario()    { abrir(new VentanaConsultaUsuario(controlador)); }
+    private void abrirAltaTipoRegistro()   { abrir(new VentanaAltaTipoRegistro()); }
+    private void abrirConsultaEvento()     { abrir(new VentanaConsultaEvento()); }
+    private void abrirRegistroEdicion()    { abrir(new VentanaRegistroEdicionDeEvento()); }
+    private void abrirConsultaRegistro()   { abrir(new VentanaConsultaDeRegistro()); }
+    private void abrirAltaCategoria()      { abrir(new VentanaAltaCategoria()); }
+    private void abrirConsultaTipoRegistro(){ abrir(new VentanaConsultaTipoRegistro()); }
+    private void abrirAltaInstitucion()    { abrir(new VentanaAltaInstitucion()); }
+    private void abrirConsultaEdicion()    { abrir(new VentanaConsultaEdicion()); }
+    private void abrirAltaEvento()         { abrir(new VentanaAltaEvento()); }
+    private void abrirAltaPatrocinio()     { abrir(new VentanaAltaPatrocinio()); }
 
     /**
-     * Placeholder disponible para el resto del grupo: mientras alguno de
-     * los otros casos de uso no tenga su pantalla real todavia, puede
-     * usar "mostrarPlaceholder(\"nombre del caso de uso\")" en su propio
-     * metodo abrirXXX() como stand-in temporal.
+     * Agrega la ventana interna al escritorio, la posiciona escalonada
+     * respecto de la anterior (para que no se apilen todas en 0,0), la
+     * muestra y la deja al frente y seleccionada.
      */
-    private void mostrarPlaceholder(String nombreCasoDeUso) {
-        JInternalFrame ventana = new JInternalFrame(nombreCasoDeUso, true, true, true, true);
-        ventana.add(new JLabel("  Pantalla de \"" + nombreCasoDeUso + "\" - en construccion  "));
-        ventana.setSize(380, 120);
-        ventana.setVisible(true);
+    private void abrir(JInternalFrame ventana) {
         escritorio.add(ventana);
+        ventana.setLocation(offset, offset);
+        offset = (offset + 30) % 210;
+        ventana.setVisible(true);
+        ventana.toFront();
+        try {
+            ventana.setSelected(true);
+        } catch (PropertyVetoException ignorada) {
+            // Si la ventana rechaza ser seleccionada, no pasa nada.
+        }
     }
 
-
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            } catch (Exception e) {
+                // Si FlatLaf falla, se usa el look por defecto de Swing.
+            }
+            new VentanaPrincipal().setVisible(true);
+        });
     }
 }
