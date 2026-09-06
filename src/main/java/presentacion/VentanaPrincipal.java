@@ -97,6 +97,11 @@ public class VentanaPrincipal extends JFrame {
         itemAltaInstitucion.addActionListener(e -> abrirAltaInstitucion());
         menuInstituciones.add(itemAltaInstitucion);
 
+        // ===== Elias: Consulta de Edicion de Evento =====
+        JMenuItem itemConsultaEdicion = new JMenuItem("Consulta de Edicion de Evento");
+        itemConsultaEdicion.addActionListener(e -> abrirConsultaEdicion());
+        menuEventos.add(itemConsultaEdicion);
+
         // TODO (Elias): agregar aca su propio
         // JMenuItem en el JMenu que corresponda, siguiendo el mismo patron:
         // 1) crear el JMenuItem con el nombre del caso de uso
@@ -180,6 +185,12 @@ public class VentanaPrincipal extends JFrame {
         escritorio.add(ventana);
     }
 
+    private void abrirConsultaEdicion() {
+        VentanaConsultaEdicion ventana = new VentanaConsultaEdicion();
+        ventana.setVisible(true);
+        ventana.setLocation(30, 30);
+        escritorio.add(ventana);
+    }
 
     /**
      * Placeholder disponible para el resto del grupo: mientras alguno de
