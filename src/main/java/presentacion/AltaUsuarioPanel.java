@@ -119,6 +119,12 @@ public class AltaUsuarioPanel {
             return;
         }
 
+        if (tipo == TipoUsuario.ASISTENTE && txtApellido.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(mainPanel, "Ingresá el apellido del asistente.",
+                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         DTUsuario datos = new DTUsuario(nickname, nombre, correo);
 
         // ingresarDatosUsuario(datos, tipo) : boolean
