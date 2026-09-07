@@ -30,6 +30,9 @@ import java.util.Set;
  */
 public class RegistroEdicionDeEvento {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Registro a Edición de Evento";
+
     private JPanel mainPanel;
     private JComboBox EventoCBox;
     private JComboBox EdicionCBox;
@@ -71,11 +74,16 @@ public class RegistroEdicionDeEvento {
     }
 
     private void cargarEventos() {
-        // listarEventos() : set<DTEvento>
-        Set<DTEvento> eventos = controlador.listarEventos();
-        for (DTEvento ev : eventos) {
-            EventoCBox.addItem(ev.getNombre());
+        try {
+            // listarEventos() : set<DTEvento>
+            Set<DTEvento> eventos = controlador.listarEventos();
+            for (DTEvento ev : eventos) {
+                EventoCBox.addItem(ev.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
+        // Fuera del try: cargarEdiciones() ya maneja sus propios errores.
         cargarEdiciones();
     }
 
@@ -85,10 +93,15 @@ public class RegistroEdicionDeEvento {
         if (nombreEvento == null) {
             return;
         }
-        // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento> -- Sistema retiene eventoSeleccionado
-        Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
-        for (DTEdicionEvento ed : ediciones) {
-            EdicionCBox.addItem(ed.getNombre());
+        try {
+            // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento> -- Sistema retiene eventoSeleccionado
+            Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
+            for (DTEdicionEvento ed : ediciones) {
+                EdicionCBox.addItem(ed.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+            return; // no seguimos: evitamos encadenar un segundo dialogo
         }
         cargarDatosRegistro();
     }
@@ -103,13 +116,20 @@ public class RegistroEdicionDeEvento {
         if (nombreEdicion == null) {
             return;
         }
-        // listarDatosRegistro(nombreEdicion) : DTDatosRegistro -- Sistema retiene edicionSeleccionada
-        datosRegistro = controlador.listarDatosRegistro(nombreEdicion);
-        for (DTAsistente a : datosRegistro.getAsistentes()) {
-            AsistenteCBox.addItem(a.getNickname());
-        }
-        for (DTTipoRegistro t : datosRegistro.getTipoRegistro()) {
-            TipoRegistroCBox.addItem(t.getNombre());
+        try {
+            // listarDatosRegistro(nombreEdicion) : DTDatosRegistro -- Sistema retiene edicionSeleccionada
+            datosRegistro = controlador.listarDatosRegistro(nombreEdicion);
+            for (DTAsistente a : datosRegistro.getAsistentes()) {
+                AsistenteCBox.addItem(a.getNickname());
+            }
+            for (DTTipoRegistro t : datosRegistro.getTipoRegistro()) {
+                TipoRegistroCBox.addItem(t.getNombre());
+            }
+        } catch (Exception ex) {
+            // Estado consistente: sin datos cargados no se puede confirmar nada.
+            datosRegistro = null;
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+            return;
         }
         mostrarCosto();
     }
@@ -133,27 +153,30 @@ public class RegistroEdicionDeEvento {
         String nombreEdicion = (String) EdicionCBox.getSelectedItem();
         String nombreTipo = (String) TipoRegistroCBox.getSelectedItem();
 
+        // (a) Validacion del FORMULARIO: fuera del try, no toca la logica.
         if (nickname == null || nombreEdicion == null || nombreTipo == null) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Elegí evento, edición, asistente y tipo de registro.",
-                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "Elegí evento, edición, asistente y tipo de registro.");
             return;
         }
 
-        // altaRegistro(nickname, nombreEdicion, nombreTipo) : Status
-        Status resultado = controlador.altaRegistro(nickname, nombreEdicion, nombreTipo);
-        if (resultado == Status.OK) {
-            JOptionPane.showMessageDialog(mainPanel, "Registro creado con éxito.",
-                    "Registro a Edición de Evento", JOptionPane.INFORMATION_MESSAGE);
-            accionCerrar.run();
-        } else {
-            // ERROR: el asistente ya está registrado en la edición o el tipo no
-            // tiene cupo. Se avisa y se deja la ventana abierta para reintentar
-            // (LOOP del DSS), sin crear el registro.
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudo registrar: el asistente ya está registrado en esta edición "
-                            + "o el tipo de registro no tiene cupo.",
-                    "Registro a Edición de Evento", JOptionPane.WARNING_MESSAGE);
+        // (b) Llamada a la LOGICA: siempre dentro del try.
+        try {
+            // altaRegistro(nickname, nombreEdicion, nombreTipo) : Status
+            Status resultado = controlador.altaRegistro(nickname, nombreEdicion, nombreTipo);
+            if (resultado == Status.OK) {
+                Mensajes.exito(mainPanel, TITULO, "Registro creado con éxito.");
+                accionCerrar.run();
+            } else {
+                // ERROR: el asistente ya está registrado en la edición o el tipo no
+                // tiene cupo. Se avisa y se deja la ventana abierta para reintentar
+                // (LOOP del DSS), sin crear el registro.
+                Mensajes.error(mainPanel, TITULO,
+                        "No se pudo registrar: el asistente ya está registrado en esta edición "
+                                + "o el tipo de registro no tiene cupo.");
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

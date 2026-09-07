@@ -17,6 +17,10 @@ import java.util.Set;
 
 public class ModificarUsuarioPanel {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Modificar Datos de Usuario";
+
+
     private static final String NINGUNO = "(Elegí un usuario)";
 
     // ===== Todos atados al .form (mismo nombre que el binding) =====
@@ -82,9 +86,14 @@ public class ModificarUsuarioPanel {
 
     private void cargarUsuarios() {
         comboUsuarios.addItem(NINGUNO);
-        Set<DTUsuario> usuarios = controlador.listarUsuarios();
-        for (DTUsuario u : usuarios) {
-            comboUsuarios.addItem(u.getNickname());
+        try {
+            Set<DTUsuario> usuarios = controlador.listarUsuarios();
+            for (DTUsuario u : usuarios) {
+                comboUsuarios.addItem(u.getNickname());
+            }
+        } catch (Exception ex) {
+            // El combo queda solo con el placeholder, pero la ventana abre igual.
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
@@ -102,65 +111,74 @@ public class ModificarUsuarioPanel {
             return;
         }
 
-        usuarioActual = controlador.seleccionarUsuario(nickname);
-        campoNickname.setText(usuarioActual.getNickname());
-        campoCorreo.setText(usuarioActual.getCorreo());
-        campoNombre.setText(usuarioActual.getNombre());
+        try {
+            usuarioActual = controlador.seleccionarUsuario(nickname);
+            campoNickname.setText(usuarioActual.getNickname());
+            campoCorreo.setText(usuarioActual.getCorreo());
+            campoNombre.setText(usuarioActual.getNombre());
 
-        panelAsistente.setVisible(usuarioActual instanceof DTAsistente);
-        panelOrganizador.setVisible(usuarioActual instanceof DTOrganizador);
+            panelAsistente.setVisible(usuarioActual instanceof DTAsistente);
+            panelOrganizador.setVisible(usuarioActual instanceof DTOrganizador);
 
-        if (usuarioActual instanceof DTAsistente da) {
-            campoApellido.setText(da.getApellido());
-            spinnerDia.setValue(da.getFechaNacimiento().getDia());
-            spinnerMes.setValue(da.getFechaNacimiento().getMes());
-            spinnerAnio.setValue(da.getFechaNacimiento().getAnio());
-        } else if (usuarioActual instanceof DTOrganizador dorg) {
-            campoDescripcion.setText(dorg.getDescripcion());
-            campoSitioWeb.setText(dorg.getSitioWeb());
+            if (usuarioActual instanceof DTAsistente da) {
+                campoApellido.setText(da.getApellido());
+                spinnerDia.setValue(da.getFechaNacimiento().getDia());
+                spinnerMes.setValue(da.getFechaNacimiento().getMes());
+                spinnerAnio.setValue(da.getFechaNacimiento().getAnio());
+            } else if (usuarioActual instanceof DTOrganizador dorg) {
+                campoDescripcion.setText(dorg.getDescripcion());
+                campoSitioWeb.setText(dorg.getSitioWeb());
+            }
+        } catch (Exception ex) {
+            // Estado consistente: sin usuarioActual, aceptar() no deja modificar nada.
+            usuarioActual = null;
+            campoNickname.setText("");
+            campoCorreo.setText("");
+            campoNombre.setText("");
+            panelAsistente.setVisible(false);
+            panelOrganizador.setVisible(false);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
 
         reajustarTamanio();
     }
 
     private void aceptar() {
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (usuarioActual == null) {
-            JOptionPane.showMessageDialog(mainPanel, "Elegí un usuario primero.",
-                    "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Elegí un usuario primero.");
             return;
         }
 
         String nombre = campoNombre.getText().trim();
         if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "El nombre no puede quedar vacío.",
-                    "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "El nombre no puede quedar vacío.");
             return;
         }
 
         if (usuarioActual instanceof DTAsistente) {
             if (campoApellido.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(mainPanel, "El apellido no puede quedar vacío.",
-                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                Mensajes.aviso(mainPanel, TITULO, "El apellido no puede quedar vacío.");
                 return;
             }
             LocalDate fechaNac;
             try {
+                // Validacion de formato del formulario, no un fallo del sistema.
                 fechaNac = LocalDate.of((int) spinnerAnio.getValue(),
                         (int) spinnerMes.getValue(), (int) spinnerDia.getValue());
             } catch (DateTimeException ex) {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "La fecha de nacimiento no existe (revisá el día para ese mes).",
-                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                Mensajes.aviso(mainPanel, TITULO,
+                        "La fecha de nacimiento no existe (revisá el día para ese mes).");
                 return;
             }
             if (!fechaNac.isBefore(LocalDate.now())) {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "La fecha de nacimiento debe ser anterior a la fecha actual.",
-                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                Mensajes.aviso(mainPanel, TITULO,
+                        "La fecha de nacimiento debe ser anterior a la fecha actual.");
                 return;
             }
         }
 
+        // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             DTUsuario dtModificado;
             if (usuarioActual instanceof DTAsistente) {
@@ -175,12 +193,10 @@ public class ModificarUsuarioPanel {
                         campoDescripcion.getText().trim(), campoSitioWeb.getText().trim());
             }
             controlador.modificarDatosUsuario(dtModificado);
-            JOptionPane.showMessageDialog(mainPanel, "Datos actualizados correctamente.",
-                    "Modificar Datos de Usuario", JOptionPane.INFORMATION_MESSAGE);
+            Mensajes.exito(mainPanel, TITULO, "Datos actualizados correctamente.");
             accionCerrar.run();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel, "Ocurrio un error al modificar los datos: "
-                    + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

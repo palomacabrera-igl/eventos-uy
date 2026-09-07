@@ -19,6 +19,9 @@ import java.util.Set;
  */
 public class ConsultaEvento {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Consulta de Evento";
+
     private JPanel mainPanel;
     private JComboBox EventoCBox;
     private JTextField NombreTxt;
@@ -62,11 +65,16 @@ public class ConsultaEvento {
     }
 
     private void cargarEventos() {
-        // consultarEvento() : set<DTEvento> -- reutiliza listarEventos()
-        Set<DTEvento> eventos = controlador.listarEventos();
-        for (DTEvento ev : eventos) {
-            EventoCBox.addItem(ev.getNombre());
+        try {
+            // consultarEvento() : set<DTEvento> -- reutiliza listarEventos()
+            Set<DTEvento> eventos = controlador.listarEventos();
+            for (DTEvento ev : eventos) {
+                EventoCBox.addItem(ev.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
+        // Fuera del try: seleccionarEvento() ya maneja sus propios errores.
         seleccionarEvento();
     }
 
@@ -79,18 +87,25 @@ public class ConsultaEvento {
             return;
         }
 
-        // seleccionarEvento(nombreEvento) : DTEvento -- Sistema retiene eventoSeleccionado
-        DTEvento evento = controlador.seleccionarEvento(nombreEvento);
-        NombreTxt.setText(evento.getNombre());
-        SiglaTxt.setText(evento.getSigla());
-        DescripcionTxt.setText(evento.getDescripcion());
-        CategoriasTxt.setText(String.join(", ", evento.getCategorias()));
-        FechaAltaTxt.setText(formatearFecha(evento.getFechaAlta()));
+        try {
+            // seleccionarEvento(nombreEvento) : DTEvento -- Sistema retiene eventoSeleccionado
+            DTEvento evento = controlador.seleccionarEvento(nombreEvento);
+            NombreTxt.setText(evento.getNombre());
+            SiglaTxt.setText(evento.getSigla());
+            DescripcionTxt.setText(evento.getDescripcion());
+            CategoriasTxt.setText(String.join(", ", evento.getCategorias()));
+            FechaAltaTxt.setText(formatearFecha(evento.getFechaAlta()));
 
-        // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento>
-        Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
-        for (DTEdicionEvento ed : ediciones) {
-            EdicionCBox.addItem(ed.getNombre());
+            // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento>
+            Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
+            for (DTEdicionEvento ed : ediciones) {
+                EdicionCBox.addItem(ed.getNombre());
+            }
+        } catch (Exception ex) {
+            // La letra pide no quedar en un estado inconsistente: si fallo a
+            // mitad de camino, dejamos el detalle vacio en vez de a medio llenar.
+            limpiarDetalleEvento();
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
         seleccionarEdicion();
     }
@@ -102,15 +117,20 @@ public class ConsultaEvento {
             return;
         }
 
-        // seleccionarEdicionEvento(nombreEdicion) : DTEdicionEvento
-        DTEdicionEvento edicion = controlador.seleccionarEdicionEvento(nombreEdicion);
-        NombreEdicionTxt.setText(edicion.getNombre());
-        SiglaEdicionTxt.setText(edicion.getSigla());
-        CiudadTxt.setText(edicion.getCiudad());
-        PaisTxt.setText(edicion.getPais());
-        FechaInicioTxt.setText(formatearFecha(edicion.getFechaInicio()));
-        FechaFinTxt.setText(formatearFecha(edicion.getFechaFin()));
-        FechaAltaEdicionTxt.setText(formatearFecha(edicion.getFechaAlta()));
+        try {
+            // seleccionarEdicionEvento(nombreEdicion) : DTEdicionEvento
+            DTEdicionEvento edicion = controlador.seleccionarEdicionEvento(nombreEdicion);
+            NombreEdicionTxt.setText(edicion.getNombre());
+            SiglaEdicionTxt.setText(edicion.getSigla());
+            CiudadTxt.setText(edicion.getCiudad());
+            PaisTxt.setText(edicion.getPais());
+            FechaInicioTxt.setText(formatearFecha(edicion.getFechaInicio()));
+            FechaFinTxt.setText(formatearFecha(edicion.getFechaFin()));
+            FechaAltaEdicionTxt.setText(formatearFecha(edicion.getFechaAlta()));
+        } catch (Exception ex) {
+            limpiarDetalleEdicion();
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
     }
 
     private String formatearFecha(DTFecha fecha) {

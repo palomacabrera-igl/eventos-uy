@@ -25,6 +25,10 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class ConsultaEdicionPanel {
+
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Consulta de Edición de Evento";
+
     private JPanel mainPanel;
     private JPanel SeleccionPanel;
     private JPanel DatosPanel;
@@ -166,12 +170,19 @@ public class ConsultaEdicionPanel {
 
     private void cargarEventos() {
         cargando = true;
-        EventosCBox.removeAllItems();
-        for (DTEvento e : controlador.listarEventos()) {
-            EventosCBox.addItem(e);
+        try {
+            EventosCBox.removeAllItems();
+            for (DTEvento e : controlador.listarEventos()) {
+                EventosCBox.addItem(e);
+            }
+            EventosCBox.setSelectedIndex(-1);
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        } finally {
+            // finally: si falla, 'cargando' TIENE que volver a false igual, si no
+            // los handlers quedan bloqueados y el panel deja de responder.
+            cargando = false;
         }
-        EventosCBox.setSelectedIndex(-1);
-        cargando = false;
     }
 
     private void seleccionarEvento() {
@@ -188,9 +199,7 @@ public class ConsultaEdicionPanel {
             }
             EdicionesCBox.setSelectedIndex(-1);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar las ediciones: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         } finally {
             cargando = false;
         }
@@ -229,9 +238,7 @@ public class ConsultaEdicionPanel {
 
         } catch (Exception ex) {
             limpiarTodo();
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudo cargar la edicion: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

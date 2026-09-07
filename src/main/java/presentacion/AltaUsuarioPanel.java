@@ -21,6 +21,10 @@ import java.util.Set;
  */
 public class AltaUsuarioPanel {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Usuario";
+
+
     private static final String SIN_INSTITUCION = "(Ninguna)";
 
     private JPanel mainPanel;
@@ -82,10 +86,15 @@ public class AltaUsuarioPanel {
         }
 
         InstitucionCBox.addItem(SIN_INSTITUCION);
-        // listarNombresInstituciones() : set<String>
-        Set<String> instituciones = controlador.listarNombresInstituciones();
-        for (String nombre : instituciones) {
-            InstitucionCBox.addItem(nombre);
+        try {
+            // listarNombresInstituciones() : set<String>
+            Set<String> instituciones = controlador.listarNombresInstituciones();
+            for (String nombre : instituciones) {
+                InstitucionCBox.addItem(nombre);
+            }
+        } catch (Exception ex) {
+            // El combo queda solo con "(sin institucion)", pero la ventana abre igual.
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
@@ -99,15 +108,14 @@ public class AltaUsuarioPanel {
         String nombre = txtNombre.getText().trim();
         String nickname = txtNickname.getText().trim();
 
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (correo.isEmpty() || nombre.isEmpty() || nickname.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Complete correo, nombre y nickname.",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Complete correo, nombre y nickname.");
             return;
         }
 
         if (!correo.contains("@")) {
-            JOptionPane.showMessageDialog(mainPanel, "El correo no es válido (tiene que contener @).",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "El correo no es válido (tiene que contener @).");
             return;
         }
 
@@ -120,38 +128,42 @@ public class AltaUsuarioPanel {
         }
 
         if (tipo == TipoUsuario.ASISTENTE && txtApellido.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Ingresá el apellido del asistente.",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Ingresá el apellido del asistente.");
             return;
         }
 
         if (tipo == TipoUsuario.ORGANIZADOR && textField1.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Ingresá la descripción del organizador.",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Ingresá la descripción del organizador.");
             return;
         }
 
         DTUsuario datos = new DTUsuario(nickname, nombre, correo);
 
-        // ingresarDatosUsuario(datos, tipo) : boolean
-        if (!controlador.ingresarDatosUsuario(datos, tipo)) {
-            // [nickname/correo en uso]: se avisa y se deja la ventana abierta para reintentar (LOOP del dss).
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Ya existe un usuario con ese nickname o ese correo.",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        // (b) Llamada a la LOGICA. Este alta son VARIOS pasos encadenados
+        // (ingresarDatosUsuario -> ingresarDatosAsistente/Organizador ->
+        // seleccionarInstitucion), asi que van todos en UN SOLO try: si falla
+        // un paso del medio, se avisa una sola vez y no se dice "creado con exito".
+        try {
+            // ingresarDatosUsuario(datos, tipo) : boolean
+            if (!controlador.ingresarDatosUsuario(datos, tipo)) {
+                // [nickname/correo en uso]: se avisa y se deja la ventana abierta para reintentar (LOOP del dss).
+                Mensajes.error(mainPanel, TITULO,
+                        "Ya existe un usuario con ese nickname o ese correo.");
+                return;
+            }
 
-        if (tipo == TipoUsuario.ASISTENTE) {
-            confirmarAsistente();
-        } else {
-            confirmarOrganizador();
-        }
+            if (tipo == TipoUsuario.ASISTENTE) {
+                confirmarAsistente();
+            } else {
+                confirmarOrganizador();
+            }
 
-        JOptionPane.showMessageDialog(mainPanel, "El usuario se ha creado con éxito.",
-                "Crear Cuenta", JOptionPane.INFORMATION_MESSAGE);
-        limpiar();
-        accionCerrar.run();
+            Mensajes.exito(mainPanel, TITULO, "El usuario se ha creado con éxito.");
+            limpiar();
+            accionCerrar.run();
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
     }
 
     private boolean fechaNacimientoValida() {
@@ -162,15 +174,14 @@ public class AltaUsuarioPanel {
         try {
             fechaNac = LocalDate.of(anio, mes, dia);
         } catch (DateTimeException ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "La fecha de nacimiento no existe (revisá el día para ese mes).",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            // Validacion de formato del formulario, no un fallo del sistema.
+            Mensajes.aviso(mainPanel, TITULO,
+                    "La fecha de nacimiento no existe (revisá el día para ese mes).");
             return false;
         }
         if (!fechaNac.isBefore(LocalDate.now())) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "La fecha de nacimiento debe ser anterior a la fecha actual.",
-                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "La fecha de nacimiento debe ser anterior a la fecha actual.");
             return false;
         }
         return true;

@@ -17,6 +17,9 @@ import java.time.LocalDate;
 
 public class AltaEdicionPanel {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Edición de Evento";
+
     // ===== Atados al .form =====
     private JPanel mainPanel;
     private JComboBox comboEventos;
@@ -108,9 +111,7 @@ public class AltaEdicionPanel {
                 comboOrganizadores.addItem(o);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar eventos u organizadores: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
         comboEventos.setSelectedIndex(-1);
         comboOrganizadores.setSelectedIndex(-1);
@@ -123,9 +124,7 @@ public class AltaEdicionPanel {
             // el Sistema retiene el evento seleccionado (precondicion de ingresarDatosEdicion)
             controlador.seleccionarEvento(evento.getNombre());
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudo seleccionar el evento: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
@@ -135,18 +134,16 @@ public class AltaEdicionPanel {
         try {
             controlador.seleccionarOrganizador(organizador.getNickname());
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudo seleccionar el organizador: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
     private void aceptar() {
         DTEvento evento = (DTEvento) comboEventos.getSelectedItem();
         DTOrganizador organizador = (DTOrganizador) comboOrganizadores.getSelectedItem();
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (evento == null || organizador == null) {
-            JOptionPane.showMessageDialog(mainPanel, "Elegí un evento y un organizador.",
-                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Elegí un evento y un organizador.");
             return;
         }
 
@@ -155,8 +152,7 @@ public class AltaEdicionPanel {
         String ciudad = campoCiudad.getText().trim();
         String pais = campoPais.getText().trim();
         if (nombre.isEmpty() || sigla.isEmpty() || ciudad.isEmpty() || pais.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Completá nombre, sigla, ciudad y país.",
-                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Completá nombre, sigla, ciudad y país.");
             return;
         }
 
@@ -166,16 +162,14 @@ public class AltaEdicionPanel {
             DTFecha fechaAlta = fechaDe(spinnerDiaAlta, spinnerMesAlta, spinnerAnioAlta);
 
             if (fechaFin.aLocalDate().isBefore(fechaInicio.aLocalDate())) {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "La fecha de fin no puede ser anterior a la fecha de inicio.",
-                        "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                Mensajes.aviso(mainPanel, TITULO,
+                        "La fecha de fin no puede ser anterior a la fecha de inicio.");
                 return;
             }
 
             if (fechaAlta.aLocalDate().isAfter(LocalDate.now())) {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "La fecha de alta no puede ser posterior a la fecha actual.",
-                        "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                Mensajes.aviso(mainPanel, TITULO,
+                        "La fecha de alta no puede ser posterior a la fecha actual.");
                 return;
             }
 
@@ -183,20 +177,15 @@ public class AltaEdicionPanel {
                     fechaInicio, fechaFin, fechaAlta);
 
             if (controlador.ingresarDatosEdicion(dt)) {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "Edición de evento dada de alta correctamente.",
-                        "Alta de Edición de Evento", JOptionPane.INFORMATION_MESSAGE);
+                Mensajes.exito(mainPanel, TITULO, "Edición de evento dada de alta correctamente.");
                 accionCerrar.run();
             } else {
                 // LOOP del DSS: el nombre ya existe -> se avisa y la ventana NO se cierra
-                JOptionPane.showMessageDialog(mainPanel,
-                        "Ya existe una edición con el nombre \"" + nombre + "\". Elegí otro.",
-                        "Nombre en uso", JOptionPane.WARNING_MESSAGE);
+                Mensajes.error(mainPanel, TITULO,
+                        "Ya existe una edición con el nombre \"" + nombre + "\". Elegí otro.");
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Ocurrió un error al dar de alta la edición: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

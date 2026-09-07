@@ -19,6 +19,9 @@ import java.util.Locale;
 
 public class ConsultaPatrocinioPanel {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Consulta de Patrocinio";
+
     // ===== Atados al .form =====
     private JPanel mainPanel;
     private JComboBox comboEventos;
@@ -103,12 +106,19 @@ public class ConsultaPatrocinioPanel {
 
     private void cargarEventos() {
         cargando = true;
-        comboEventos.removeAllItems();
-        for (DTEvento e : controlador.listarEventos()) {
-            comboEventos.addItem(e);
+        try {
+            comboEventos.removeAllItems();
+            for (DTEvento e : controlador.listarEventos()) {
+                comboEventos.addItem(e);
+            }
+            comboEventos.setSelectedIndex(-1);   // arranca sin elegir
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        } finally {
+            // finally: si falla, 'cargando' TIENE que volver a false igual, si no
+            // los handlers quedan bloqueados y el panel deja de responder.
+            cargando = false;
         }
-        comboEventos.setSelectedIndex(-1);   // arranca sin elegir
-        cargando = false;
     }
 
     private void seleccionarEvento() {
@@ -127,9 +137,7 @@ public class ConsultaPatrocinioPanel {
             comboEdiciones.setSelectedIndex(-1);
             comboPatrocinios.setSelectedIndex(-1);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar las ediciones: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         } finally {
             cargando = false;
         }
@@ -149,9 +157,7 @@ public class ConsultaPatrocinioPanel {
             }
             comboPatrocinios.setSelectedIndex(-1);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar los patrocinios: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         } finally {
             cargando = false;
         }
@@ -176,9 +182,7 @@ public class ConsultaPatrocinioPanel {
             campoFecha.setText(fecha.getDia() + "/" + fecha.getMes() + "/" + fecha.getAnio());
         } catch (Exception ex) {
             limpiarDetalle();
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudo cargar el patrocinio: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
