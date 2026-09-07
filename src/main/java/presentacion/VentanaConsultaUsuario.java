@@ -190,6 +190,23 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         DTEdicionCompleto edicion =
                 controlador.seleccionarEdicion(item.getNombre());
 
+        DTOrganizador org = edicion.getOrganizador();
+        String organizador = org == null
+                ? "(sin organizador)"
+                : org.getNombre() + " (" + org.getNickname() + ")";
+
+        String tiposRegistro = edicion.getTiposRegistro().isEmpty()
+                ? "Sin tipos de registro"
+                : edicion.getTiposRegistro().stream()
+                .map(t -> t.getNombre() + " - $" + t.getCosto() + " (cupo " + t.getCupo() + ")")
+                .collect(Collectors.joining("\n- ", "- ", ""));
+
+        String registros = edicion.getRegistros().isEmpty()
+                ? "Sin registros"
+                : edicion.getRegistros().stream()
+                .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + r.getFechaRegistro())
+                .collect(Collectors.joining("\n- ", "- ", ""));
+
         String patrocinios = edicion.getPatrocinios().isEmpty()
                 ? "Sin patrocinios"
                 : edicion.getPatrocinios().stream()
@@ -204,6 +221,9 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                         + "\nFin: " + edicion.getFechaFin()
                         + "\nCiudad: " + edicion.getCiudad()
                         + "\nPaís: " + edicion.getPais()
+                        + "\nOrganizador: " + organizador
+                        + "\n\nTipos de registro:\n" + tiposRegistro
+                        + "\n\nRegistros:\n" + registros
                         + "\n\nPatrocinios:\n" + patrocinios
         );
     }
