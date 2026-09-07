@@ -5,15 +5,20 @@ import java.util.*;
 
 /**
  * Controlador del sistema (patron GRASP Controller, mapea a :Sistema en
- * los diagramas). Mantiene las colecciones: Categoria, Usuario, Institucion y Evento, y las
- * referencias retenidas entre llamados.
+ * los diagramas).
+ *
+ * Ya NO guarda las colecciones directamente: delega en los Manejadores
+ * (ManejadorCategoria, ManejadorUsuario, ManejadorInstitucion,
+ * ManejadorEvento), que son los "collection objects" de cada entidad raiz.
+ * Sistema solo coordina el caso de uso: valida reglas de negocio y guarda
+ * las referencias retenidas entre llamados.
  */
 public class Sistema implements IControladorSistema {
 
-    private final List<Categoria> categorias;
-    private final List<Usuario> usuarios;
-    private final List<Institucion> instituciones;
-    private final List<Evento> eventos;
+    private final ManejadorCategoria manejadorCategoria;
+    private final ManejadorUsuario manejadorUsuario;
+    private final ManejadorInstitucion manejadorInstitucion;
+    private final ManejadorEvento manejadorEvento;
 
     // Referencias retenidas entre llamados
     private Usuario usuarioSeleccionado;
@@ -28,11 +33,15 @@ public class Sistema implements IControladorSistema {
     private Asistente asistenteRecordado;
 
     public Sistema() {
-        this.categorias = new ArrayList<>();
-        this.usuarios = new ArrayList<>();
-        this.instituciones = new ArrayList<>();
-        this.eventos = new ArrayList<>();
-        cargarDatosDePrueba();
+        this.manejadorCategoria = ManejadorCategoria.getInstancia();
+        this.manejadorUsuario = ManejadorUsuario.getInstancia();
+        this.manejadorInstitucion = ManejadorInstitucion.getInstancia();
+        this.manejadorEvento = ManejadorEvento.getInstancia();
+        // Los manejadores son singletons: si ya hay datos cargados (otra
+        // instancia de Sistema), no volvemos a precargar.
+        if (manejadorUsuario.listar().isEmpty()) {
+            cargarDatosDePrueba();
+        }
     }
 
     // ===== Modificar Datos de Usuario =====
@@ -41,7 +50,7 @@ public class Sistema implements IControladorSistema {
     public Set<DTUsuario> listarUsuarios() {
         // 1*[foreach]: u := next()  /  2*: dt := obtenerDT()
         Set<DTUsuario> resultado = new HashSet<>();
-        for (Usuario u : usuarios) {
+        for (Usuario u : manejadorUsuario.listar()) {
             resultado.add(u.obtenerDT());
         }
         return resultado;
@@ -70,16 +79,9 @@ public class Sistema implements IControladorSistema {
         usuarioSeleccionado.modificarDatos(dt);
     }
 
-    /**
-     * Busqueda interna de Sistema sobre su propia coleccion de Usuario.
-     */
+    /** Busqueda de Usuario por nickname (delega en ManejadorUsuario). */
     private Usuario find(String nickname) {
-        for (Usuario u : usuarios) {
-            if (u.getNickname().equals(nickname)) {
-                return u;
-            }
-        }
-        return null;
+        return manejadorUsuario.buscar(nickname);
     }
 
     // ===== Consulta de Patrocinio =====
@@ -87,7 +89,7 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTEvento> listarEventos() {
         Set<DTEvento> resultado = new HashSet<>();
-        for (Evento e : eventos) {
+        for (Evento e : manejadorEvento.listar()) {
             resultado.add(e.obtenerDT());
         }
         return resultado;
@@ -113,16 +115,9 @@ public class Sistema implements IControladorSistema {
         return p.obtenerDT();
     }
 
-    /**
-     * Busqueda interna de Sistema sobre su propia coleccion de Evento.
-     */
+    /** Busqueda de Evento por nombre (delega en ManejadorEvento). */
     private Evento findEvento(String nombre) {
-        for (Evento e : eventos) {
-            if (e.getNombre().equals(nombre)) {
-                return e;
-            }
-        }
-        return null;
+        return manejadorEvento.buscar(nombre);
     }
 
     // ===== Alta de Edicion de Evento =====
@@ -137,7 +132,7 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTOrganizador> listarOrganizadores() {
         Set<DTOrganizador> resultado = new HashSet<>();
-        for (Usuario u : usuarios) {
+        for (Usuario u : manejadorUsuario.listar()) {
             if (u.obtenerTipoUsuario() == TipoUsuario.ORGANIZADOR) {
                 resultado.add((DTOrganizador) u.obtenerDT());
             }
@@ -154,11 +149,9 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean ingresarDatosEdicion(DTEdicionEvento dt) {
-        for (Evento e : eventos) {
-            EdicionEvento ed = e.buscarEdicion(dt.getNombre());
-            if (ed != null) {
-                return false;
-            }
+        // Una edicion no puede repetir nombre en NINGUN evento.
+        if (manejadorEvento.buscarEdicion(dt.getNombre()) != null) {
+            return false;
         }
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
         return true;
@@ -182,7 +175,7 @@ public class Sistema implements IControladorSistema {
     public void ingresarDatosAsistente(String apellido, DTFecha fechaNac) {
         Asistente a = new Asistente(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), apellido, fechaNac.aLocalDate());
-        usuarios.add(a);
+        manejadorUsuario.agregar(a);
         this.asistenteRecordado = a;
     }
 
@@ -196,36 +189,26 @@ public class Sistema implements IControladorSistema {
     public void ingresarDatosOrganizador(String descripcion, String sitioWeb) {
         Organizador o = new Organizador(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), descripcion, sitioWeb);
-        usuarios.add(o);
+        manejadorUsuario.agregar(o);
     }
 
     @Override
     public Set<String> listarNombresInstituciones() {
         Set<String> resultado = new HashSet<>();
-        for (Institucion i : instituciones) {
+        for (Institucion i : manejadorInstitucion.listar()) {
             resultado.add(i.getNombre());
         }
         return resultado;
     }
 
-    /** Busqueda interna de Sistema sobre su propia coleccion de Usuario. */
+    /** Busqueda de Usuario por correo (delega en ManejadorUsuario). */
     private Usuario findPorCorreo(String correo) {
-        for (Usuario u : usuarios) {
-            if (u.getCorreoElectronico().equals(correo)) {
-                return u;
-            }
-        }
-        return null;
+        return manejadorUsuario.buscarPorCorreo(correo);
     }
 
-    /** Busqueda interna de Sistema sobre su propia coleccion de Institucion. */
+    /** Busqueda de Institucion por nombre (delega en ManejadorInstitucion). */
     private Institucion findInstitucion(String nombre) {
-        for (Institucion i : instituciones) {
-            if (i.getNombre().equals(nombre)) {
-                return i;
-            }
-        }
-        return null;
+        return manejadorInstitucion.buscar(nombre);
     }
 
     // ===== Alta de Tipo de Registro =====
@@ -280,7 +263,7 @@ public class Sistema implements IControladorSistema {
     /** Todos los asistentes existentes como DTs. La usa listarDatosRegistro(). */
     private Set<DTAsistente> listarAsistentes() {
         Set<DTAsistente> resultado = new HashSet<>();
-        for (Usuario u : usuarios) {
+        for (Usuario u : manejadorUsuario.listar()) {
             if (u.obtenerTipoUsuario() == TipoUsuario.ASISTENTE) {
                 resultado.add((DTAsistente) u.obtenerDT());
             }
@@ -296,23 +279,23 @@ public class Sistema implements IControladorSistema {
      * caso de uso.
      */
     private void cargarDatosDePrueba() {
-        usuarios.add(new Asistente("pfernandez", "Paloma", "paloma@example.com",
+        manejadorUsuario.agregar(new Asistente("pfernandez", "Paloma", "paloma@example.com",
                 "Fernandez", LocalDate.of(2000, 5, 14)));
         Organizador organizadorUtec = new Organizador("utec", "UTEC Eventos", "eventos@utec.edu.uy",
                 "Organizador institucional de UTEC", "https://utec.edu.uy");
-        usuarios.add(organizadorUtec);
+        manejadorUsuario.agregar(organizadorUtec);
 
         Categoria catIngenieria = new Categoria("Ingeniería");
-        categorias.add(catIngenieria);
+        manejadorCategoria.agregar(catIngenieria);
         Categoria catCharlas = new Categoria("Charlas");
-        categorias.add(catCharlas);
+        manejadorCategoria.agregar(catCharlas);
         Categoria catTalleres = new Categoria("Talleres");
-        categorias.add(catTalleres);
+        manejadorCategoria.agregar(catTalleres);
         Categoria catAplicaciones = new Categoria("Aplicaciones");
-        categorias.add(catAplicaciones);
+        manejadorCategoria.agregar(catAplicaciones);
         Institucion utec = new Institucion("UTEC", "Universidad Tecnologica",
                 "https://utec.edu.uy");
-        instituciones.add(utec);
+        manejadorInstitucion.agregar(utec);
 
         Evento jiap = new Evento(
                 "JIAP", // nombre
@@ -321,7 +304,7 @@ public class Sistema implements IControladorSistema {
                 "JIAP", // sigla
                 Arrays.asList(catIngenieria, catAplicaciones) // categorías
         );
-        eventos.add(jiap);
+        manejadorEvento.agregar(jiap);
 
 
         EdicionEvento jiap2026 = new EdicionEvento("JIAP 2026", "JIAP26",
@@ -342,7 +325,7 @@ public class Sistema implements IControladorSistema {
                 "SI", // sigla
                 Arrays.asList(catIngenieria, catCharlas, catTalleres)
         );
-        eventos.add(semanaIngenieria);
+        manejadorEvento.agregar(semanaIngenieria);
 
 
         EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
@@ -359,7 +342,7 @@ public class Sistema implements IControladorSistema {
                 10, 1001, NivelPatrocinio.ORO, utec, entradaGeneral);
         jiap2026.agregarPatrocinio(patrocinioUtec);
 
-        Asistente paloma = (Asistente) usuarios.get(0);
+        Asistente paloma = (Asistente) manejadorUsuario.buscar("pfernandez");
 
         jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
 
@@ -409,7 +392,7 @@ public class Sistema implements IControladorSistema {
     public Set<DTCategoria> listarCategorias() {
         // 1*[foreach]: cat := next()  /  2*: dt := obtenerDT() : DTCategoria
         Set<DTCategoria> resultado = new HashSet<>();
-        for (Categoria cat : categorias) {
+        for (Categoria cat : manejadorCategoria.listar()) {
             resultado.add(cat.obtenerDT());
         }
         return resultado;
@@ -423,18 +406,13 @@ public class Sistema implements IControladorSistema {
             return Status.ERROR;
         }
         // 2: [existente == null] cat := create(nombre)  /  3: add(cat)
-        categorias.add(new Categoria(nombre));
+        manejadorCategoria.agregar(new Categoria(nombre));
         return Status.OK;
     }
 
-    /** Busqueda interna de Sistema sobre su propia coleccion de Categoria. */
+    /** Busqueda de Categoria por nombre (delega en ManejadorCategoria). */
     private Categoria findCategoria(String nombre) {
-        for (Categoria cat : categorias) {
-            if (cat.getNombre().equals(nombre)) {
-                return cat;
-            }
-        }
-        return null;
+        return manejadorCategoria.buscar(nombre);
     }
 
     // ===== Consulta de Tipo de Registro =====
@@ -462,7 +440,7 @@ public class Sistema implements IControladorSistema {
                 descripcion,
                 sitioWeb
         );
-        instituciones.add(institucion);
+        manejadorInstitucion.agregar(institucion);
         return Status.OK;
     }
 
@@ -532,7 +510,7 @@ public class Sistema implements IControladorSistema {
 
         // Crear y agregar el evento
         Evento evento = new Evento(nombre, descripcion, fechaAlta, sigla, categoriasEvento);
-        eventos.add(evento);
+        manejadorEvento.agregar(evento);
 
         return Status.OK;
     }
