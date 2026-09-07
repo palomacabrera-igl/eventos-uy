@@ -125,6 +125,12 @@ public class AltaUsuarioPanel {
             return;
         }
 
+        if (tipo == TipoUsuario.ORGANIZADOR && textField1.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(mainPanel, "Ingresá la descripción del organizador.",
+                    "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         DTUsuario datos = new DTUsuario(nickname, nombre, correo);
 
         // ingresarDatosUsuario(datos, tipo) : boolean
@@ -163,7 +169,7 @@ public class AltaUsuarioPanel {
         }
         if (!fechaNac.isBefore(LocalDate.now())) {
             JOptionPane.showMessageDialog(mainPanel,
-                    "La fecha de nacimiento no puede ser hoy ni una fecha futura.",
+                    "La fecha de nacimiento debe ser anterior a la fecha actual.",
                     "Crear Cuenta", JOptionPane.WARNING_MESSAGE);
             return false;
         }

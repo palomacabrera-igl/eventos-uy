@@ -11,6 +11,8 @@ import logica.IControladorSistema;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.Set;
 
 public class ModificarUsuarioPanel {
@@ -50,7 +52,7 @@ public class ModificarUsuarioPanel {
 
         spinnerDia.setModel(new SpinnerNumberModel(1, 1, 31, 1));
         spinnerMes.setModel(new SpinnerNumberModel(1, 1, 12, 1));
-        spinnerAnio.setModel(new SpinnerNumberModel(2000, 1900, 2026, 1));
+        spinnerAnio.setModel(new SpinnerNumberModel(2000, 1900, LocalDate.now().getYear(), 1));
 
         panelAsistente.setVisible(false);
         panelOrganizador.setVisible(false);
@@ -127,18 +129,50 @@ public class ModificarUsuarioPanel {
                     "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        String nombre = campoNombre.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(mainPanel, "El nombre no puede quedar vacío.",
+                    "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (usuarioActual instanceof DTAsistente) {
+            if (campoApellido.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(mainPanel, "El apellido no puede quedar vacío.",
+                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            LocalDate fechaNac;
+            try {
+                fechaNac = LocalDate.of((int) spinnerAnio.getValue(),
+                        (int) spinnerMes.getValue(), (int) spinnerDia.getValue());
+            } catch (DateTimeException ex) {
+                JOptionPane.showMessageDialog(mainPanel,
+                        "La fecha de nacimiento no existe (revisá el día para ese mes).",
+                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (!fechaNac.isBefore(LocalDate.now())) {
+                JOptionPane.showMessageDialog(mainPanel,
+                        "La fecha de nacimiento debe ser anterior a la fecha actual.",
+                        "Modificar Datos de Usuario", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+
         try {
             DTUsuario dtModificado;
             if (usuarioActual instanceof DTAsistente) {
                 DTFecha fecha = new DTFecha((int) spinnerDia.getValue(),
                         (int) spinnerMes.getValue(), (int) spinnerAnio.getValue());
                 dtModificado = new DTAsistente(usuarioActual.getNickname(),
-                        campoNombre.getText(), usuarioActual.getCorreo(),
-                        campoApellido.getText(), fecha);
+                        nombre, usuarioActual.getCorreo(),
+                        campoApellido.getText().trim(), fecha);
             } else {
                 dtModificado = new DTOrganizador(usuarioActual.getNickname(),
-                        campoNombre.getText(), usuarioActual.getCorreo(),
-                        campoDescripcion.getText(), campoSitioWeb.getText());
+                        nombre, usuarioActual.getCorreo(),
+                        campoDescripcion.getText().trim(), campoSitioWeb.getText().trim());
             }
             controlador.modificarDatosUsuario(dtModificado);
             JOptionPane.showMessageDialog(mainPanel, "Datos actualizados correctamente.",
