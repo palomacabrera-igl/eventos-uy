@@ -24,7 +24,6 @@ public class Evento {
         this.categorias.addAll(categorias);
     }
 
-
     public String getNombre() {return nombre;}
     public String getSigla() {return sigla;}
     public String getDescripcion() {return descripcion;}
@@ -51,7 +50,11 @@ public class Evento {
     }
 
     public DTEvento obtenerDT() {
-        return new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta));
+        List<String> nombresCategorias = new ArrayList<>();
+        for (Categoria c : categorias) {
+            nombresCategorias.add(c.getNombre());
+        }
+        return new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta), nombresCategorias);
     }
 
     public Set<DTEdicionEvento> obtenerEdiciones() {
