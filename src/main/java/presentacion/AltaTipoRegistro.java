@@ -18,6 +18,9 @@ import java.util.Set;
  */
 public class AltaTipoRegistro {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Tipo de Registro";
+
     private JPanel mainPanel;
     private JComboBox EventoCBox;
     private JComboBox EdicionCBox;
@@ -55,11 +58,16 @@ public class AltaTipoRegistro {
     }
 
     private void cargarEventos() {
-        // listarEventos() : set<DTEvento>
-        Set<DTEvento> eventos = controlador.listarEventos();
-        for (DTEvento ev : eventos) {
-            EventoCBox.addItem(ev.getNombre());
+        try {
+            // listarEventos() : set<DTEvento>
+            Set<DTEvento> eventos = controlador.listarEventos();
+            for (DTEvento ev : eventos) {
+                EventoCBox.addItem(ev.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
+        // Fuera del try: cargarEdiciones() ya maneja sus propios errores.
         cargarEdiciones();
     }
 
@@ -69,10 +77,15 @@ public class AltaTipoRegistro {
         if (nombreEvento == null) {
             return;
         }
-        // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento> -- Sistema retiene eventoSeleccionado
-        Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
-        for (DTEdicionEvento ed : ediciones) {
-            EdicionCBox.addItem(ed.getNombre());
+        try {
+            // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento> -- Sistema retiene eventoSeleccionado
+            Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
+            for (DTEdicionEvento ed : ediciones) {
+                EdicionCBox.addItem(ed.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+            return; // no seguimos: evitamos encadenar un segundo dialogo
         }
         seleccionarEdicion();
     }
@@ -82,14 +95,18 @@ public class AltaTipoRegistro {
         if (nombreEdicion == null) {
             return;
         }
-        // seleccionarEdicionEvento(nombreEdicion) -- Sistema retiene edicionSeleccionada
-        controlador.seleccionarEdicionEvento(nombreEdicion);
+        try {
+            // seleccionarEdicionEvento(nombreEdicion) -- Sistema retiene edicionSeleccionada
+            controlador.seleccionarEdicionEvento(nombreEdicion);
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
     }
 
     private void confirmar() {
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (EventoCBox.getSelectedItem() == null || EdicionCBox.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(mainPanel, "Elegí un evento y una edición.",
-                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Elegí un evento y una edición.");
             return;
         }
 
@@ -97,38 +114,39 @@ public class AltaTipoRegistro {
         String descripcion = DescripcionTxt.getText().trim();
 
         if (nombre.isEmpty() || descripcion.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Complete nombre y descripción.",
-                    "Alta de Tipo de Registro", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Complete nombre y descripción.");
             return;
         }
 
         double costo;
         try {
+            // Este try NO es manejo de errores: es validacion de formato del formulario.
             costo = Double.parseDouble(CostoTxt.getText().trim().replace(',', '.'));
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(mainPanel, "El costo tiene que ser un número (ej: 150 o 150.50).",
-                    "Alta de Tipo de Registro", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "El costo tiene que ser un número (ej: 150 o 150.50).");
             return;
         }
         if (costo < 0) {
-            JOptionPane.showMessageDialog(mainPanel, "El costo no puede ser negativo.",
-                    "Alta de Tipo de Registro", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "El costo no puede ser negativo.");
             return;
         }
         int cupo = (Integer) CupoSpinner.getValue();
 
-        // ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo) : boolean
-        if (controlador.ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo)) {
-            JOptionPane.showMessageDialog(mainPanel, "Tipo de registro creado con éxito.",
-                    "Alta de Tipo de Registro", JOptionPane.INFORMATION_MESSAGE);
-            limpiar();
-            accionCerrar.run();
-        } else {
-            // [nombre ya en uso en esta edicion]: se avisa y se deja la ventana abierta
-            // para reintentar (LOOP del dss), no se cierra ni se limpia.
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Ya existe un tipo de registro con ese nombre en esta edición.",
-                    "Nombre en uso", JOptionPane.WARNING_MESSAGE);
+        // (b) Llamada a la LOGICA: siempre dentro del try.
+        try {
+            // ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo) : boolean
+            if (controlador.ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo)) {
+                Mensajes.exito(mainPanel, TITULO, "Tipo de registro creado con éxito.");
+                limpiar();
+                accionCerrar.run();
+            } else {
+                // [nombre ya en uso en esta edicion]: se avisa y se deja la ventana abierta
+                // para reintentar (LOOP del dss), no se cierra ni se limpia.
+                Mensajes.error(mainPanel, TITULO,
+                        "Ya existe un tipo de registro con ese nombre en esta edición.");
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

@@ -27,6 +27,9 @@ import java.util.Set;
  */
 public class AltaCategoria {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Categoría";
+
     private JTextField NombreTxt;
     private JTree CategoriasTree;
     private JPanel mainPanel;
@@ -61,10 +64,15 @@ public class AltaCategoria {
      * para que el arbol refleje la nueva categoria.
      */
     private void recargarArbol() {
-        // listarCategorias() : set<DTCategoria>
         DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Categorias");
-        for (DTCategoria c : controlador.listarCategorias()) {
-            raiz.add(new DefaultMutableTreeNode(c.getNombre()));
+        try {
+            // listarCategorias() : set<DTCategoria>
+            for (DTCategoria c : controlador.listarCategorias()) {
+                raiz.add(new DefaultMutableTreeNode(c.getNombre()));
+            }
+        } catch (Exception ex) {
+            // El arbol queda solo con la raiz, pero la ventana abre igual.
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
         CategoriasTree.setModel(new DefaultTreeModel(raiz));
         // Expandir para que se vean las categorias colgando de la raiz.
@@ -74,26 +82,28 @@ public class AltaCategoria {
     }
 
     private void aceptar() {
+        // (a) Validacion del FORMULARIO: fuera del try, no toca la logica.
         String nombre = NombreTxt.getText().trim();
         if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Ingresá el nombre de la categoría.",
-                    "Alta de Categoría", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Ingresá el nombre de la categoría.");
             return;
         }
 
-        // altaCategoria(nombre) : Status
-        Status resultado = controlador.altaCategoria(nombre);
-        if (resultado == Status.OK) {
-            recargarArbol();      // el arbol refleja la nueva categoria
-            NombreTxt.setText("");
-            JOptionPane.showMessageDialog(mainPanel, "Categoría creada con éxito.",
-                    "Alta de Categoría", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            // ERROR: ya existe una categoria con ese nombre. Se avisa y se deja
-            // la ventana abierta para reingresar o cancelar (LOOP del DSS).
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Ya existe una categoría con ese nombre.",
-                    "Alta de Categoría", JOptionPane.WARNING_MESSAGE);
+        // (b) Llamada a la LOGICA: siempre dentro del try.
+        try {
+            // altaCategoria(nombre) : Status
+            Status resultado = controlador.altaCategoria(nombre);
+            if (resultado == Status.OK) {
+                recargarArbol();      // el arbol refleja la nueva categoria
+                NombreTxt.setText("");
+                Mensajes.exito(mainPanel, TITULO, "Categoría creada con éxito.");
+            } else {
+                // ERROR: ya existe una categoria con ese nombre. Se avisa y se deja
+                // la ventana abierta para reingresar o cancelar (LOOP del DSS).
+                Mensajes.error(mainPanel, TITULO, "Ya existe una categoría con ese nombre.");
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

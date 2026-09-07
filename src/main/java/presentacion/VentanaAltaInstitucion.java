@@ -12,6 +12,9 @@ import java.awt.*;
 
 public class VentanaAltaInstitucion extends JInternalFrame {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Institución";
+
     // Variables del formulario
     private JPanel mainPanel;
     private JTextField nombre;
@@ -40,45 +43,37 @@ public class VentanaAltaInstitucion extends JInternalFrame {
         String descripcion = desc.getText().trim();
         String web = sitioWeb.getText().trim();
 
+        // (a) Validacion del FORMULARIO: fuera del try, no toca la logica.
         if (nombreInstitucion.isEmpty()
                 || descripcion.isEmpty()
                 || web.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "Completá todos los campos.",
-                    "Datos incompletos",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            Mensajes.aviso(mainPanel, TITULO, "Completá todos los campos.");
             return;
         }
 
-        // Llamada con Strings, no con DTO
-        Status resultado = controlador.altaInstitucion(
-                nombreInstitucion,
-                descripcion,
-                web
-        );
-
-        if (resultado == Status.OK) {
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "Institución dada de alta correctamente.",
-                    "Alta de institución",
-                    JOptionPane.INFORMATION_MESSAGE
+        // (b) Llamada a la LOGICA: siempre dentro del try.
+        try {
+            // Llamada con Strings, no con DTO
+            Status resultado = controlador.altaInstitucion(
+                    nombreInstitucion,
+                    descripcion,
+                    web
             );
-            dispose(); // o accionCerrar.run();
 
-        } else {
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "Ya existe una institución con el nombre \""
-                            + nombreInstitucion + "\".",
-                    "Nombre en uso",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            nombre.requestFocus();
-            nombre.selectAll();
+            if (resultado == Status.OK) {
+                Mensajes.exito(mainPanel, TITULO, "Institución dada de alta correctamente.");
+                dispose();
+
+            } else {
+                Mensajes.error(mainPanel, TITULO,
+                        "Ya existe una institución con el nombre \""
+                                + nombreInstitucion + "\".");
+                nombre.requestFocus();
+                nombre.selectAll();
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

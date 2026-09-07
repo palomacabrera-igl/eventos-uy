@@ -18,6 +18,10 @@ import java.util.Set;
 import java.time.DateTimeException;
 
 public class VentanaAltaEvento extends JInternalFrame {
+
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Alta de Evento";
+
     private JPanel mainPanel;
     private JTextField nombretxt;
     private JTextField desctxt;
@@ -40,15 +44,7 @@ public class VentanaAltaEvento extends JInternalFrame {
         spinnerMes.setModel(new SpinnerNumberModel(1, 1, 12, 1));
         spinnerAnio.setModel(new SpinnerNumberModel(anioActual, 1800, anioActual, 1));
 
-        // 🔹 Cargar categorías en el JList (solo nombres)
-        Set<DTCategoria> categorias = controlador.listarCategorias();
-        List<String> nombresCategorias = new ArrayList<>();
-
-        for (DTCategoria c : categorias) {
-            nombresCategorias.add(c.getNombre()); // usa el getter del DTO
-        }
-
-        catlist.setListData(nombresCategorias.toArray(new String[0]));
+        cargarCategorias();
 
         aceptarButton.addActionListener(e -> aceptar());
         cancelarButton.addActionListener(e -> dispose());
@@ -57,52 +53,73 @@ public class VentanaAltaEvento extends JInternalFrame {
         pack();
     }
 
+    /**
+     * Carga las categorias en el JList. Estaba suelto en el constructor: si
+     * listarCategorias() fallaba, la ventana ni siquiera abria.
+     */
+    private void cargarCategorias() {
+        List<String> nombresCategorias = new ArrayList<>();
+        try {
+            Set<DTCategoria> categorias = controlador.listarCategorias();
+            for (DTCategoria c : categorias) {
+                nombresCategorias.add(c.getNombre()); // usa el getter del DTO
+            }
+        } catch (Exception ex) {
+            // La lista queda vacia, pero la ventana abre igual.
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
+        catlist.setListData(nombresCategorias.toArray(new String[0]));
+    }
+
     private void aceptar() {
         String nombre = nombretxt.getText().trim();
         String descripcion = desctxt.getText().trim();
         String sigla = siglatxt.getText().trim();
 
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (nombre.isEmpty() || descripcion.isEmpty() || sigla.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Completá todos los campos.",
-                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Completá todos los campos.");
             return;
         }
 
         LocalDate fechaAlta;
         try {
+            // Validacion de formato del formulario, no un fallo del sistema.
             fechaAlta = LocalDate.of((int) spinnerAnio.getValue(),
                     (int) spinnerMes.getValue(), (int) spinnerDia.getValue());
         } catch (DateTimeException ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "La fecha de alta no existe (revisá el día para ese mes).",
-                    "Error de fecha", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "La fecha de alta no existe (revisá el día para ese mes).");
             return;
         }
         if (fechaAlta.isAfter(LocalDate.now())) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "La fecha de alta no puede ser posterior a la fecha actual.",
-                    "Error de fecha", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "La fecha de alta no puede ser posterior a la fecha actual.");
             return;
         }
 
         List<String> nombresCategorias = catlist.getSelectedValuesList();
         if (nombresCategorias.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Debe seleccionar al menos una categoría.",
-                    "Categorías requeridas", JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO, "Debe seleccionar al menos una categoría.");
             return;
         }
 
-        Status resultado = controlador.ingresarDatosEvento(nombre, descripcion, fechaAlta, sigla, nombresCategorias);
+        // (b) Llamada a la LOGICA: siempre dentro del try.
+        try {
+            Status resultado = controlador.ingresarDatosEvento(
+                    nombre, descripcion, fechaAlta, sigla, nombresCategorias);
 
-        if (resultado == Status.OK) {
-            JOptionPane.showMessageDialog(mainPanel, "Evento dado de alta correctamente.",
-                    "Alta de evento", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-        } else {
-            JOptionPane.showMessageDialog(mainPanel, "Ya existe un evento con el nombre \"" + nombre + "\".",
-                    "Nombre en uso", JOptionPane.WARNING_MESSAGE);
-            nombretxt.requestFocus();
-            nombretxt.selectAll();
+            if (resultado == Status.OK) {
+                Mensajes.exito(mainPanel, TITULO, "Evento dado de alta correctamente.");
+                dispose();
+            } else {
+                Mensajes.error(mainPanel, TITULO,
+                        "Ya existe un evento con el nombre \"" + nombre + "\".");
+                nombretxt.requestFocus();
+                nombretxt.selectAll();
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

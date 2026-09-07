@@ -149,9 +149,7 @@ public class AltaPatrocinioPanel {
             EdicionCBox.setSelectedIndex(-1);
             TipoRegistroCBox.setSelectedIndex(-1);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar las ediciones: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         } finally {
             cargando = false;
             actualizarResumen();
@@ -172,9 +170,7 @@ public class AltaPatrocinioPanel {
             }
             TipoRegistroCBox.setSelectedIndex(-1);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "No se pudieron cargar los tipos de registro: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         } finally {
             cargando = false;
             actualizarResumen();
@@ -225,28 +221,27 @@ public class AltaPatrocinioPanel {
         DTTipoRegistro tipo = (DTTipoRegistro) TipoRegistroCBox.getSelectedItem();
         String institucion = (String) InstitucionCBox.getSelectedItem();
 
+        // (a) Validacion del FORMULARIO: fuera del try de la logica.
         if (evento == null || edicion == null || tipo == null || institucion == null) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Elegi evento, edicion, tipo de registro e institucion.",
-                    TITULO, JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "Elegi evento, edicion, tipo de registro e institucion.");
             return;
         }
 
         int codigo;
         try {
+            // Validacion de formato del formulario, no un fallo del sistema.
             codigo = Integer.parseInt(CodigoTxt.getText().trim());
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "El codigo de patrocinio tiene que ser un numero entero.",
-                    TITULO, JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "El codigo de patrocinio tiene que ser un numero entero.");
             return;
         }
 
         Double aporte = leerAporte();
         if (aporte == null || aporte <= 0) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "El aporte economico tiene que ser un numero mayor a cero.",
-                    TITULO, JOptionPane.WARNING_MESSAGE);
+            Mensajes.aviso(mainPanel, TITULO,
+                    "El aporte economico tiene que ser un numero mayor a cero.");
             return;
         }
 
@@ -262,22 +257,19 @@ public class AltaPatrocinioPanel {
 
             controlador.altaPatrocinio(dt);
 
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Patrocinio dado de alta correctamente.",
-                    TITULO, JOptionPane.INFORMATION_MESSAGE);
+            Mensajes.exito(mainPanel, TITULO, "Patrocinio dado de alta correctamente.");
             limpiar();
             accionCerrar.run();
 
         } catch (ReglaNegocioException ex) {
+            // Regla de negocio violada -> error (rojo), no errorInesperado:
+            // el mensaje ya viene redactado desde la logica y es esperable.
             // LOOP del caso de uso: se informa y la ventana NO se cierra,
             // el administrador puede editar los datos o cancelar.
-            JOptionPane.showMessageDialog(mainPanel, ex.getMessage(),
-                    "No se pudo dar de alta", JOptionPane.WARNING_MESSAGE);
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel,
-                    "Ocurrio un error inesperado: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 

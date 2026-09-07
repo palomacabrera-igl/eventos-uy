@@ -26,6 +26,9 @@ import java.util.Set;
  */
 public class ConsultaDeRegistro {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Consulta de Registro";
+
     private JComboBox UsuarioCBox;
     private JComboBox EdicionCBox;
     private JPanel mainPanel;
@@ -67,11 +70,16 @@ public class ConsultaDeRegistro {
     }
 
     private void cargarUsuarios() {
-        // listarUsuarios() : set<DTUsuario>
-        Set<DTUsuario> usuarios = controlador.listarUsuarios();
-        for (DTUsuario u : usuarios) {
-            UsuarioCBox.addItem(u.getNickname());
+        try {
+            // listarUsuarios() : set<DTUsuario>
+            Set<DTUsuario> usuarios = controlador.listarUsuarios();
+            for (DTUsuario u : usuarios) {
+                UsuarioCBox.addItem(u.getNickname());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
+        // Fuera del try: cargarRegistros() ya maneja sus propios errores.
         cargarRegistros();
     }
 
@@ -84,18 +92,24 @@ public class ConsultaDeRegistro {
             return;
         }
 
-        // seleccionarUsuario(nickname) -- Sistema retiene el asistente seleccionado,
-        // del que listarRegistroUsuario() toma los registros.
-        DTUsuario usuario = controlador.seleccionarUsuario(nickname);
-        if (!(usuario instanceof DTAsistente)) {
-            // Solo los asistentes tienen registros; un organizador no muestra nada.
-            return;
-        }
+        try {
+            // seleccionarUsuario(nickname) -- Sistema retiene el asistente seleccionado,
+            // del que listarRegistroUsuario() toma los registros.
+            DTUsuario usuario = controlador.seleccionarUsuario(nickname);
+            if (!(usuario instanceof DTAsistente)) {
+                // Solo los asistentes tienen registros; un organizador no muestra nada.
+                return;
+            }
 
-        // listarRegistroUsuario(nickname) : set<DTRegistro>
-        Set<DTRegistro> registros = controlador.listarRegistroUsuario(nickname);
-        for (DTRegistro r : registros) {
-            EdicionCBox.addItem(r.getNombreEdicion());
+            // listarRegistroUsuario(nickname) : set<DTRegistro>
+            Set<DTRegistro> registros = controlador.listarRegistroUsuario(nickname);
+            for (DTRegistro r : registros) {
+                EdicionCBox.addItem(r.getNombreEdicion());
+            }
+        } catch (Exception ex) {
+            limpiarDetalle();
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+            return;
         }
         mostrarRegistro();
     }
@@ -108,15 +122,20 @@ public class ConsultaDeRegistro {
             return;
         }
 
-        // obtenerRegistro(nickname, nombre) : DTRegistro
-        DTRegistro reg = controlador.obtenerRegistro(nickname, nombreEdicion);
-        if (reg == null) {
+        try {
+            // obtenerRegistro(nickname, nombre) : DTRegistro
+            DTRegistro reg = controlador.obtenerRegistro(nickname, nombreEdicion);
+            if (reg == null) {
+                limpiarDetalle();
+                return;
+            }
+            TipoRegistroTxt.setText(reg.getTipoRegistro());
+            CostoTxt.setText(String.valueOf(reg.getCosto()));
+            FechaRegistroTxt.setText(String.valueOf(reg.getFechaRegistro()));
+        } catch (Exception ex) {
             limpiarDetalle();
-            return;
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
-        TipoRegistroTxt.setText(reg.getTipoRegistro());
-        CostoTxt.setText(String.valueOf(reg.getCosto()));
-        FechaRegistroTxt.setText(String.valueOf(reg.getFechaRegistro()));
     }
 
     private void limpiarDetalle() {

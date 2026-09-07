@@ -15,6 +15,9 @@ import java.util.Set;
 
 public class VentanaConsultaTipoRegistro extends JInternalFrame {
 
+    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    private static final String TITULO = "Consulta de Tipo de Registro";
+
     private JPanel mainPanel;
     private JComboBox eventoBox;
     private JComboBox edicionBox;
@@ -49,8 +52,12 @@ public class VentanaConsultaTipoRegistro extends JInternalFrame {
     }
 
     private void cargarEventos() {
-        for (DTEvento evento : controlador.listarEventos()) {
-            eventoBox.addItem(evento.getNombre());
+        try {
+            for (DTEvento evento : controlador.listarEventos()) {
+                eventoBox.addItem(evento.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
         cargarEdiciones();
     }
@@ -65,11 +72,15 @@ public class VentanaConsultaTipoRegistro extends JInternalFrame {
             return;
         }
 
-        Set<DTEdicionEvento> ediciones =
-                controlador.listarEdicionesDeEvento(nombreEvento);
+        try {
+            Set<DTEdicionEvento> ediciones =
+                    controlador.listarEdicionesDeEvento(nombreEvento);
 
-        for (DTEdicionEvento edicion : ediciones) {
-            edicionBox.addItem(edicion.getNombre());
+            for (DTEdicionEvento edicion : ediciones) {
+                edicionBox.addItem(edicion.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
@@ -82,11 +93,15 @@ public class VentanaConsultaTipoRegistro extends JInternalFrame {
             return;
         }
 
-        Set<DTTipoRegistro> tipos =
-                controlador.listarTiposRegistroDeEdicion(nombreEdicion);
+        try {
+            Set<DTTipoRegistro> tipos =
+                    controlador.listarTiposRegistroDeEdicion(nombreEdicion);
 
-        for (DTTipoRegistro tipo : tipos) {
-            registroBox.addItem(tipo.getNombre());
+            for (DTTipoRegistro tipo : tipos) {
+                registroBox.addItem(tipo.getNombre());
+            }
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
     }
 
@@ -97,13 +112,18 @@ public class VentanaConsultaTipoRegistro extends JInternalFrame {
             return;
         }
 
-        DTTipoRegistro tipo =
-                controlador.seleccionarTipoRegistro(nombreTipo);
+        try {
+            DTTipoRegistro tipo =
+                    controlador.seleccionarTipoRegistro(nombreTipo);
 
-        nombreTxt.setText(tipo.getNombre());
-        descTxt.setText(tipo.getDescripcion());
-        costoTxt.setText(String.valueOf(tipo.getCosto()));
-        cupoTxt.setText(String.valueOf(tipo.getCupo()));
+            nombreTxt.setText(tipo.getNombre());
+            descTxt.setText(tipo.getDescripcion());
+            costoTxt.setText(String.valueOf(tipo.getCosto()));
+            cupoTxt.setText(String.valueOf(tipo.getCupo()));
+        } catch (Exception ex) {
+            limpiarDetalle();
+            Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
     }
 
     private void limpiarDetalle() {

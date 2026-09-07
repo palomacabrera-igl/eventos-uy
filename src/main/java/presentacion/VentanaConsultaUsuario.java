@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 
 public class VentanaConsultaUsuario extends JInternalFrame {
 
+    /** Titulo de todos los dialogos de este caso de uso. */
+    private static final String TITULO = "Consulta de Usuario";
+
     private JPanel panelPrincipal;
     private JComboBox<DTUsuario> comboUsuarios;
     private JTextArea areaDetalle;
@@ -130,9 +133,13 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     private void cargarUsuarios() {
         comboUsuarios.removeAllItems();
 
-        controlador.listarUsuarios().stream()
-                .sorted(Comparator.comparing(DTUsuario::getNickname))
-                .forEach(comboUsuarios::addItem);
+        try {
+            controlador.listarUsuarios().stream()
+                    .sorted(Comparator.comparing(DTUsuario::getNickname))
+                    .forEach(comboUsuarios::addItem);
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
+        }
     }
 
     private void seleccionarUsuario() {
@@ -142,41 +149,49 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             return;
         }
 
-        DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
+        try {
+            DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
 
-        if (datos instanceof DTOrganizador organizador) {
-            areaDetalle.setText(
-                    "Nickname: " + organizador.getNickname()
-                            + "\nNombre: " + organizador.getNombre()
-                            + "\nCorreo: " + organizador.getCorreo()
-                            + "\nDescripción: " + organizador.getDescripcion()
-                            + "\nSitio web: " + organizador.getSitioWeb()
-            );
+            if (datos instanceof DTOrganizador organizador) {
+                areaDetalle.setText(
+                        "Nickname: " + organizador.getNickname()
+                                + "\nNombre: " + organizador.getNombre()
+                                + "\nCorreo: " + organizador.getCorreo()
+                                + "\nDescripción: " + organizador.getDescripcion()
+                                + "\nSitio web: " + organizador.getSitioWeb()
+                );
 
-            listaRegistros.setListData(new DTRegistro[0]);
-            listaEdiciones.setListData(
-                    controlador.listarEdiciones().toArray(new DTEdicionEvento[0])
-            );
+                listaRegistros.setListData(new DTRegistro[0]);
+                listaEdiciones.setListData(
+                        controlador.listarEdiciones().toArray(new DTEdicionEvento[0])
+                );
 
-            cardLayout.show(panelAsociaciones, "EDICIONES");
+                cardLayout.show(panelAsociaciones, "EDICIONES");
 
-        } else if (datos instanceof DTAsistente asistente) {
-            areaDetalle.setText(
-                    "Nickname: " + asistente.getNickname()
-                            + "\nNombre: " + asistente.getNombre()
-                            + "\nApellido: " + asistente.getApellido()
-                            + "\nCorreo: " + asistente.getCorreo()
-                            + "\nFecha de nacimiento: "
-                            + asistente.getFechaNacimiento().aLocalDate()
-            );
+            } else if (datos instanceof DTAsistente asistente) {
+                areaDetalle.setText(
+                        "Nickname: " + asistente.getNickname()
+                                + "\nNombre: " + asistente.getNombre()
+                                + "\nApellido: " + asistente.getApellido()
+                                + "\nCorreo: " + asistente.getCorreo()
+                                + "\nFecha de nacimiento: "
+                                + asistente.getFechaNacimiento().aLocalDate()
+                );
 
+                listaEdiciones.setListData(new DTEdicionEvento[0]);
+                listaRegistros.setListData(
+                        controlador.listarRegistroUsuario(asistente.getNickname())
+                                .toArray(new DTRegistro[0])
+                );
+
+                cardLayout.show(panelAsociaciones, "REGISTROS");
+            }
+        } catch (Exception ex) {
+            // Estado consistente: vaciamos detalle y listas en vez de dejarlas a medias.
+            areaDetalle.setText("");
             listaEdiciones.setListData(new DTEdicionEvento[0]);
-            listaRegistros.setListData(
-                    controlador.listarRegistroUsuario(asistente.getNickname())
-                            .toArray(new DTRegistro[0])
-            );
-
-            cardLayout.show(panelAsociaciones, "REGISTROS");
+            listaRegistros.setListData(new DTRegistro[0]);
+            Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
         }
     }
 
@@ -187,45 +202,50 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             return;
         }
 
-        DTEdicionCompleto edicion =
-                controlador.seleccionarEdicion(item.getNombre());
+        try {
+            DTEdicionCompleto edicion =
+                    controlador.seleccionarEdicion(item.getNombre());
 
-        DTOrganizador org = edicion.getOrganizador();
-        String organizador = org == null
-                ? "(sin organizador)"
-                : org.getNombre() + " (" + org.getNickname() + ")";
+            DTOrganizador org = edicion.getOrganizador();
+            String organizador = org == null
+                    ? "(sin organizador)"
+                    : org.getNombre() + " (" + org.getNickname() + ")";
 
-        String tiposRegistro = edicion.getTiposRegistro().isEmpty()
-                ? "Sin tipos de registro"
-                : edicion.getTiposRegistro().stream()
-                .map(t -> t.getNombre() + " - $" + t.getCosto() + " (cupo " + t.getCupo() + ")")
-                .collect(Collectors.joining("\n- ", "- ", ""));
+            String tiposRegistro = edicion.getTiposRegistro().isEmpty()
+                    ? "Sin tipos de registro"
+                    : edicion.getTiposRegistro().stream()
+                    .map(t -> t.getNombre() + " - $" + t.getCosto() + " (cupo " + t.getCupo() + ")")
+                    .collect(Collectors.joining("\n- ", "- ", ""));
 
-        String registros = edicion.getRegistros().isEmpty()
-                ? "Sin registros"
-                : edicion.getRegistros().stream()
-                .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + r.getFechaRegistro())
-                .collect(Collectors.joining("\n- ", "- ", ""));
+            String registros = edicion.getRegistros().isEmpty()
+                    ? "Sin registros"
+                    : edicion.getRegistros().stream()
+                    .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + r.getFechaRegistro())
+                    .collect(Collectors.joining("\n- ", "- ", ""));
 
-        String patrocinios = edicion.getPatrocinios().isEmpty()
-                ? "Sin patrocinios"
-                : edicion.getPatrocinios().stream()
-                .map(p -> p.getInstitucion() + " (" + p.getNivel() + ")")
-                .collect(Collectors.joining("\n- ", "- ", ""));
+            String patrocinios = edicion.getPatrocinios().isEmpty()
+                    ? "Sin patrocinios"
+                    : edicion.getPatrocinios().stream()
+                    .map(p -> p.getInstitucion() + " (" + p.getNivel() + ")")
+                    .collect(Collectors.joining("\n- ", "- ", ""));
 
-        areaDetalle.setText(
-                "Edición: " + edicion.getNombre()
-                        + "\nSigla: " + edicion.getSigla()
-                        + "\nFecha de alta: " + edicion.getFechaAlta()
-                        + "\nInicio: " + edicion.getFechaIni()
-                        + "\nFin: " + edicion.getFechaFin()
-                        + "\nCiudad: " + edicion.getCiudad()
-                        + "\nPaís: " + edicion.getPais()
-                        + "\nOrganizador: " + organizador
-                        + "\n\nTipos de registro:\n" + tiposRegistro
-                        + "\n\nRegistros:\n" + registros
-                        + "\n\nPatrocinios:\n" + patrocinios
-        );
+            areaDetalle.setText(
+                    "Edición: " + edicion.getNombre()
+                            + "\nSigla: " + edicion.getSigla()
+                            + "\nFecha de alta: " + edicion.getFechaAlta()
+                            + "\nInicio: " + edicion.getFechaIni()
+                            + "\nFin: " + edicion.getFechaFin()
+                            + "\nCiudad: " + edicion.getCiudad()
+                            + "\nPaís: " + edicion.getPais()
+                            + "\nOrganizador: " + organizador
+                            + "\n\nTipos de registro:\n" + tiposRegistro
+                            + "\n\nRegistros:\n" + registros
+                            + "\n\nPatrocinios:\n" + patrocinios
+            );
+        } catch (Exception ex) {
+            areaDetalle.setText("");
+            Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
+        }
     }
 
     private void mostrarRegistro() {
@@ -235,15 +255,20 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             return;
         }
 
-        DTRegistro registro =
-                controlador.obtenerRegistro(item.getNombreEdicion());
+        try {
+            DTRegistro registro =
+                    controlador.obtenerRegistro(item.getNombreEdicion());
 
-        areaDetalle.setText(
-                "Edición: " + registro.getNombreEdicion()
-                        + "\nTipo de registro: " + registro.getTipoRegistro()
-                        + "\nCosto: " + registro.getCosto()
-                        + "\nFecha de registro: " + registro.getFechaRegistro()
-        );
+            areaDetalle.setText(
+                    "Edición: " + registro.getNombreEdicion()
+                            + "\nTipo de registro: " + registro.getTipoRegistro()
+                            + "\nCosto: " + registro.getCosto()
+                            + "\nFecha de registro: " + registro.getFechaRegistro()
+            );
+        } catch (Exception ex) {
+            areaDetalle.setText("");
+            Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
+        }
     }
 
     {
