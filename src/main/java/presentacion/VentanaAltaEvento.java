@@ -15,22 +15,30 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.time.DateTimeException;
 
 public class VentanaAltaEvento extends JInternalFrame {
     private JPanel mainPanel;
     private JTextField nombretxt;
     private JTextField desctxt;
-    private JTextField fechatxt;
     private JTextField siglatxt;
     private JList<String> catlist;
     private JButton aceptarButton;
     private JButton cancelarButton;
+    private JSpinner spinnerDia;
+    private JSpinner spinnerMes;
+    private JSpinner spinnerAnio;
 
     private final IControladorSistema controlador;
 
     public VentanaAltaEvento() {
         super("Alta de Evento", true, true, true, true);
         controlador = Fabrica.getInstancia().getControladorSistema();
+
+        int anioActual = LocalDate.now().getYear();
+        spinnerDia.setModel(new SpinnerNumberModel(1, 1, 31, 1));
+        spinnerMes.setModel(new SpinnerNumberModel(1, 1, 12, 1));
+        spinnerAnio.setModel(new SpinnerNumberModel(anioActual, 1800, anioActual, 1));
 
         // 🔹 Cargar categorías en el JList (solo nombres)
         Set<DTCategoria> categorias = controlador.listarCategorias();
@@ -52,38 +60,47 @@ public class VentanaAltaEvento extends JInternalFrame {
     private void aceptar() {
         String nombre = nombretxt.getText().trim();
         String descripcion = desctxt.getText().trim();
-        String fechaStr = fechatxt.getText().trim();
         String sigla = siglatxt.getText().trim();
 
-        // Validaciones básicas
-        if (nombre.isEmpty() || descripcion.isEmpty() || fechaStr.isEmpty() || sigla.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Completá todos los campos.", "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+        if (nombre.isEmpty() || descripcion.isEmpty() || sigla.isEmpty()) {
+            JOptionPane.showMessageDialog(mainPanel, "Completá todos los campos.",
+                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         LocalDate fechaAlta;
         try {
-            fechaAlta = LocalDate.parse(fechaStr); // formato ISO yyyy-MM-dd
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel, "Formato de fecha inválido (use yyyy-MM-dd).", "Error de fecha", JOptionPane.ERROR_MESSAGE);
+            fechaAlta = LocalDate.of((int) spinnerAnio.getValue(),
+                    (int) spinnerMes.getValue(), (int) spinnerDia.getValue());
+        } catch (DateTimeException ex) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "La fecha de alta no existe (revisá el día para ese mes).",
+                    "Error de fecha", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (fechaAlta.isAfter(LocalDate.now())) {
+            JOptionPane.showMessageDialog(mainPanel,
+                    "La fecha de alta no puede ser posterior a la fecha actual.",
+                    "Error de fecha", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Obtener categorías seleccionadas
         List<String> nombresCategorias = catlist.getSelectedValuesList();
         if (nombresCategorias.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Debe seleccionar al menos una categoría.", "Categorías requeridas", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(mainPanel, "Debe seleccionar al menos una categoría.",
+                    "Categorías requeridas", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Llamada al sistema
         Status resultado = controlador.ingresarDatosEvento(nombre, descripcion, fechaAlta, sigla, nombresCategorias);
 
         if (resultado == Status.OK) {
-            JOptionPane.showMessageDialog(mainPanel, "Evento dado de alta correctamente.", "Alta de evento", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(mainPanel, "Evento dado de alta correctamente.",
+                    "Alta de evento", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } else {
-            JOptionPane.showMessageDialog(mainPanel, "Ya existe un evento con el nombre \"" + nombre + "\".", "Nombre en uso", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(mainPanel, "Ya existe un evento con el nombre \"" + nombre + "\".",
+                    "Nombre en uso", JOptionPane.WARNING_MESSAGE);
             nombretxt.requestFocus();
             nombretxt.selectAll();
         }
@@ -124,13 +141,11 @@ public class VentanaAltaEvento extends JInternalFrame {
         label4.setText("Sigla");
         mainPanel.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
-        label5.setText("Categorías");
+        label5.setText("Categorías\n\n(Ctrl+clic para varias)");
         mainPanel.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         desctxt = new JTextField();
         desctxt.setText("");
         mainPanel.add(desctxt, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        fechatxt = new JTextField();
-        mainPanel.add(fechatxt, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         siglatxt = new JTextField();
         siglatxt.setText("");
         mainPanel.add(siglatxt, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
@@ -142,6 +157,15 @@ public class VentanaAltaEvento extends JInternalFrame {
         mainPanel.add(cancelarButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         catlist = new JList();
         mainPanel.add(catlist, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.add(panel1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        spinnerDia = new JSpinner();
+        panel1.add(spinnerDia, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        spinnerMes = new JSpinner();
+        panel1.add(spinnerMes, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        spinnerAnio = new JSpinner();
+        panel1.add(spinnerAnio, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -150,4 +174,5 @@ public class VentanaAltaEvento extends JInternalFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }
