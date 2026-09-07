@@ -53,7 +53,7 @@ public class AltaEdicionPanel {
         rango(spinnerAnioFin, anioActual, anioActual - 5, anioActual + 10);
         rango(spinnerDiaAlta, 1, 1, 31);
         rango(spinnerMesAlta, 1, 1, 12);
-        rango(spinnerAnioAlta, anioActual, anioActual - 5, anioActual + 10);
+        rango(spinnerAnioAlta, anioActual, anioActual - 5, anioActual);
 
         configurarRenderers();
         cargarEventosYOrganizadores();
@@ -168,6 +168,13 @@ public class AltaEdicionPanel {
             if (fechaFin.aLocalDate().isBefore(fechaInicio.aLocalDate())) {
                 JOptionPane.showMessageDialog(mainPanel,
                         "La fecha de fin no puede ser anterior a la fecha de inicio.",
+                        "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (fechaAlta.aLocalDate().isAfter(LocalDate.now())) {
+                JOptionPane.showMessageDialog(mainPanel,
+                        "La fecha de alta no puede ser posterior a la fecha actual.",
                         "Datos incompletos", JOptionPane.WARNING_MESSAGE);
                 return;
             }
