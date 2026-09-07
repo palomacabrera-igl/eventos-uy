@@ -18,7 +18,9 @@
         <!-- <class>logica.TipoRegistro</class>   -->
         <!-- <class>logica.Registro</class>       -->
         <!-- <class>logica.Patrocinio</class>     -->
-        <!-- <class>logica.Categoria</class>      -->
+
+        <!-- Primera entidad mapeada (prueba piloto). Ver logica/Categoria.java -->
+        <class>logica.Categoria</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
