@@ -11,6 +11,12 @@ public class Patrocinio {
     private Institucion institucion;
     private TipoRegistro tipoRegistro;
 
+    /**
+     * La EdicionEvento patrocinada (referencia inversa). La setea
+     * EdicionEvento.agregarPatrocinio().
+     */
+    private EdicionEvento edicion;
+
     protected Patrocinio() {}
 
     public Patrocinio(LocalDate fechaIni, Double monto, int cantRegistrosGratis,
@@ -32,6 +38,10 @@ public class Patrocinio {
     public NivelPatrocinio getNivelPatro() {return nivelPatro;}
     public Institucion getInstitucion() {return institucion;}
     public TipoRegistro getTipoRegistro() {return tipoRegistro;}
+    public EdicionEvento getEdicion() {return edicion;}
+
+    /** Sin 'public': solo lo usa EdicionEvento, dentro del paquete logica. */
+    void setEdicion(EdicionEvento edicion) {this.edicion = edicion;}
 
     public void setFechaIni(LocalDate fechaIni) {this.fechaIni = fechaIni;}
     public void setMonto(Double monto) {this.monto = monto;}

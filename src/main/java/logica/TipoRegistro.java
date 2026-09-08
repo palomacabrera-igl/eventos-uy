@@ -6,6 +6,12 @@ public class TipoRegistro {
     private Double costo;
     private int cupo;
 
+    /**
+     * La EdicionEvento a la que pertenece este tipo de registro (referencia
+     * inversa). La setea EdicionEvento.agregarTipoRegistro().
+     */
+    private EdicionEvento edicion;
+
     protected TipoRegistro() {}
 
     public TipoRegistro(String nombre, String descripcion, Double costo, int cupo){
@@ -19,6 +25,10 @@ public class TipoRegistro {
     public String getDescripcion() {return descripcion;}
     public Double getCosto() {return costo;}
     public int getCupo() {return cupo;}
+    public EdicionEvento getEdicion() {return edicion;}
+
+    /** Sin 'public': solo lo usa EdicionEvento, dentro del paquete logica. */
+    void setEdicion(EdicionEvento edicion) {this.edicion = edicion;}
 
     public void setNombre(String nombre) {this.nombre = nombre;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}

@@ -57,16 +57,27 @@ public class EdicionEvento {
     public void setCiudad(String ciudad) {this.ciudad = ciudad;}
     public void setPais(String pais) {this.pais = pais;}
 
-    /** Paquete-visible: la usa Sistema para cargar datos de prueba (y, mas
-     * adelante, Alta de Patrocinio). No es parte del contrato de la GUI. */
+    /**
+     * Paquete-visible: la usan Sistema (datos de prueba) y Alta de Patrocinio.
+     * No es parte del contrato de la GUI.
+     *
+     * Helper de sincronizacion: engancha los DOS lados de la relacion.
+     */
     void agregarPatrocinio(Patrocinio patrocinio) {
         patrocinios.add(patrocinio);
+        patrocinio.setEdicion(this);
     }
 
-    /** Paquete-visible: la usa Sistema para cargar datos de prueba. No es
-     * parte del contrato de la GUI (el alta real pasa por crearTipoRegistro()). */
+    /**
+     * Paquete-visible: la usa Sistema para cargar datos de prueba, y tambien
+     * crearTipoRegistro(). No es parte del contrato de la GUI.
+     *
+     * Helper de sincronizacion: UNICA puerta por la que un TipoRegistro entra
+     * a la coleccion, asi que garantiza que los dos lados queden enganchados.
+     */
     void agregarTipoRegistro(TipoRegistro tipoRegistro) {
         tipoRegistros.add(tipoRegistro);
+        tipoRegistro.setEdicion(this);
     }
 
     public DTEdicionEvento obtenerDT() {
@@ -119,16 +130,13 @@ public class EdicionEvento {
     /** Crea un TipoRegistro y lo agrega a esta edicion (Creator: EdicionEvento contiene la coleccion). */
     public TipoRegistro crearTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
         TipoRegistro tr = new TipoRegistro(nombre, descripcion, costo, cupo);
-        tipoRegistros.add(tr);
+        agregarTipoRegistro(tr);
         return tr;
     }
 
     // ===== Registro a Edicion de Evento =====
 
-    /**
-     * Tipos de registro de esta edicion como DTs.
-     * 1.2.1*[foreach]: tr := next()  /  1.2.2*: dt := obtenerDT()
-     */
+    /**Tipos de registro de esta edicion como DTs. */
     public Set<DTTipoRegistro> obtenerTiposRegistro() {
         Set<DTTipoRegistro> resultado = new HashSet<>();
         for (TipoRegistro t : tipoRegistros) {
