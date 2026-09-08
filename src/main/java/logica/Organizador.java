@@ -1,5 +1,11 @@
 package logica;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,10 +14,19 @@ import java.util.List;
  * una descripcion general y un enlace a su sitio web, que puede no estar
  * definido
  */
+@Entity
+@DiscriminatorValue("ORGANIZADOR")
 public class Organizador extends Usuario {
 
+    /** Sin nullable = false: en las filas de Asistente esta columna va vacia. */
+    @Column(length = 500)
     private String descripcion;
+
+    @Column(name = "sitio_web", length = 300)
     private String sitioWeb;
+
+    /** Lado INVERSO: la FK organizador_id vive en la tabla edicion_evento. */
+    @OneToMany(mappedBy = "organizador", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<EdicionEvento> ediciones = new  ArrayList<>();
 
     protected Organizador() {}

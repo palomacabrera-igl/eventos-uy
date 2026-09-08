@@ -1,8 +1,32 @@
 package logica;
 
-public class TipoRegistro {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
+/**
+ * Tipo de registro de una EdicionEvento (entrada general, VIP, etc.).
+ *
+ * El nombre es unico DENTRO de su edicion, no en toda la plataforma: dos
+ * ediciones distintas pueden tener cada una su "General". Por eso la
+ * restriccion es sobre el par (edicion_id, nombre).
+ */
+@Entity
+@Table(name = "tipo_registro",
+       uniqueConstraints = @UniqueConstraint(name = "uk_tipo_registro_edicion_nombre",
+                                             columnNames = {"edicion_id", "nombre"}))
+public class TipoRegistro extends EntidadBase {
+
+    @Column(nullable = false, length = 100)
     private String nombre;
+
+    @Column(length = 500)
     private String descripcion;
+
     private Double costo;
     private int cupo;
 
@@ -10,6 +34,9 @@ public class TipoRegistro {
      * La EdicionEvento a la que pertenece este tipo de registro (referencia
      * inversa). La setea EdicionEvento.agregarTipoRegistro().
      */
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "edicion_id",
+                foreignKey = @ForeignKey(name = "fk_tipo_registro_edicion"))
     private EdicionEvento edicion;
 
     protected TipoRegistro() {}

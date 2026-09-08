@@ -1,5 +1,14 @@
 package logica;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +20,35 @@ import java.util.List;
  * la asociacion se hace despues de crear el Asistente, mediante
  * seleccionarInstitucion(), no en el alta).
  */
+@Entity
+@DiscriminatorValue("ASISTENTE")
 public class Asistente extends Usuario {
 
+    /**
+     * Sin nullable = false A PROPOSITO: con SINGLE_TABLE esta columna vive en
+     * la tabla 'usuario' compartida, y en las filas de Organizador va vacia.
+     * Que el apellido no quede vacio lo valida la GUI, no la base.
+     */
+    @Column(length = 100)
     private String apellido;
+
     private LocalDate fechaNacimiento;
+
+    /**
+     * EAGER (que es el valor por defecto de @ManyToOne, lo dejamos explicito).
+     *
+     * El profe usa LAZY en su demo, pero ahi mantiene UN EntityManager abierto
+     * durante todo el programa. Nosotros abrimos y cerramos uno por operacion,
+     * asi que con LAZY al armar el DT fuera de esa ventana saltaria el error
+     * clasico LazyInitializationException.
+     */
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "institucion_id",
+                foreignKey = @ForeignKey(name = "fk_asistente_institucion"))
     private Institucion institucion;
+
+    /** Lado INVERSO: la FK asistente_id vive en la tabla registro. */
+    @OneToMany(mappedBy = "asistente", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Registro> registros = new  ArrayList<>();
 
     protected Asistente() {}

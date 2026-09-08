@@ -1,25 +1,60 @@
 package logica;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class EdicionEvento {
+@Entity
+@Table(name = "edicion_evento")
+public class EdicionEvento extends EntidadBase {
+
+    /** Nombre unico en la plataforma (letra): no se repite en ningun evento. */
+    @Column(nullable = false, unique = true, length = 150)
     private String nombre;
+
+    @Column(length = 20)
     private String sigla;
+
     private LocalDate fechaIni;
     private LocalDate fechaFin;
     private LocalDate fechaAlta;
+
+    @Column(length = 100)
     private String ciudad;
+
+    @Column(length = 100)
     private String pais;
 
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "evento_id",
+                foreignKey = @ForeignKey(name = "fk_edicion_evento"))
     private Evento evento;
 
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "organizador_id",
+                foreignKey = @ForeignKey(name = "fk_edicion_organizador"))
     private Organizador organizador;
+
+    /* Los tres lados INVERSOS: la FK edicion_id vive en cada tabla hija. */
+
+    @OneToMany(mappedBy = "edicion", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Patrocinio> patrocinios = new ArrayList<>();
+
+    @OneToMany(mappedBy = "edicion", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<TipoRegistro> tipoRegistros = new ArrayList<>();
+
+    @OneToMany(mappedBy = "edicion", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Registro> registros = new ArrayList<>();
 
     protected EdicionEvento() {}

@@ -1,9 +1,13 @@
 package logica;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +44,27 @@ public class Categoria extends EntidadBase {
     private String nombre;
 
     /**
-     * Auto-asociacion recursiva (el profesor la pidio): una Categoria tiene
-     * 0..1 categoria padre (null si es raiz) y 0..* categorias hijas.
+     * Auto-asociacion recursiva: una Categoria tiene 0..1 padre (null si es
+     * raiz) y 0..* hijas. Es UNA SOLA TABLA con una columna padre_id que
+     * apunta a la misma tabla.
      *
-     * TODO (JPA): mapear la jerarquia con @ManyToOne (padre) y
-     * @OneToMany(mappedBy = "padre") (hijas). Por ahora van como @Transient para
-     * no romper el arranque de JPA mientras se termina de integrar la persistencia.
+     * Es el mismo par @ManyToOne / @OneToMany(mappedBy) de la demo del profe
+     * (Categoria 1--< Libro), pero apuntando a la propia clase.
      */
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "padre_id",
+                foreignKey = @ForeignKey(name = "fk_categoria_padre"))
     private Categoria padre;
 
-    @Transient
-    private final List<Categoria> hijas = new ArrayList<>();
+    /**
+     * Lado INVERSO (mappedBy): la FK vive en padre_id, no en una tabla aparte.
+     *
+     * OJO: NO puede ser 'final'. Al leer de la base, Hibernate reemplaza la
+     * lista por una implementacion propia suya, y a un campo final no se le
+     * puede asignar.
+     */
+    @OneToMany(mappedBy = "padre", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Categoria> hijas = new ArrayList<>();
 
     /**
      * Constructor sin argumentos: JPA lo NECESITA para poder crear la instancia
