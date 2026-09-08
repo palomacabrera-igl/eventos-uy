@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+
+    <persistence-unit name="eventosuy" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!--
+          IMPORTANTE: descomentar cada clase SOLO cuando ya este anotada como
+          entidad (@Entity + @Id). Si una clase figura aca sin estar anotada,
+          la aplicacion no arranca.
+        -->
+        <!-- <class>logica.Usuario</class>        -->
+        <!-- <class>logica.Asistente</class>      -->
+        <!-- <class>logica.Organizador</class>    -->
+        <!-- <class>logica.Institucion</class>    -->
+        <!-- <class>logica.Evento</class>         -->
+        <!-- <class>logica.EdicionEvento</class>  -->
+        <!-- <class>logica.TipoRegistro</class>   -->
+        <!-- <class>logica.Registro</class>       -->
+        <!-- <class>logica.Patrocinio</class>     -->
+        <!-- <class>logica.Categoria</class>      -->
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.url"      value="jdbc:postgresql://localhost:5432/eventosuy"/>
+            <property name="jakarta.persistence.jdbc.user"     value="eventosuy"/>
+            <property name="jakarta.persistence.jdbc.password" value="eventosuy"/>
+
+            <property name="hibernate.hbm2ddl.auto"  value="update"/>
+            <property name="hibernate.show_sql"      value="true"/> <!-- Dejar en true mientras probamos, quitar para la entrega -->
+            <property name="hibernate.format_sql"    value="true"/>
+            <property name="hibernate.dialect"       value="org.hibernate.dialect.PostgreSQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
