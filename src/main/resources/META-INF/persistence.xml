@@ -21,7 +21,8 @@
 
         <!-- Primera entidad mapeada (prueba piloto). Ver logica/Categoria.java -->
         <class>logica.Categoria</class>
-
+        <!-- Segunda entidad mapeada (prueba piloto). Ver logica/Institucion.java -->
+        <class>logica.Institucion</class>
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
             <property name="jakarta.persistence.jdbc.url"      value="jdbc:postgresql://localhost:5432/eventosuy"/>
