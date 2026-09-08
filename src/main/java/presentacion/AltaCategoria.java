@@ -11,8 +11,8 @@ import logica.Status;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.Set;
 
 /**
  * Contenido de la ventana interna "Alta de Categoria". El diseño esta en
@@ -20,10 +20,11 @@ import java.util.Set;
  * comportamiento.
  * <p>
  * Flujo (DSS Categoria):
- * 1) listarCategorias() -> arma el arbol con las categorias existentes
- * 2) altaCategoria(nombre) -> OK: se agrega al arbol; ERROR (ya existe): se
- *    avisa por dialogo y la ventana queda abierta para reingresar o cancelar
- *    (LOOP del DSS).
+ * 1) listarCategoriasArbol() -> arma el arbol: raices con sus hijas anidadas
+ *    (recursivo, refleja la jerarquia Categoria -> 0..* hijas).
+ * 2) altaCategoria(nombre, nombrePadre) -> OK: se agrega al arbol (como hija de
+ *    la categoria seleccionada, o como raiz si no hay nada seleccionado);
+ *    ERROR (ya existe): se avisa y la ventana queda abierta (LOOP del DSS).
  */
 public class AltaCategoria {
 
@@ -66,9 +67,9 @@ public class AltaCategoria {
     private void recargarArbol() {
         DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Categorias");
         try {
-            // listarCategorias() : set<DTCategoria>
-            for (DTCategoria c : controlador.listarCategorias()) {
-                raiz.add(new DefaultMutableTreeNode(c.getNombre()));
+            // listarCategoriasArbol() : set<DTCategoria> (raices con hijas anidadas)
+            for (DTCategoria c : controlador.listarCategoriasArbol()) {
+                raiz.add(construirNodo(c));
             }
         } catch (Exception ex) {
             // El arbol queda solo con la raiz, pero la ventana abre igual.
@@ -81,6 +82,18 @@ public class AltaCategoria {
         }
     }
 
+    /**
+     * Convierte un DTCategoria (y todo su subarbol) en nodos del JTree, de forma
+     * RECURSIVA: por cada hija del DT crea un nodo hijo y baja por las suyas.
+     */
+    private DefaultMutableTreeNode construirNodo(DTCategoria categoria) {
+        DefaultMutableTreeNode nodo = new DefaultMutableTreeNode(categoria.getNombre());
+        for (DTCategoria hija : categoria.getHijas()) {
+            nodo.add(construirNodo(hija));   // recursion
+        }
+        return nodo;
+    }
+
     private void aceptar() {
         // (a) Validacion del FORMULARIO: fuera del try, no toca la logica.
         String nombre = NombreTxt.getText().trim();
@@ -88,11 +101,14 @@ public class AltaCategoria {
             Mensajes.aviso(mainPanel, TITULO, "Ingresá el nombre de la categoría.");
             return;
         }
+        // Si hay una categoria seleccionada en el arbol, la nueva se crea como su
+        // hija; si no hay nada seleccionado, se crea como categoria raiz.
+        String nombrePadre = padreSeleccionado();
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            // altaCategoria(nombre) : Status
-            Status resultado = controlador.altaCategoria(nombre);
+            // altaCategoria(nombre, nombrePadre) : Status
+            Status resultado = controlador.altaCategoria(nombre, nombrePadre);
             if (resultado == Status.OK) {
                 recargarArbol();      // el arbol refleja la nueva categoria
                 NombreTxt.setText("");
@@ -105,6 +121,22 @@ public class AltaCategoria {
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
+    }
+
+    /**
+     * Nombre de la categoria seleccionada en el arbol (sera el padre de la nueva),
+     * o null si no hay seleccion o si esta seleccionada la raiz ficticia "Categorias".
+     */
+    private String padreSeleccionado() {
+        TreePath seleccion = CategoriasTree.getSelectionPath();
+        if (seleccion == null) {
+            return null;
+        }
+        DefaultMutableTreeNode nodo = (DefaultMutableTreeNode) seleccion.getLastPathComponent();
+        if (nodo.getParent() == null) {
+            return null;   // es la raiz ficticia "Categorias", no una categoria real
+        }
+        return nodo.getUserObject().toString();
     }
 
     {

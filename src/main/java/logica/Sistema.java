@@ -390,23 +390,43 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTCategoria> listarCategorias() {
-        // 1*[foreach]: cat := next()  /  2*: dt := obtenerDT() : DTCategoria
+        // Lista PLANA de todas las categorias (por nombre), para selectores como
+        // Alta de Evento. Cada DT va sin hijas: aqui no interesa la jerarquia.
         Set<DTCategoria> resultado = new HashSet<>();
         for (Categoria cat : manejadorCategoria.listar()) {
-            resultado.add(cat.obtenerDT());
+            resultado.add(new DTCategoria(cat.getNombre()));
         }
         return resultado;
     }
 
     @Override
-    public Status altaCategoria(String nombre) {
-        // 1: existente := find(nombre) : Categoria
-        Categoria existente = findCategoria(nombre);
-        if (existente != null) {
+    public Set<DTCategoria> listarCategoriasArbol() {
+        // Solo las raices; cada una arma su DT de forma recursiva (con sus hijas
+        // anidadas), reflejando la jerarquia completa. 2*: dt := obtenerDT().
+        Set<DTCategoria> raices = new HashSet<>();
+        for (Categoria cat : manejadorCategoria.listar()) {
+            if (cat.esRaiz()) {
+                raices.add(cat.obtenerDT());
+            }
+        }
+        return raices;
+    }
+
+    @Override
+    public Status altaCategoria(String nombre, String nombrePadre) {
+        // 1: existente := find(nombre)  (el nombre es unico en toda la plataforma)
+        if (findCategoria(nombre) != null) {
             return Status.ERROR;
         }
-        // 2: [existente == null] cat := create(nombre)  /  3: add(cat)
-        manejadorCategoria.agregar(new Categoria(nombre));
+        // 2: [existente == null] cat := create(nombre)
+        Categoria nueva = new Categoria(nombre);
+        // Si se indico un padre, la cuelga de el (queda como hija); si no, es raiz.
+        if (nombrePadre != null && !nombrePadre.isBlank()) {
+            Categoria padre = findCategoria(nombrePadre);
+            padre.agregarHija(nueva);
+        }
+        // 3: add(cat)  -- igual se registra por nombre (unicidad global + busqueda)
+        manejadorCategoria.agregar(nueva);
         return Status.OK;
     }
 
