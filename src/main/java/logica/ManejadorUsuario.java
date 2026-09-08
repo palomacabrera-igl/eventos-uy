@@ -8,14 +8,8 @@ import java.util.Map;
 /**
  * Manejador de la coleccion de Usuario (patron "collection object" de GRASP).
  *
- * Singleton: hay una unica coleccion de usuarios en todo el sistema. Sigue el
- * mismo patron que los manejadores de la demo ProyectoSwing del curso
- * (ManejadorUsuario alli): constructor privado, getInstancia(), y una
- * estructura interna indexada por el identificador de la entidad.
- *
- * Responsabilidad: guardar, buscar y listar Usuario. Las reglas de negocio
- * (por ejemplo "no repetir nickname ni correo") las valida Sistema ANTES de
- * llamar a agregar(), usando buscar()/buscarPorCorreo().
+ * Singleton: hay una unica coleccion de usuarios en todo el sistema.
+ * Responsabilidad: guardar, buscar y listar Usuario.
  */
 public class ManejadorUsuario {
 

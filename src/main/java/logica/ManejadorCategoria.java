@@ -8,8 +8,7 @@ import java.util.Map;
 /**
  * Manejador de la coleccion de Categoria (patron "collection object" de GRASP).
  *
- * Singleton, mismo patron que ManejadorUsuario de la demo ProyectoSwing.
- * Responsabilidad: guardar, buscar y listar Categoria.
+ * Singleton. Responsabilidad: guardar, buscar y listar Categoria.
  */
 public class ManejadorCategoria {
 

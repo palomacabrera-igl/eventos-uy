@@ -8,12 +8,10 @@ import java.util.Map;
 /**
  * Manejador de la coleccion de Evento (patron "collection object" de GRASP).
  *
- * Singleton, mismo patron que ManejadorUsuario de la demo ProyectoSwing.
- *
- * Ademas de guardar/buscar/listar Evento, ofrece buscarEdicion(nombre): las
+ * Singleton. Ademas de guardar/buscar/listar Evento, ofrece buscarEdicion(nombre): las
  * EdicionEvento NO son una coleccion de primer nivel (viven dentro de su
  * Evento), asi que para encontrar una edicion por nombre hay que recorrer los
- * eventos. Ese recorrido vive aca y no en Sistema.
+ * eventos.
  */
 public class ManejadorEvento {
 

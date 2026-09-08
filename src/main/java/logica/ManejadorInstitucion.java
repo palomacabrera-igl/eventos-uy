@@ -8,8 +8,7 @@ import java.util.Map;
 /**
  * Manejador de la coleccion de Institucion (patron "collection object" de GRASP).
  *
- * Singleton, mismo patron que ManejadorUsuario de la demo ProyectoSwing.
- * Responsabilidad: guardar, buscar y listar Institucion.
+ * Singleton. Responsabilidad: guardar, buscar y listar Institucion.
  */
 public class ManejadorInstitucion {
 
