@@ -164,15 +164,25 @@ public interface IControladorSistema {
 
     // ===== Alta de Categoria =====
 
-    /** Precondicion: ninguna. Retorna las categorias existentes en la plataforma. */
+    /** Precondicion: ninguna. Retorna TODAS las categorias como lista plana (por
+     *  nombre, sin hijas). La usan selectores como Alta de Evento. */
     Set<DTCategoria> listarCategorias();
 
     /**
-     * Precondicion: ninguna. Si ya existe una Categoria con ese nombre retorna
-     * ERROR y no crea nada; en caso contrario crea la Categoria (c.nombre =
-     * nombre) y retorna OK.
+     * Precondicion: ninguna. Retorna las categorias RAIZ, cada una con sus hijas
+     * anidadas (DTCategoria que encapsula DTCategoria), reflejando la jerarquia
+     * completa. Es la estructura que consume el arbol (JTree) de Alta de Categoria.
      */
-    Status altaCategoria(String nombre);
+    Set<DTCategoria> listarCategoriasArbol();
+
+    /**
+     * Precondicion: si nombrePadre no es null ni vacio, debe existir una Categoria
+     * con ese nombre (sera la categoria padre). Si ya existe una Categoria con
+     * 'nombre' (unico en la plataforma) retorna ERROR y no crea nada; en caso
+     * contrario la crea (como raiz si nombrePadre es null/vacio, o como hija de la
+     * categoria padre) y retorna OK.
+     */
+    Status altaCategoria(String nombre, String nombrePadre);
 
     // ===== Consulta de Tipo de Registro =====
     Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
