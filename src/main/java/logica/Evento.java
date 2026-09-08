@@ -34,10 +34,12 @@ public class Evento {
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
 
-    /** Paquete-visible: la usa Sistema para cargar datos de prueba (y, mas
-     * adelante, Alta de Edicion de Evento). No es parte del contrato de la GUI. */
+    /**
+     * Agrega una edicion a este evento.
+     */
     void agregarEdicion(EdicionEvento edicion) {
         ediciones.add(edicion);
+        edicion.setEvento(this);
     }
 
     public EdicionEvento altaEdicion(DTEdicionEvento dt, Organizador organizador) {

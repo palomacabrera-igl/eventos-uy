@@ -14,6 +14,9 @@ public class EdicionEvento {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+
+    private Evento evento;
+
     private Organizador organizador;
     private List<Patrocinio> patrocinios = new ArrayList<>();
     private List<TipoRegistro> tipoRegistros = new ArrayList<>();
@@ -42,6 +45,9 @@ public class EdicionEvento {
     public String getCiudad() {return ciudad;}
     public String getPais() {return pais;}
     public Organizador getOrganizador() {return organizador;}
+    public Evento getEvento() {return evento;}
+
+    void setEvento(Evento evento) {this.evento = evento;}
 
     public void setNombre(String nombre) {this.nombre = nombre;}
     public void setSigla(String sigla) {this.sigla = sigla;}
@@ -88,7 +94,7 @@ public class EdicionEvento {
 
     /**
      * true si la institucion ya tiene un patrocinio en esta edicion.
-     * Regla de la letra: una institucion puede tener como maximo un
+     * Una institucion puede tener como maximo un
      * patrocinio para una misma edicion de evento.
      */
     public boolean tienePatrocinioDe(String nombreInstitucion) {
