@@ -13,6 +13,19 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
+
+        <!--
+            Clase que arranca por defecto con "mvnw exec:java".
+            Va aca como property (y NO dentro de <configuration> del plugin)
+            para que se pueda cambiar desde la linea de comandos:
+
+                mvnw exec:java                                          -> la Estacion de Trabajo
+                mvnw exec:java "-Dexec.mainClass=persistencia.PruebaJPA" -> la prueba de JPA
+
+            Si estuviera en <configuration>, Maven le daria prioridad a ese
+            valor y el -D de la linea de comandos se ignoraria en silencio.
+        -->
+        <exec.mainClass>presentacion.VentanaPrincipal</exec.mainClass>
     </properties>
 
     <dependencies>
@@ -83,14 +96,12 @@
             <!--
                 exec-maven-plugin: permite correr la aplicacion con "./mvnw exec:java"
                 (o ".\mvnw.cmd exec:java" en Windows) sin abrir IntelliJ.
+                La clase a ejecutar sale de la property exec.mainClass (ver arriba).
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.1</version>
-                <configuration>
-                    <mainClass>presentacion.VentanaPrincipal</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
