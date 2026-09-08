@@ -1,11 +1,42 @@
 package logica;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
 import java.time.LocalDate;
 
-public class Registro {
+/**
+ * Registro de un Asistente a una EdicionEvento.
+ *
+ * La restriccion (edicion_id, asistente_id) refleja en la base la regla de la
+ * letra "un asistente no se puede registrar dos veces en la misma edicion",
+ * que la logica ya valida con estaRegistrado().
+ */
+@Entity
+@Table(name = "registro",
+       uniqueConstraints = @UniqueConstraint(name = "uk_registro_edicion_asistente",
+                                             columnNames = {"edicion_id", "asistente_id"}))
+public class Registro extends EntidadBase {
+
+    @ManyToOne(optional = false, fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "asistente_id",
+                foreignKey = @ForeignKey(name = "fk_registro_asistente"))
     private Asistente asistente;
+
+    @ManyToOne(optional = false, fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "edicion_id",
+                foreignKey = @ForeignKey(name = "fk_registro_edicion"))
     private EdicionEvento edicion;
+
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "tipo_registro_id",
+                foreignKey = @ForeignKey(name = "fk_registro_tipo"))
     private TipoRegistro tipoRegistro;
+
     private Double costo;
     private LocalDate fechaRegistro;
 

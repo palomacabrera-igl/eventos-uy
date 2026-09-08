@@ -5,22 +5,19 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <!--
-          IMPORTANTE: descomentar cada clase SOLO cuando ya este anotada como
-          entidad (@Entity + @Id). Si una clase figura aca sin estar anotada,
-          la aplicacion no arranca.
+          Las 10 entidades del dominio. Todas mapeadas: como se referencian
+          entre si, JPA no arranca si alguna queda afuera.
         -->
-        <!-- <class>logica.Usuario</class>        -->
-        <!-- <class>logica.Asistente</class>      -->
-        <!-- <class>logica.Organizador</class>    -->
-        <!-- <class>logica.Institucion</class>    -->
-        <!-- <class>logica.Evento</class>         -->
-        <!-- <class>logica.EdicionEvento</class>  -->
-        <!-- <class>logica.TipoRegistro</class>   -->
-        <!-- <class>logica.Registro</class>       -->
-        <!-- <class>logica.Patrocinio</class>     -->
-
-        <!-- Primera entidad mapeada (prueba piloto). Ver logica/Categoria.java -->
+        <class>logica.Usuario</class>
+        <class>logica.Asistente</class>
+        <class>logica.Organizador</class>
+        <class>logica.Institucion</class>
         <class>logica.Categoria</class>
+        <class>logica.Evento</class>
+        <class>logica.EdicionEvento</class>
+        <class>logica.TipoRegistro</class>
+        <class>logica.Registro</class>
+        <class>logica.Patrocinio</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
