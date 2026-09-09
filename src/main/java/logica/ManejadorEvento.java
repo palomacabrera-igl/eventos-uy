@@ -1,27 +1,25 @@
 package logica;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import persistencia.Persistencia;
+
 import java.util.List;
-import java.util.Map;
 
 /**
  * Manejador de la coleccion de Evento (patron "collection object" de GRASP).
  *
- * Singleton. Ademas de guardar/buscar/listar Evento, ofrece buscarEdicion(nombre): las
- * EdicionEvento NO son una coleccion de primer nivel (viven dentro de su
- * Evento), asi que para encontrar una edicion por nombre hay que recorrer los
- * eventos.
+ * Singleton. Ademas de guardar/buscar/listar Evento, ofrece
+ * buscarEdicion(nombre), porque las EdicionEvento no son una coleccion de
+ * primer nivel: viven dentro de su Evento.
+ *
+ * MIGRADO A JPA. Antes tenia un Map en memoria; ahora la "coleccion" es la
+ * tabla evento de PostgreSQL. Los metodos son los mismos de antes, asi que ni
+ * Sistema ni las pantallas cambian.
  */
 public class ManejadorEvento {
 
     private static ManejadorEvento instancia = null;
 
-    /** Eventos indexados por nombre (su identificador). */
-    private final Map<String, Evento> eventosPorNombre;
-
     private ManejadorEvento() {
-        this.eventosPorNombre = new LinkedHashMap<>();
     }
 
     public static ManejadorEvento getInstancia() {
@@ -31,32 +29,81 @@ public class ManejadorEvento {
         return instancia;
     }
 
-    /** Agrega un evento. Asume que Sistema ya valido la unicidad del nombre. */
+    /**
+     * Da de alta un evento nuevo. Asume que Sistema ya valido la unicidad del
+     * nombre.
+     *
+     * Al persistir el evento se persisten tambien sus ediciones, por el
+     * cascade = PERSIST del @OneToMany. Las categorias NO se persisten aca:
+     * ya existen, y lo unico que se escribe es la fila de la tabla intermedia
+     * evento_categoria.
+     */
     public void agregar(Evento evento) {
-        eventosPorNombre.put(evento.getNombre(), evento);
+        Persistencia.enTransaccion(em -> em.persist(evento));
+    }
+
+    /**
+     * Confirma en la base los cambios hechos sobre un evento que YA existe.
+     *
+     * Hace falta porque modificar un objeto no alcanza: JPA sincroniza con la
+     * base recien al hacer commit de una transaccion. Sin esto, el cambio se
+     * pierde en silencio.
+     *
+     * OJO con merge(): NO se usa cuando la entidad ya esta managed. merge()
+     * devuelve una COPIA administrada, y si otra entidad seguia apuntando al
+     * objeto original, JPA termina insertando el mismo hijo dos veces y la
+     * base lo rechaza por nombre repetido. (Nos paso exactamente eso con una
+     * edicion nueva, que cuelga a la vez del Evento y del Organizador.)
+     *
+     * Como la entidad vino de una consulta de nuestro unico EntityManager, ya
+     * esta managed: alcanza con abrir y cerrar la transaccion, y al hacer
+     * commit JPA detecta solo lo que cambio. El merge queda como red de
+     * seguridad por si alguna vez llega desconectada.
+     */
+    public void actualizar(Evento evento) {
+        Persistencia.enTransaccion(em -> {
+            if (!em.contains(evento)) {
+                em.merge(evento);
+            }
+        });
     }
 
     /** Devuelve el evento con ese nombre, o null si no existe. */
     public Evento buscar(String nombre) {
-        return eventosPorNombre.get(nombre);
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT e FROM Evento e WHERE e.nombre = :nombre", Evento.class)
+                .setParameter("nombre", nombre)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
-    /** Todos los eventos de la coleccion. */
+    /** Todos los eventos, ordenados por nombre. */
     public List<Evento> listar() {
-        return new ArrayList<>(eventosPorNombre.values());
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT e FROM Evento e ORDER BY e.nombre", Evento.class)
+                .getResultList();
     }
 
     /**
-     * Busca una edicion por nombre entre TODOS los eventos. Devuelve null si
-     * ningun evento tiene una edicion con ese nombre.
+     * Busca una edicion por nombre. Devuelve null si no existe.
+     *
+     * Antes este metodo recorria TODOS los eventos preguntandole a cada uno si
+     * tenia una edicion con ese nombre. Ahora es una sola consulta directa
+     * sobre la tabla edicion_evento, porque EdicionEvento paso a ser una
+     * entidad con nombre unico en la plataforma.
+     *
+     * El metodo se queda en ManejadorEvento (y no se crea un manejador de
+     * ediciones) porque una edicion sigue perteneciendo a su evento: no es una
+     * coleccion de primer nivel del dominio.
      */
     public EdicionEvento buscarEdicion(String nombreEdicion) {
-        for (Evento e : eventosPorNombre.values()) {
-            EdicionEvento ed = e.buscarEdicion(nombreEdicion);
-            if (ed != null) {
-                return ed;
-            }
-        }
-        return null;
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT ed FROM EdicionEvento ed WHERE ed.nombre = :nombre",
+                             EdicionEvento.class)
+                .setParameter("nombre", nombreEdicion)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 }

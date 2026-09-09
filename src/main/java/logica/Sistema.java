@@ -75,6 +75,8 @@ public class Sistema implements IControladorSistema {
     public void modificarDatosUsuario(DTUsuario dt) {
         // 1: usuarioSeleccionado.modificarDatos(dt)
         usuarioSeleccionado.modificarDatos(dt);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorUsuario.actualizar(usuarioSeleccionado);
     }
 
     /** Busqueda de Usuario por nickname (delega en ManejadorUsuario). */
@@ -152,6 +154,9 @@ public class Sistema implements IControladorSistema {
             return false;
         }
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia). La edicion nueva
+        // viaja por el cascade del @OneToMany de Evento.
+        manejadorEvento.actualizar(eventoSeleccionado);
         return true;
     }
 
@@ -181,6 +186,8 @@ public class Sistema implements IControladorSistema {
     public void seleccionarInstitucion(String nombreInstitucion) {
         Institucion i = findInstitucion(nombreInstitucion);
         asistenteRecordado.setInstitucion(i);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorUsuario.actualizar(asistenteRecordado);
     }
 
     @Override
@@ -226,6 +233,10 @@ public class Sistema implements IControladorSistema {
             return false;
         }
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia). Se actualiza por el
+        // Evento, que es la raiz del agregado: se llega con la referencia
+        // inversa edicion -> evento.
+        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
         return true;
     }
 
@@ -255,6 +266,8 @@ public class Sistema implements IControladorSistema {
         // 2. [!yaRegistrado y hayCupo] R := create(nickname, nombreTipo)
         Asistente a = (Asistente) find(nickname);
         ed.altaRegistro(a, tr, LocalDate.now());
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorEvento.actualizar(ed.getEvento());
         return Status.OK;
     }
 
@@ -425,6 +438,8 @@ public class Sistema implements IControladorSistema {
                 dt.getCantRegistrosGratis(), dt.getCodigoPatrocinio(), dt.getNivel(),
                 institucion, tipo);
         edicionSeleccionada.agregarPatrocinio(p);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
     // ===== Alta Evento =====
     public Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias) {
