@@ -1,9 +1,8 @@
 package logica;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import persistencia.Persistencia;
+
 import java.util.List;
-import java.util.Map;
 
 /**
  * Manejador de la coleccion de Institucion (patron "collection object" de GRASP).
@@ -14,12 +13,7 @@ public class ManejadorInstitucion {
 
     private static ManejadorInstitucion instancia = null;
 
-    /** Instituciones indexadas por nombre (su identificador). */
-    private final Map<String, Institucion> institucionesPorNombre;
-
-    private ManejadorInstitucion() {
-        this.institucionesPorNombre = new LinkedHashMap<>();
-    }
+    private ManejadorInstitucion() {}
 
     public static ManejadorInstitucion getInstancia() {
         if (instancia == null) {
@@ -30,16 +24,23 @@ public class ManejadorInstitucion {
 
     /** Agrega una institucion. Asume que Sistema ya valido la unicidad del nombre. */
     public void agregar(Institucion institucion) {
-        institucionesPorNombre.put(institucion.getNombre(), institucion);
+        Persistencia.enTransaccion(em -> em.persist(institucion));
     }
 
     /** Devuelve la institucion con ese nombre, o null si no existe. */
     public Institucion buscar(String nombre) {
-        return institucionesPorNombre.get(nombre);
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT i FROM Institucion i WHERE i.nombre = :nombre", Institucion.class)
+                .setParameter("nombre", nombre)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
     /** Todas las instituciones de la coleccion. */
     public List<Institucion> listar() {
-        return new ArrayList<>(institucionesPorNombre.values());
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT i FROM Institucion i ORDER BY i.nombre", Institucion.class)
+                .getResultList();
     }
 }
