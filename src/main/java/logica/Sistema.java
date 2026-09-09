@@ -37,11 +37,9 @@ public class Sistema implements IControladorSistema {
         this.manejadorUsuario = ManejadorUsuario.getInstancia();
         this.manejadorInstitucion = ManejadorInstitucion.getInstancia();
         this.manejadorEvento = ManejadorEvento.getInstancia();
-        // Los manejadores son singletons: si ya hay datos cargados (otra
-        // instancia de Sistema), no volvemos a precargar.
-        if (manejadorUsuario.listar().isEmpty()) {
-            cargarDatosDePrueba();
-        }
+        // Los datos de prueba ya NO se cargan aca: son un programa aparte
+        // (persistencia.CargarDatos). Con JPA quedan guardados en la base, asi
+        // que recrearlos en cada arranque daria nombres repetidos.
     }
 
     // ===== Modificar Datos de Usuario =====
@@ -271,82 +269,6 @@ public class Sistema implements IControladorSistema {
         return resultado;
     }
 
-    /**
-     * TEMPORAL: hasta que Alta de Usuario, Alta de Evento y Alta de
-     * Patrocinio esten implementados, precarga en memoria un Usuario, un
-     * Evento con una edicion, y un patrocinio para esa edicion, para poder
-     * probar los 3 casos de uso de punta a punta. No es parte de ningun
-     * caso de uso.
-     */
-    private void cargarDatosDePrueba() {
-        manejadorUsuario.agregar(new Asistente("pfernandez", "Paloma", "paloma@example.com",
-                "Fernandez", LocalDate.of(2000, 5, 14)));
-        Organizador organizadorUtec = new Organizador("utec", "UTEC Eventos", "eventos@utec.edu.uy",
-                "Organizador institucional de UTEC", "https://utec.edu.uy");
-        manejadorUsuario.agregar(organizadorUtec);
-
-        Categoria catIngenieria = new Categoria("Ingeniería");
-        manejadorCategoria.agregar(catIngenieria);
-        Categoria catCharlas = new Categoria("Charlas");
-        manejadorCategoria.agregar(catCharlas);
-        Categoria catTalleres = new Categoria("Talleres");
-        manejadorCategoria.agregar(catTalleres);
-        Categoria catAplicaciones = new Categoria("Aplicaciones");
-        manejadorCategoria.agregar(catAplicaciones);
-        Institucion utec = new Institucion("UTEC", "Universidad Tecnologica",
-                "https://utec.edu.uy");
-        manejadorInstitucion.agregar(utec);
-
-        Evento jiap = new Evento(
-                "JIAP", // nombre
-                "Jornadas de Ingeniería y Aplicaciones", // descripción
-                LocalDate.of(2025, 1, 10), // fechaAlta
-                "JIAP", // sigla
-                Arrays.asList(catIngenieria, catAplicaciones) // categorías
-        );
-        manejadorEvento.agregar(jiap);
-
-
-        EdicionEvento jiap2026 = new EdicionEvento("JIAP 2026", "JIAP26",
-                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
-                LocalDate.of(2026, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
-        jiap.agregarEdicion(jiap2026);
-        organizadorUtec.agregarEdicion(jiap2026);
-
-        EdicionEvento jiap2025 = new EdicionEvento("JIAP 2025", "JIAP25",
-                LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 3),
-                LocalDate.of(2025, 1, 15), "Montevideo", "Uruguay", organizadorUtec);
-        jiap.agregarEdicion(jiap2025);
-        organizadorUtec.agregarEdicion(jiap2025);
-
-        Evento semanaIngenieria = new Evento("Semana de la Ingeniería",
-                "Charlas y talleres de ingeniería",
-                LocalDate.of(2025, 3, 1),
-                "SI", // sigla
-                Arrays.asList(catIngenieria, catCharlas, catTalleres)
-        );
-        manejadorEvento.agregar(semanaIngenieria);
-
-
-        EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
-                LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
-                LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
-        semanaIngenieria.agregarEdicion(si2026);
-        organizadorUtec.agregarEdicion(si2026);
-
-        TipoRegistro entradaGeneral = new TipoRegistro("General", "Entrada general",
-                50.0, 200);
-        jiap2026.agregarTipoRegistro(entradaGeneral);
-
-        Patrocinio patrocinioUtec = new Patrocinio(LocalDate.of(2026, 2, 1), 5000.0,
-                10, 1001, NivelPatrocinio.ORO, utec, entradaGeneral);
-        jiap2026.agregarPatrocinio(patrocinioUtec);
-
-        Asistente paloma = (Asistente) manejadorUsuario.buscar("pfernandez");
-
-        jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
-
-    }
 
 
     // ===== Consulta de Usuario =====
