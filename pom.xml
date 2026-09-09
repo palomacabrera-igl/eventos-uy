@@ -13,13 +13,60 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
+
+        <!--
+            Clase que arranca por defecto con "mvnw exec:java".
+            Va aca como property (y NO dentro de <configuration> del plugin)
+            para que se pueda cambiar desde la linea de comandos:
+
+                mvnw exec:java                                          -> la Estacion de Trabajo
+                mvnw exec:java "-Dexec.mainClass=persistencia.PruebaJPA" -> la prueba de JPA
+
+            Si estuviera en <configuration>, Maven le daria prioridad a ese
+            valor y el -D de la linea de comandos se ignoraria en silencio.
+        -->
+        <exec.mainClass>presentacion.VentanaPrincipal</exec.mainClass>
     </properties>
 
-    <!--
-        Por ahora no hay dependencias: las clases de dominio son Java puro.
-        Cuando lleguemos a la capa de presentacion (Swing) vamos a sumar
-        forms_rt y flatlaf.
-    -->
+    <dependencies>
+        <!--
+            forms_rt: soporte en tiempo de ejecucion para los paneles creados con el
+            Swing UI Designer de IntelliJ (com.intellij.uiDesigner.core.*).
+        -->
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
+
+        <!-- JPA 3.1 API -->
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <!-- Hibernate 6 (implementacion JPA) -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.6.15.Final</version>
+        </dependency>
+
+        <!-- FlatLaf: look and feel moderno para Swing -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.7.2</version>
+        </dependency>
+
+        <!-- Driver JDBC de PostgreSQL -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.13</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -27,6 +74,34 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
+            </plugin>
+
+            <!--
+                maven-jar-plugin: escribe la clase de arranque en el MANIFEST del .jar,
+                para que "java -jar target/eventos-uy-1.0-SNAPSHOT.jar" funcione.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>presentacion.VentanaPrincipal</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!--
+                exec-maven-plugin: permite correr la aplicacion con "./mvnw exec:java"
+                (o ".\mvnw.cmd exec:java" en Windows) sin abrir IntelliJ.
+                La clase a ejecutar sale de la property exec.mainClass (ver arriba).
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.1</version>
             </plugin>
         </plugins>
     </build>
