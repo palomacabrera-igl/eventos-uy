@@ -43,14 +43,17 @@ public final class DatosDePrueba {
             return false;
         }
 
-        // ===== Usuarios =====
-        manejadorUsuario.agregar(new Asistente("pfernandez", "Paloma", "paloma@example.com",
-                "Fernandez", LocalDate.of(2000, 5, 14)));
-        Organizador organizadorUtec = new Organizador("utec", "UTEC Eventos", "eventos@utec.edu.uy",
-                "Organizador institucional de UTEC", "https://utec.edu.uy");
-        manejadorUsuario.agregar(organizadorUtec);
+        // ORDEN DE CARGA: primero lo que no depende de nadie, y cada evento
+        // se guarda RECIEN cuando ya tiene colgadas todas sus ediciones,
+        // tipos de registro, patrocinios y registros.
+        //
+        // Por que importa: JPA sincroniza con la base al hacer commit. Si se
+        // guarda el evento y despues se le cuelga una edicion, esa edicion
+        // queda fuera de toda transaccion y NO se guarda. Guardando el evento
+        // al final, la edicion (y todo lo que cuelga de ella) viaja sola por
+        // el cascade = PERSIST.
 
-        // ===== Categorias =====
+        // ===== 1. Lo que no depende de nada =====
         Categoria catIngenieria = new Categoria("Ingeniería");
         manejadorCategoria.agregar(catIngenieria);
         Categoria catCharlas = new Categoria("Charlas");
@@ -60,12 +63,20 @@ public final class DatosDePrueba {
         Categoria catAplicaciones = new Categoria("Aplicaciones");
         manejadorCategoria.agregar(catAplicaciones);
 
-        // ===== Institucion =====
         Institucion utec = new Institucion("UTEC", "Universidad Tecnologica",
                 "https://utec.edu.uy");
         manejadorInstitucion.agregar(utec);
 
-        // ===== Eventos y ediciones =====
+        // ===== 2. Usuarios, todavia SIN ediciones ni registros =====
+        Asistente paloma = new Asistente("pfernandez", "Paloma", "paloma@example.com",
+                "Fernandez", LocalDate.of(2000, 5, 14));
+        manejadorUsuario.agregar(paloma);
+
+        Organizador organizadorUtec = new Organizador("utec", "UTEC Eventos", "eventos@utec.edu.uy",
+                "Organizador institucional de UTEC", "https://utec.edu.uy");
+        manejadorUsuario.agregar(organizadorUtec);
+
+        // ===== 3. JIAP: se arma entero y se guarda al final =====
         Evento jiap = new Evento(
                 "JIAP",                                   // nombre
                 "Jornadas de Ingeniería y Aplicaciones",  // descripcion
@@ -73,7 +84,6 @@ public final class DatosDePrueba {
                 "JIAP",                                   // sigla
                 Arrays.asList(catIngenieria, catAplicaciones)
         );
-        manejadorEvento.agregar(jiap);
 
         EdicionEvento jiap2026 = new EdicionEvento("JIAP 2026", "JIAP26",
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
@@ -87,21 +97,7 @@ public final class DatosDePrueba {
         jiap.agregarEdicion(jiap2025);
         organizadorUtec.agregarEdicion(jiap2025);
 
-        Evento semanaIngenieria = new Evento("Semana de la Ingeniería",
-                "Charlas y talleres de ingeniería",
-                LocalDate.of(2025, 3, 1),
-                "SI",
-                Arrays.asList(catIngenieria, catCharlas, catTalleres)
-        );
-        manejadorEvento.agregar(semanaIngenieria);
-
-        EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
-                LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
-                LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
-        semanaIngenieria.agregarEdicion(si2026);
-        organizadorUtec.agregarEdicion(si2026);
-
-        // ===== Tipo de registro y patrocinio de JIAP 2026 =====
+        // Lo que cuelga de JIAP 2026, antes de guardar el evento.
         TipoRegistro entradaGeneral = new TipoRegistro("General", "Entrada general",
                 50.0, 200);
         jiap2026.agregarTipoRegistro(entradaGeneral);
@@ -110,9 +106,25 @@ public final class DatosDePrueba {
                 10, 1001, NivelPatrocinio.ORO, utec, entradaGeneral);
         jiap2026.agregarPatrocinio(patrocinioUtec);
 
-        // ===== Un registro de ejemplo =====
-        Asistente paloma = (Asistente) manejadorUsuario.buscar("pfernandez");
         jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
+
+        manejadorEvento.agregar(jiap);   // <- una sola transaccion baja TODO el arbol
+
+        // ===== 4. Semana de la Ingenieria, igual =====
+        Evento semanaIngenieria = new Evento("Semana de la Ingeniería",
+                "Charlas y talleres de ingeniería",
+                LocalDate.of(2025, 3, 1),
+                "SI",
+                Arrays.asList(catIngenieria, catCharlas, catTalleres)
+        );
+
+        EdicionEvento si2026 = new EdicionEvento("SI 2026", "SI26",
+                LocalDate.of(2026, 11, 10), LocalDate.of(2026, 11, 14),
+                LocalDate.of(2026, 6, 1), "Montevideo", "Uruguay", organizadorUtec);
+        semanaIngenieria.agregarEdicion(si2026);
+        organizadorUtec.agregarEdicion(si2026);
+
+        manejadorEvento.agregar(semanaIngenieria);
 
         return true;
     }

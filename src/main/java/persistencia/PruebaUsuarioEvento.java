@@ -57,16 +57,11 @@ public class PruebaUsuarioEvento {
             System.out.println("  releido de la base: " + mu.buscar("pfernandez").getNombre());
 
             System.out.println("\n=== 5. Alta de evento con categorias ===");
-            // ANDAMIO TEMPORAL: se persiste la categoria directamente porque
-            // ManejadorCategoria todavia usa Map (es la parte de Sebastian).
-            // Cuando este migrado, esto es simplemente mc.agregar(cat).
-            Categoria cat = Persistencia.getEntityManager()
-                    .createQuery("SELECT c FROM Categoria c WHERE c.nombre = 'Ingenieria'", Categoria.class)
-                    .getResultStream().findFirst().orElse(null);
+            ManejadorCategoria mc = ManejadorCategoria.getInstancia();
+            Categoria cat = mc.buscar("Ingenieria");
             if (cat == null) {
-                Categoria nueva = new Categoria("Ingenieria");
-                Persistencia.enTransaccion(em -> em.persist(nueva));
-                cat = nueva;
+                cat = new Categoria("Ingenieria");
+                mc.agregar(cat);
             }
             if (me.buscar("JIAP") == null) {
                 me.agregar(new Evento("JIAP", "Jornadas de Ingenieria", LocalDate.of(2025, 1, 10),
