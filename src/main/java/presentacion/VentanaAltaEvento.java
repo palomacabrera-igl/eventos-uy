@@ -9,7 +9,11 @@ import logica.IControladorSistema;
 import logica.Status;
 import logica.DTCategoria;
 
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import javax.swing.*;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,14 +23,16 @@ import java.time.DateTimeException;
 
 public class VentanaAltaEvento extends JInternalFrame {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /**
+     * Titulo de todos los dialogos de este caso de uso (criterio del equipo).
+     */
     private static final String TITULO = "Alta de Evento";
 
     private JPanel mainPanel;
     private JTextField nombretxt;
     private JTextField desctxt;
     private JTextField siglatxt;
-    private JList<String> catlist;
+    private JTree catTree;
     private JButton aceptarButton;
     private JButton cancelarButton;
     private JSpinner spinnerDia;
@@ -58,17 +64,34 @@ public class VentanaAltaEvento extends JInternalFrame {
      * listarCategorias() fallaba, la ventana ni siquiera abria.
      */
     private void cargarCategorias() {
-        List<String> nombresCategorias = new ArrayList<>();
         try {
-            Set<DTCategoria> categorias = controlador.listarCategorias();
+            Set<DTCategoria> categorias = controlador.listarCategoriasArbol();
+
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Categorías");
             for (DTCategoria c : categorias) {
-                nombresCategorias.add(c.getNombre()); // usa el getter del DTO
+                root.add(buildTreeNode(c));
             }
+
+            // Reutiliza el JTree ya creado por el diseñador
+            catTree.setModel(new DefaultTreeModel(root));
+            catTree.setRootVisible(false);
+            catTree.setShowsRootHandles(true);
+            catTree.getSelectionModel().setSelectionMode(
+                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+
+            // No agregues scrollPane ni mainPanel.add(...)
+            // El diseñador ya lo hizo en $$$setupUI$$$
         } catch (Exception ex) {
-            // La lista queda vacia, pero la ventana abre igual.
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
-        catlist.setListData(nombresCategorias.toArray(new String[0]));
+    }
+
+    private DefaultMutableTreeNode buildTreeNode(DTCategoria categoria) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(categoria.getNombre());
+        for (DTCategoria hija : categoria.getHijas()) {
+            node.add(buildTreeNode(hija));
+        }
+        return node;
     }
 
     private void aceptar() {
@@ -98,7 +121,14 @@ public class VentanaAltaEvento extends JInternalFrame {
             return;
         }
 
-        List<String> nombresCategorias = catlist.getSelectedValuesList();
+        List<String> nombresCategorias = new ArrayList<>();
+        TreePath[] paths = catTree.getSelectionPaths();
+        if (paths != null) {
+            for (TreePath path : paths) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                nombresCategorias.add(node.toString());
+            }
+        }
         if (nombresCategorias.isEmpty()) {
             Mensajes.aviso(mainPanel, TITULO, "Debe seleccionar al menos una categoría.");
             return;
@@ -169,11 +199,6 @@ public class VentanaAltaEvento extends JInternalFrame {
         aceptarButton = new JButton();
         aceptarButton.setText("Aceptar");
         mainPanel.add(aceptarButton, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cancelarButton = new JButton();
-        cancelarButton.setText("Cancelar");
-        mainPanel.add(cancelarButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        catlist = new JList();
-        mainPanel.add(catlist, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -183,6 +208,13 @@ public class VentanaAltaEvento extends JInternalFrame {
         panel1.add(spinnerMes, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         spinnerAnio = new JSpinner();
         panel1.add(spinnerAnio, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        mainPanel.add(scrollPane1, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        catTree = new JTree();
+        scrollPane1.setViewportView(catTree);
+        cancelarButton = new JButton();
+        cancelarButton.setText("Cancelar");
+        mainPanel.add(cancelarButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
