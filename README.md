@@ -1,54 +1,115 @@
-eventos.uy
-Plataforma de gestión de eventos. Trabajo del Laboratorio 1 de Programación de Aplicaciones (UTEC).
+# eventos.uy
 
-En esta etapa: Servidor Central (lógica + persistencia JPA) y Estación de Trabajo (interfaz de administración en Swing).
+Plataforma de gestión de eventos. Trabajo del **Laboratorio 1** de Programación de Aplicaciones — Tecnólogo en Informática, UTEC.
 
-Requisitos
-JDK 25 (Temurin / Adoptium)
-PostgreSQL 17
-IntelliJ IDEA 2026.2+ (para desarrollo; con el plugin Swing UI Designer activo)
-No hace falta instalar Maven: el repositorio incluye el Maven Wrapper (mvnw / mvnw.cmd).
+En esta etapa se desarrollan dos componentes:
 
-Base de datos
-La aplicación se conecta a una base PostgreSQL local. Cada integrante la crea una vez, conectado como superusuario (postgres):
+- **Servidor Central** — lógica de negocio y persistencia con JPA sobre PostgreSQL.
+- **Estación de Trabajo** — interfaz gráfica de administración en Swing.
 
-CREATE ROLE eventos WITH LOGIN PASSWORD 'eventos';
-CREATE DATABASE eventosuy OWNER eventos;
-GRANT ALL PRIVILEGES ON DATABASE eventosuy TO eventos;
-Credenciales que usa el sistema (definidas en src/main/resources/META-INF/persistence.xml):
+## Requisitos
 
-Parámetro	Valor
-host	localhost
-puerto	5432
-base	eventosuy
-usuario	eventos
-contraseña	eventos
-Las tablas se crean automáticamente en el primer arranque (hibernate.hbm2ddl.auto=update). No hace falta correr scripts de creación de tablas.
+| Herramienta   | Versión                                                |
+| ------------- | ------------------------------------------------------ |
+| JDK           | 25 (Temurin / Adoptium)                                |
+| PostgreSQL    | 17                                                     |
+| IntelliJ IDEA | 2026.2+ (con el plugin *Swing UI Designer* activo)     |
 
-La integración con JPA está en curso. Hasta que esté completa, la aplicación usa datos de prueba en memoria y no requiere la base de datos.
+No hace falta instalar Maven: el repositorio incluye el Maven Wrapper (`mvnw` / `mvnw.cmd`).
 
-Compilar
-En Windows:
+## Puesta en marcha
 
+Cuatro pasos. Los tres primeros se hacen una sola vez por máquina.
+
+### 1. Crear la base de datos
+
+El repositorio incluye el script de creación. Hay que ejecutarlo como superusuario (`postgres`):
+
+**Windows**
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts\crear-base.sql
+```
+
+**macOS / Linux**
+
+```bash
+psql -U postgres -f scripts/crear-base.sql
+```
+
+Pide la contraseña del usuario `postgres`, la que cada uno definió al instalar PostgreSQL. El script crea el rol `eventosuy` y la base `eventosuy`, y se puede correr más de una vez sin romper nada.
+
+> Las **tablas** no se crean en este paso: las genera Hibernate automáticamente en el primer arranque, porque `persistence.xml` usa `hibernate.hbm2ddl.auto=update`.
+
+### 2. Compilar
+
+**Windows**
+
+```powershell
 .\mvnw.cmd package
-En macOS / Linux:
+```
 
+**macOS / Linux**
+
+```bash
 ./mvnw package
-Genera target/eventos-uy-1.0-SNAPSHOT.jar.
+```
 
-Ejecutar
-Con Maven, sin abrir el IDE:
+Genera `target/eventos-uy-1.0-SNAPSHOT.jar`.
 
+### 3. Cargar los datos de prueba
+
+Deja en la base un conjunto inicial de usuarios, eventos, ediciones, tipos de registro y patrocinios para poder recorrer los casos de uso:
+
+```powershell
+.\mvnw.cmd exec:java "-Dexec.mainClass=persistencia.CargarDatos"
+```
+
+Es idempotente: si los datos ya están, avisa y no hace nada. También se puede ejecutar la clase `persistencia.CargarDatos` desde IntelliJ.
+
+### 4. Ejecutar la aplicación
+
+```powershell
 .\mvnw.cmd exec:java
-O desde IntelliJ: ejecutar la clase presentacion.VentanaPrincipal.
+```
 
-Estructura
-src/main/java/logica/          Dominio y controlador (Sistema, entidades, DTs)
+O desde IntelliJ, ejecutando la clase `presentacion.VentanaPrincipal`.
+
+## Conexión a la base
+
+Credenciales que usa el sistema, definidas en `src/main/resources/META-INF/persistence.xml`:
+
+| Parámetro  | Valor       |
+| ---------- | ----------- |
+| host       | `localhost` |
+| puerto     | `5432`      |
+| base       | `eventosuy` |
+| usuario    | `eventosuy` |
+| contraseña | `eventosuy` |
+
+Sirven igual para conectarse desde pgAdmin o DBeaver.
+
+## Estructura
+
+```
+src/main/java/logica/          Dominio, controlador (Sistema), manejadores y DTs
+src/main/java/persistencia/    Acceso a JPA (Persistencia) y carga de datos
 src/main/java/presentacion/    Interfaz gráfica Swing (paneles .form + ventanas)
 src/main/resources/META-INF/   persistence.xml (configuración de JPA)
-docs/                          Documentación de análisis y diseño
+scripts/crear-base.sql         Creación del rol y la base en PostgreSQL
 pom.xml                        Proyecto Maven (Java 25)
-La Estación de Trabajo accede a la lógica únicamente a través de la interfaz IControladorSistema. Los objetos de dominio no cruzan a la interfaz: se usan tipos de datos (DT*).
+```
 
-Equipo:
-Paloma Cabrera, Martina Delgado, Sebastián De León, Elías Sosa, Leandro Acosta.
+## Arquitectura
+
+El sistema está organizado en capas:
+
+- **Presentación** (`presentacion`) — Swing. Accede a la lógica únicamente a través de la interfaz `IControladorSistema`.
+- **Lógica** (`logica`) — entidades del dominio, controlador y manejadores de las colecciones.
+- **Persistencia** (`persistencia`) — encapsula JPA. Ni la presentación ni la lógica de negocio conocen Hibernate.
+
+Los objetos del dominio no cruzan hacia la interfaz gráfica: la comunicación entre capas se hace con tipos de datos (`DT*`).
+
+## Equipo
+
+Paloma Cabrera · Martina Delgado · Sebastián De León · Elías Sosa · Leandro Acosta
