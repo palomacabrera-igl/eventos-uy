@@ -3,6 +3,7 @@ package presentacion;
 import com.formdev.flatlaf.FlatLightLaf;
 import logica.Fabrica;
 import logica.IControladorSistema;
+import persistencia.Persistencia;
 
 import javax.swing.*;
 import java.beans.PropertyVetoException;
@@ -168,6 +169,10 @@ public class VentanaPrincipal extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Cierra el EntityManager y la fabrica al terminar la aplicacion,
+        // sin importar como se salga (cerrar la ventana, Ctrl+C, System.exit).
+        Runtime.getRuntime().addShutdownHook(new Thread(Persistencia::cerrar));
+
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(new FlatLightLaf());
