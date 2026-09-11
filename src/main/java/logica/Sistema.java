@@ -148,30 +148,33 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public boolean ingresarDatosEdicion(DTEdicionEvento dt) {
+    public void ingresarDatosEdicion(DTEdicionEvento dt) throws ReglaNegocioException {
         // Una edicion no puede repetir nombre en NINGUN evento.
         if (manejadorEvento.buscarEdicion(dt.getNombre()) != null) {
-            return false;
+            throw new ReglaNegocioException(
+                    "Ya existe una edicion con el nombre \"" + dt.getNombre() + "\".");
         }
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia). La edicion nueva
-        // viaja por el cascade del @OneToMany de Evento.
+        // JPA: confirma el cambio en la base. La edicion nueva viaja por el
+        // cascade del @OneToMany de Evento.
         manejadorEvento.actualizar(eventoSeleccionado);
-        return true;
     }
 
     // ===== Alta de Usuario =====
 
     @Override
-    public boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) {
-        Usuario uN = find(datos.getNickname());
-        Usuario uC = findPorCorreo(datos.getCorreo());
-        if (uN != null || uC != null) {
-            return false;
+    public void ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo)
+            throws ReglaNegocioException {
+        if (find(datos.getNickname()) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un usuario con el nickname \"" + datos.getNickname() + "\".");
+        }
+        if (findPorCorreo(datos.getCorreo()) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un usuario con el correo \"" + datos.getCorreo() + "\".");
         }
         this.datosUsuarioRecordados = datos;
         this.tipoUsuarioRecordado = tipo;
-        return true;
     }
 
     @Override
@@ -227,17 +230,15 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo) {
-        TipoRegistro tr = edicionSeleccionada.buscarTipoRegistro(nombre);
-        if (tr != null) {
-            return false;
+    public void ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo)
+            throws ReglaNegocioException {
+        if (edicionSeleccionada.buscarTipoRegistro(nombre) != null) {
+            throw new ReglaNegocioException("Ya existe un tipo de registro con el nombre \""
+                    + nombre + "\" en la edicion " + edicionSeleccionada.getNombre() + ".");
         }
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia). Se actualiza por el
-        // Evento, que es la raiz del agregado: se llega con la referencia
-        // inversa edicion -> evento.
+        // JPA: se actualiza por el Evento, que es la raiz del agregado.
         manejadorEvento.actualizar(edicionSeleccionada.getEvento());
-        return true;
     }
 
     // ===== Registro a Edicion de Evento =====
@@ -255,20 +256,24 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public Status altaRegistro(String nickname, String nombreEdicion, String nombreTipo) {
+    public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
+            throws ReglaNegocioException {
         // La Edicion es la recordada por listarDatosRegistro().
         EdicionEvento ed = edicionSeleccionada;
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
-        // 1: yaRegistrado := estaRegistrado(nickname)  /  2: hayCupo := hayCupo()
-        if (ed.estaRegistrado(nickname) || !ed.hayCupo(tr)) {
-            return Status.ERROR;
+
+        if (ed.estaRegistrado(nickname)) {
+            throw new ReglaNegocioException("El asistente " + nickname
+                    + " ya esta registrado en la edicion " + ed.getNombre() + ".");
         }
-        // 2. [!yaRegistrado y hayCupo] R := create(nickname, nombreTipo)
+        if (!ed.hayCupo(tr)) {
+            throw new ReglaNegocioException("El tipo de registro \"" + nombreTipo
+                    + "\" ya alcanzo su cupo de " + tr.getCupo() + " lugares.");
+        }
+
         Asistente a = (Asistente) find(nickname);
         ed.altaRegistro(a, tr, LocalDate.now());
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
         manejadorEvento.actualizar(ed.getEvento());
-        return Status.OK;
     }
 
     /** Todos los asistentes existentes como DTs. La usa listarDatosRegistro(). */
@@ -348,21 +353,19 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public Status altaCategoria(String nombre, String nombrePadre) {
-        // 1: existente := find(nombre)  (el nombre es unico en toda la plataforma)
+    public void altaCategoria(String nombre, String nombrePadre) throws ReglaNegocioException {
+        // El nombre es unico en toda la plataforma.
         if (findCategoria(nombre) != null) {
-            return Status.ERROR;
+            throw new ReglaNegocioException(
+                    "Ya existe una categoria con el nombre \"" + nombre + "\".");
         }
-        // 2: [existente == null] cat := create(nombre)
         Categoria nueva = new Categoria(nombre);
-        // Si se indico un padre, la cuelga de el (queda como hija); si no, es raiz.
+        // Si se indico un padre, la cuelga de el; si no, queda como raiz.
         if (nombrePadre != null && !nombrePadre.isBlank()) {
             Categoria padre = findCategoria(nombrePadre);
             padre.agregarHija(nueva);
         }
-        // 3: add(cat)  -- igual se registra por nombre (unicidad global + busqueda)
         manejadorCategoria.agregar(nueva);
-        return Status.OK;
     }
 
     /** Busqueda de Categoria por nombre (delega en ManejadorCategoria). */
@@ -386,17 +389,15 @@ public class Sistema implements IControladorSistema {
     }
 
     // ===== Alta institucion =====
-    public Status altaInstitucion(String nombre, String descripcion, String sitioWeb) {
+    @Override
+    public void altaInstitucion(String nombre, String descripcion, String sitioWeb)
+            throws ReglaNegocioException {
         if (findInstitucion(nombre) != null) {
-            return Status.ERROR;
+            throw new ReglaNegocioException(
+                    "Ya existe una institucion con el nombre \"" + nombre + "\".");
         }
-        Institucion institucion = new Institucion(
-                nombre,
-                descripcion,
-                sitioWeb
-        );
+        Institucion institucion = new Institucion(nombre, descripcion, sitioWeb);
         manejadorInstitucion.agregar(institucion);
-        return Status.OK;
     }
 
     // ===== Consulta de Edicion de Evento =====
@@ -442,34 +443,34 @@ public class Sistema implements IControladorSistema {
         manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
     // ===== Alta Evento =====
-    public Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias) {
-        // Validar unicidad del evento
+    @Override
+    public void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
+                                    String sigla, List<String> nombresCategorias)
+            throws ReglaNegocioException {
+
         if (findEvento(nombre) != null) {
-            return Status.ERROR;
+            throw new ReglaNegocioException(
+                    "Ya existe un evento con el nombre \"" + nombre + "\".");
         }
 
-        // Convertir nombres en objetos Categoria
+        // La letra pide al menos una categoria por evento.
+        if (nombresCategorias == null || nombresCategorias.isEmpty()) {
+            throw new ReglaNegocioException(
+                    "Hay que seleccionar al menos una categoria para el evento.");
+        }
+
         List<Categoria> categoriasEvento = new ArrayList<>();
         for (String nombreCat : nombresCategorias) {
             Categoria cat = findCategoria(nombreCat);
-            if (cat != null) {
-                categoriasEvento.add(cat);
-            } else {
-                // Si alguna categoría no existe, podés decidir si abortar o ignorar
-                return Status.ERROR;
+            if (cat == null) {
+                throw new ReglaNegocioException(
+                        "La categoria \"" + nombreCat + "\" no existe en la plataforma.");
             }
+            categoriasEvento.add(cat);
         }
 
-        // Validar que haya al menos una categoría
-        if (categoriasEvento.isEmpty()) {
-            return Status.ERROR;
-        }
-
-        // Crear y agregar el evento
         Evento evento = new Evento(nombre, descripcion, fechaAlta, sigla, categoriasEvento);
         manejadorEvento.agregar(evento);
-
-        return Status.OK;
     }
 
 }

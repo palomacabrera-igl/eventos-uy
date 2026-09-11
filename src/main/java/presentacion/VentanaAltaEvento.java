@@ -4,10 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
-import logica.Fabrica;
-import logica.IControladorSistema;
-import logica.Status;
-import logica.DTCategoria;
+import logica.*;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -136,18 +133,11 @@ public class VentanaAltaEvento extends JInternalFrame {
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            Status resultado = controlador.ingresarDatosEvento(
-                    nombre, descripcion, fechaAlta, sigla, nombresCategorias);
-
-            if (resultado == Status.OK) {
-                Mensajes.exito(mainPanel, TITULO, "Evento dado de alta correctamente.");
-                dispose();
-            } else {
-                Mensajes.error(mainPanel, TITULO,
-                        "Ya existe un evento con el nombre \"" + nombre + "\".");
-                nombretxt.requestFocus();
-                nombretxt.selectAll();
-            }
+            controlador.ingresarDatosEvento(nombre, descripcion, fechaAlta, sigla, nombresCategorias);
+            Mensajes.exito(mainPanel, TITULO, "Evento dado de alta correctamente.");
+            dispose();
+        } catch (ReglaNegocioException ex) {
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }

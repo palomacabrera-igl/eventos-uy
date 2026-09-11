@@ -2,10 +2,7 @@ package presentacion;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import logica.DTEdicionEvento;
-import logica.DTEvento;
-import logica.Fabrica;
-import logica.IControladorSistema;
+import logica.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -134,17 +131,13 @@ public class AltaTipoRegistro {
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            // ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo) : boolean
-            if (controlador.ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo)) {
-                Mensajes.exito(mainPanel, TITULO, "Tipo de registro creado con éxito.");
-                limpiar();
-                accionCerrar.run();
-            } else {
-                // [nombre ya en uso en esta edicion]: se avisa y se deja la ventana abierta
-                // para reintentar (LOOP del dss), no se cierra ni se limpia.
-                Mensajes.error(mainPanel, TITULO,
-                        "Ya existe un tipo de registro con ese nombre en esta edición.");
-            }
+            controlador.ingresarDatosTipoRegistro(nombre, descripcion, costo, cupo);
+            Mensajes.exito(mainPanel, TITULO, "Tipo de registro creado con éxito.");
+            limpiar();
+            accionCerrar.run();
+        } catch (ReglaNegocioException ex) {
+            // LOOP del dss: se avisa y la ventana queda abierta para reintentar
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }

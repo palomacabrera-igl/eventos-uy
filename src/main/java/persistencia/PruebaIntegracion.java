@@ -23,32 +23,36 @@ public class PruebaIntegracion {
         try {
             System.out.println("\n=== A. Alta de Categoria CON PADRE (jerarquia de Leandro) ===");
             String hija = "Robotica " + sufijo;
-            System.out.println("  alta de '" + hija + "' colgando de 'Ingeniería': "
-                    + c.altaCategoria(hija, "Ingeniería"));
-            System.out.println("  repetida: " + c.altaCategoria(hija, "Ingeniería") + "  (se espera ERROR)");
+            c.altaCategoria(hija, "Ingeniería");
+            System.out.println("  alta de '" + hija + "' colgando de 'Ingeniería': OK");
+            try {
+                c.altaCategoria(hija, "Ingeniería");
+                System.out.println("  repetida: INESPERADO, la acepto");
+            } catch (ReglaNegocioException e) {
+                System.out.println("  repetida: rechazada, correcto  (" + e.getMessage() + ")");
+            }
 
             System.out.println("\n=== B. Alta de Institucion ===");
             String inst = "Instituto " + sufijo;
-            System.out.println("  alta de '" + inst + "': "
-                    + c.altaInstitucion(inst, "Instituto de prueba", "https://ejemplo.uy"));
+            c.altaInstitucion(inst, "Instituto de prueba", "https://ejemplo.uy");
+            System.out.println("  alta de '" + inst + "': OK");
 
             System.out.println("\n=== C. Alta de Evento (necesita categorias persistidas) ===");
             String ev = "Congreso " + sufijo;
-            System.out.println("  alta de '" + ev + "' con 2 categorias: "
-                    + c.ingresarDatosEvento(ev, "Evento de prueba", LocalDate.of(2025, 6, 1),
-                                            "CG" + sufijo, List.of("Ingeniería", "Charlas")));
+            c.ingresarDatosEvento(ev, "Evento de prueba", LocalDate.of(2025, 6, 1),
+                    "CG" + sufijo, List.of("Ingeniería", "Charlas"));
+            System.out.println("  alta de '" + ev + "' con 2 categorias: OK");
 
             System.out.println("\n=== D. Alta de Usuario CON institucion ===");
             String nick = "usuario" + sufijo;
-            boolean ok = c.ingresarDatosUsuario(
+            c.ingresarDatosUsuario(
                     new DTUsuario(nick, "Usuario Prueba", nick + "@example.com"),
                     TipoUsuario.ASISTENTE);
-            System.out.println("  datos basicos aceptados: " + ok);
-            if (ok) {
-                c.ingresarDatosAsistente("Prueba", DTFecha.desde(LocalDate.of(1998, 3, 20)));
-                c.seleccionarInstitucion(inst);
-                System.out.println("  asistente creado y asociado a '" + inst + "'");
-            }
+            System.out.println("  datos basicos aceptados: OK");
+
+            c.ingresarDatosAsistente("Prueba", DTFecha.desde(LocalDate.of(1998, 3, 20)));
+            c.seleccionarInstitucion(inst);
+            System.out.println("  asistente creado y asociado a '" + inst + "'");
 
             System.out.println("\n=== E. Alta de Patrocinio (necesita institucion + tipo de registro) ===");
             c.listarEdicionesDeEvento("JIAP");
@@ -81,6 +85,9 @@ public class PruebaIntegracion {
             System.out.println("  instituciones : " + c.listarNombresInstituciones().size());
             System.out.println("  patrocinios JIAP 2026: " + c.listarPatrociniosDeEdicion("JIAP 2026").size());
 
+        } catch (ReglaNegocioException e){
+            // Una regla de negocio rechazo una operacion que la prueba daba por exitosa.
+            System.out.println("\n>>> RECHAZADO POR UNA REGLA: " + e.getMessage());
         } finally {
             Persistencia.cerrar();
             System.out.println("\nFin de la prueba de integracion.");

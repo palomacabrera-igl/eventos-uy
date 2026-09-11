@@ -57,12 +57,12 @@ public interface IControladorSistema {
      * EdicionEvento con el mismo nombre; retorna true y da de alta la
      * edicion en caso contrario.
      */
-    boolean ingresarDatosEdicion(DTEdicionEvento dt);
+    void ingresarDatosEdicion(DTEdicionEvento dt) throws ReglaNegocioException;
 
     // ===== Alta de Usuario =====
 
     /** Precondicion: tipo corresponde a asistente u organizador. */
-    boolean ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo);
+    void ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) throws ReglaNegocioException;
 
     /** Precondicion: ingresarDatosUsuario() se ejecuto con exito y el tipo recordado es ASISTENTE. */
     void ingresarDatosAsistente(String apellido, DTFecha fechaNac);
@@ -100,7 +100,8 @@ public interface IControladorSistema {
     DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion);
 
     /** Precondicion: se ejecuto seleccionarEdicionEvento() previamente. */
-    boolean ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo);
+    void ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo)
+            throws ReglaNegocioException;
 
     // ===== Consulta de Evento =====
     // (listarEventos() ya esta declarado arriba y se reutiliza como consultarEvento();
@@ -133,7 +134,8 @@ public interface IControladorSistema {
      * edicion o el tipo de registro no tiene cupo; en caso contrario crea el
      * registro (fecha actual, costo = costo del tipo) y retorna OK.
      */
-    Status altaRegistro(String nickname, String nombreEdicion, String nombreTipo);
+    void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
+            throws ReglaNegocioException;
 
     // ===== Consulta de Usuario =====
 
@@ -182,7 +184,7 @@ public interface IControladorSistema {
      * contrario la crea (como raiz si nombrePadre es null/vacio, o como hija de la
      * categoria padre) y retorna OK.
      */
-    Status altaCategoria(String nombre, String nombrePadre);
+    void altaCategoria(String nombre, String nombrePadre) throws ReglaNegocioException;
 
     // ===== Consulta de Tipo de Registro =====
     Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
@@ -190,7 +192,8 @@ public interface IControladorSistema {
     DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro);
 
     // ===== Alta Institucion  =====
-    Status altaInstitucion(String nombre, String descripcion, String sitioWeb);
+    void altaInstitucion(String nombre, String descripcion, String sitioWeb)
+            throws ReglaNegocioException;
 
     // ===== Consulta de Edicion de Evento =====
 
@@ -224,5 +227,7 @@ public interface IControladorSistema {
      *         supera el 20% del aporte economico.
      */
     void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException;
-    Status ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<String> nombresCategorias);
+    void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
+                             String sigla, List<String> nombresCategorias)
+            throws ReglaNegocioException;
 }

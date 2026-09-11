@@ -3,14 +3,7 @@ package presentacion;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import logica.DTAsistente;
-import logica.DTDatosRegistro;
-import logica.DTEdicionEvento;
-import logica.DTEvento;
-import logica.DTTipoRegistro;
-import logica.Fabrica;
-import logica.IControladorSistema;
-import logica.Status;
+import logica.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -162,19 +155,11 @@ public class RegistroEdicionDeEvento {
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            // altaRegistro(nickname, nombreEdicion, nombreTipo) : Status
-            Status resultado = controlador.altaRegistro(nickname, nombreEdicion, nombreTipo);
-            if (resultado == Status.OK) {
-                Mensajes.exito(mainPanel, TITULO, "Registro creado con éxito.");
-                accionCerrar.run();
-            } else {
-                // ERROR: el asistente ya está registrado en la edición o el tipo no
-                // tiene cupo. Se avisa y se deja la ventana abierta para reintentar
-                // (LOOP del DSS), sin crear el registro.
-                Mensajes.error(mainPanel, TITULO,
-                        "No se pudo registrar: el asistente ya está registrado en esta edición "
-                                + "o el tipo de registro no tiene cupo.");
-            }
+            controlador.altaRegistro(nickname, nombreEdicion, nombreTipo);
+            Mensajes.exito(mainPanel, TITULO, "Registro creado con éxito.");
+            accionCerrar.run();
+        } catch (ReglaNegocioException ex) {
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
