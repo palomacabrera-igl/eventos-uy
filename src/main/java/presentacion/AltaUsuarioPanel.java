@@ -2,11 +2,7 @@ package presentacion;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import logica.DTFecha;
-import logica.DTUsuario;
-import logica.Fabrica;
-import logica.IControladorSistema;
-import logica.TipoUsuario;
+import logica.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -144,13 +140,7 @@ public class AltaUsuarioPanel {
         // seleccionarInstitucion), asi que van todos en UN SOLO try: si falla
         // un paso del medio, se avisa una sola vez y no se dice "creado con exito".
         try {
-            // ingresarDatosUsuario(datos, tipo) : boolean
-            if (!controlador.ingresarDatosUsuario(datos, tipo)) {
-                // [nickname/correo en uso]: se avisa y se deja la ventana abierta para reintentar (LOOP del dss).
-                Mensajes.error(mainPanel, TITULO,
-                        "Ya existe un usuario con ese nickname o ese correo.");
-                return;
-            }
+            controlador.ingresarDatosUsuario(datos, tipo);
 
             if (tipo == TipoUsuario.ASISTENTE) {
                 confirmarAsistente();
@@ -161,6 +151,9 @@ public class AltaUsuarioPanel {
             Mensajes.exito(mainPanel, TITULO, "El usuario se ha creado con éxito.");
             limpiar();
             accionCerrar.run();
+        } catch (ReglaNegocioException ex) {
+            // [nickname/correo en uso]: se avisa y la ventana queda abierta (LOOP del dss)
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }

@@ -3,12 +3,7 @@ package presentacion;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import logica.DTEdicionEvento;
-import logica.DTEvento;
-import logica.DTFecha;
-import logica.DTOrganizador;
-import logica.Fabrica;
-import logica.IControladorSistema;
+import logica.*;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -176,14 +171,13 @@ public class AltaEdicionPanel {
             DTEdicionEvento dt = new DTEdicionEvento(nombre, sigla, ciudad, pais,
                     fechaInicio, fechaFin, fechaAlta);
 
-            if (controlador.ingresarDatosEdicion(dt)) {
-                Mensajes.exito(mainPanel, TITULO, "Edición de evento dada de alta correctamente.");
-                accionCerrar.run();
-            } else {
-                // LOOP del DSS: el nombre ya existe -> se avisa y la ventana NO se cierra
-                Mensajes.error(mainPanel, TITULO,
-                        "Ya existe una edición con el nombre \"" + nombre + "\". Elegí otro.");
-            }
+            controlador.ingresarDatosEdicion(dt);
+            Mensajes.exito(mainPanel, TITULO, "Edición de evento dada de alta correctamente.");
+            accionCerrar.run();
+
+        } catch (ReglaNegocioException ex) {
+            // LOOP del DSS: el nombre ya existe -> se avisa y la ventana NO se cierra
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }

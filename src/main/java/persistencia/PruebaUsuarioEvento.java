@@ -5,6 +5,7 @@ import logica.*;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import logica.ReglaNegocioException;
 
 /**
  * Prueba de ManejadorUsuario y ManejadorEvento contra PostgreSQL.
@@ -126,16 +127,22 @@ public class PruebaUsuarioEvento {
                     DTFecha.desde(LocalDate.of(2030, 10, 1)),
                     DTFecha.desde(LocalDate.of(2030, 10, 3)),
                     DTFecha.desde(LocalDate.of(2030, 1, 15)));
-            System.out.println("     alta de '" + nombreEd + "': "
-                    + (ctrl.ingresarDatosEdicion(nueva) ? "OK" : "rechazada (nombre repetido)"));
-            System.out.println("     la misma otra vez: "
-                    + (ctrl.ingresarDatosEdicion(nueva) ? "OK (MAL!)" : "rechazada, correcto"));
+            ctrl.ingresarDatosEdicion(nueva);
+            System.out.println("     alta de '" + nombreEd + "': OK");
+
+            try {
+                ctrl.ingresarDatosEdicion(nueva);
+                System.out.println("     la misma otra vez: OK (MAL!)");
+            } catch (ReglaNegocioException e) {
+                System.out.println("     la misma otra vez: rechazada, correcto");
+            }
 
             System.out.println("\n  -- Ediciones de JIAP segun el controlador --");
             for (DTEdicionEvento e : ctrl.listarEdicionesDeEvento("JIAP")) {
                 System.out.println("     " + e.getNombre() + "  (" + e.getCiudad() + ")");
             }
-
+        } catch (ReglaNegocioException e) {
+            System.out.println("\n>>> RECHAZADO POR UNA REGLA: " + e.getMessage());
         } finally {
             Persistencia.cerrar();
             System.out.println("\nFin de la prueba.");

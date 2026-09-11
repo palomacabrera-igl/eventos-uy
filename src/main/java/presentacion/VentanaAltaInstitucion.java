@@ -5,7 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import logica.Fabrica;
 import logica.IControladorSistema;
-import logica.Status;
+import logica.ReglaNegocioException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,24 +54,12 @@ public class VentanaAltaInstitucion extends JInternalFrame {
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            // Llamada con Strings, no con DTO
-            Status resultado = controlador.altaInstitucion(
-                    nombreInstitucion,
-                    descripcion,
-                    web
-            );
-
-            if (resultado == Status.OK) {
-                Mensajes.exito(mainPanel, TITULO, "Institución dada de alta correctamente.");
-                dispose();
-
-            } else {
-                Mensajes.error(mainPanel, TITULO,
-                        "Ya existe una institución con el nombre \""
-                                + nombreInstitucion + "\".");
-                nombre.requestFocus();
-                nombre.selectAll();
-            }
+            controlador.altaInstitucion(nombreInstitucion, descripcion, web);
+            Mensajes.exito(mainPanel, TITULO, "Institución dada de alta correctamente.");
+            dispose();
+        } catch (ReglaNegocioException ex) {
+            // LOOP del CU: se avisa y la ventana NO se cierra
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }

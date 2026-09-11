@@ -3,10 +3,7 @@ package presentacion;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import logica.DTCategoria;
-import logica.Fabrica;
-import logica.IControladorSistema;
-import logica.Status;
+import logica.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -107,17 +104,13 @@ public class AltaCategoria {
 
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            // altaCategoria(nombre, nombrePadre) : Status
-            Status resultado = controlador.altaCategoria(nombre, nombrePadre);
-            if (resultado == Status.OK) {
-                recargarArbol();      // el arbol refleja la nueva categoria
-                NombreTxt.setText("");
-                Mensajes.exito(mainPanel, TITULO, "Categoría creada con éxito.");
-            } else {
-                // ERROR: ya existe una categoria con ese nombre. Se avisa y se deja
-                // la ventana abierta para reingresar o cancelar (LOOP del DSS).
-                Mensajes.error(mainPanel, TITULO, "Ya existe una categoría con ese nombre.");
-            }
+            controlador.altaCategoria(nombre, nombrePadre);
+            recargarArbol();      // el arbol refleja la nueva categoria
+            NombreTxt.setText("");
+            Mensajes.exito(mainPanel, TITULO, "Categoría creada con éxito.");
+        } catch (ReglaNegocioException ex) {
+            // LOOP del CU: se avisa y la ventana NO se cierra
+            Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
         }
