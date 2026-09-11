@@ -104,7 +104,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="Confirmar"/>
+          <text value="Aceptar"/>
         </properties>
       </component>
       <component id="88096" class="javax.swing.JToolBar$Separator">
