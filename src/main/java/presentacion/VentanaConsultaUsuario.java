@@ -21,6 +21,11 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Usuario";
 
+    /** Encabezados del recuadro de detalle, segun que se este mostrando. */
+    private static final String DETALLE_USUARIO = "Datos del Usuario";
+    private static final String DETALLE_EDICION = "Datos de la Edición";
+    private static final String DETALLE_REGISTRO = "Datos del Registro";
+
     private JPanel panelPrincipal;
     private JComboBox<DTUsuario> comboUsuarios;
     private JTextArea areaDetalle;
@@ -32,6 +37,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     private JList<DTRegistro> listaRegistros;
     private JLabel Usuario;
     private JPanel panelDetalle;
+    private JLabel etiquetaDetalle;
     private final IControladorSistema controlador;
     private CardLayout cardLayout;
 
@@ -149,6 +155,8 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             return;
         }
 
+        etiquetaDetalle.setText(DETALLE_USUARIO);
+
         try {
             DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
 
@@ -206,6 +214,8 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             return;
         }
 
+        etiquetaDetalle.setText(DETALLE_EDICION);
+
         try {
             DTEdicionCompleto edicion =
                     controlador.seleccionarEdicion(item.getNombre());
@@ -258,6 +268,8 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         if (item == null) {
             return;
         }
+
+        etiquetaDetalle.setText(DETALLE_REGISTRO);
 
         try {
             DTRegistro registro =
@@ -346,9 +358,9 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         panelDetalle.add(scrollPane3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         areaDetalle = new JTextArea();
         scrollPane3.setViewportView(areaDetalle);
-        final JLabel label3 = new JLabel();
-        label3.setText("Datos del Usuario");
-        panelDetalle.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        etiquetaDetalle = new JLabel();
+        etiquetaDetalle.setText("Datos del Usuario");
+        panelDetalle.add(etiquetaDetalle, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
