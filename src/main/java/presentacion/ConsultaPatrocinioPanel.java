@@ -175,7 +175,7 @@ public class ConsultaPatrocinioPanel {
             campoCodigo.setText(String.valueOf(detalle.getCodigoPatrocinio()));
             campoInstitucion.setText(detalle.getInstitucion());
             campoTipoRegistro.setText(detalle.getTipoRegistro());
-            campoNivel.setText(detalle.getNivel().toString());
+            campoNivel.setText(detalle.getNivel());
             campoMonto.setText(String.valueOf(detalle.getMonto()));
             campoCantRegistrosGratis.setText(String.valueOf(detalle.getCantRegistrosGratis()));
             DTFecha fecha = detalle.getFecha();

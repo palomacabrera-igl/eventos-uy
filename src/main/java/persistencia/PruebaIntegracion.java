@@ -58,7 +58,7 @@ public class PruebaIntegracion {
             c.listarEdicionesDeEvento("JIAP");
             c.listarTiposRegistroDeEdicion("JIAP 2026");
             DTPatrocinio dtp = new DTPatrocinio(Integer.parseInt(sufijo),
-                    DTFecha.desde(LocalDate.now()), 5000.0, NivelPatrocinio.PLATA,
+                    DTFecha.desde(LocalDate.now()), 5000.0, "PLATA",
                     10, inst, "General");
             try {
                 c.altaPatrocinio(dtp);
@@ -70,7 +70,7 @@ public class PruebaIntegracion {
             System.out.println("\n=== F. La regla del 20% sigue funcionando ===");
             try {
                 c.altaPatrocinio(new DTPatrocinio(Integer.parseInt(sufijo) + 1,
-                        DTFecha.desde(LocalDate.now()), 100.0, NivelPatrocinio.BRONCE,
+                        DTFecha.desde(LocalDate.now()), 100.0, "BRONCE",
                         50, inst, "General"));
                 System.out.println("  INESPERADO: acepto 50 gratis sobre un aporte de 100.");
             } catch (ReglaNegocioException e) {

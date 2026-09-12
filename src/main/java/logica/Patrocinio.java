@@ -102,7 +102,7 @@ public class Patrocinio extends EntidadBase {
      * asociados para obtener sus nombres.
      */
     public DTPatrocinio obtenerDT() {
-        return new DTPatrocinio(codigo, DTFecha.desde(fechaIni), monto, nivelPatro,
+        return new DTPatrocinio(codigo, DTFecha.desde(fechaIni), monto, nivelPatro.name(),
                 cantRegistrosGratis, institucion.getNombre(), tipoRegistro.getNombre());
     }
 }

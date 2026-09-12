@@ -436,7 +436,8 @@ public class Sistema implements IControladorSistema {
         }
 
         Patrocinio p = new Patrocinio(dt.getFecha().aLocalDate(), dt.getMonto(),
-                dt.getCantRegistrosGratis(), dt.getCodigoPatrocinio(), dt.getNivel(),
+                dt.getCantRegistrosGratis(), dt.getCodigoPatrocinio(),
+                NivelPatrocinio.valueOf(dt.getNivel()),
                 institucion, tipo);
         edicionSeleccionada.agregarPatrocinio(p);
         // JPA: confirma el cambio en la base (sin transaccion se perderia).

@@ -10,7 +10,6 @@ import logica.DTPatrocinio;
 import logica.DTTipoRegistro;
 import logica.Fabrica;
 import logica.IControladorSistema;
-import logica.NivelPatrocinio;
 import logica.ReglaNegocioException;
 
 import javax.swing.event.DocumentEvent;
@@ -208,11 +207,16 @@ public class AltaPatrocinioPanel {
         }
     }
 
-    private NivelPatrocinio nivelSeleccionado() {
-        if (platinoRadioButton.isSelected()) return NivelPatrocinio.PLATINO;
-        if (oroRadioButton.isSelected()) return NivelPatrocinio.ORO;
-        if (plataRadioButton.isSelected()) return NivelPatrocinio.PLATA;
-        return NivelPatrocinio.BRONCE;
+    /**
+     * El nivel elegido, como texto. Devuelve String y no el enum del dominio
+     * porque la letra (7.3) pide que los objetos del dominio no viajen a la
+     * interfaz grafica. Sistema lo convierte de vuelta a NivelPatrocinio.
+     */
+    private String nivelSeleccionado() {
+        if (platinoRadioButton.isSelected()) return "PLATINO";
+        if (oroRadioButton.isSelected()) return "ORO";
+        if (plataRadioButton.isSelected()) return "PLATA";
+        return "BRONCE";
     }
 
     private void confirmar() {

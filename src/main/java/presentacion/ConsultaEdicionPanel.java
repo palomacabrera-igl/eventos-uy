@@ -265,7 +265,7 @@ public class ConsultaEdicionPanel {
         PatCodigoTxt.setText(String.valueOf(p.getCodigoPatrocinio()));
         PatInstitucionTxt.setText(p.getInstitucion());
         PatTipoRegistroTxt.setText(p.getTipoRegistro());
-        PatNivelTxt.setText(p.getNivel().toString());
+        PatNivelTxt.setText(p.getNivel());
         PatAporteTxt.setText(String.valueOf(p.getMonto()));
         PatCantGratisTxt.setText(String.valueOf(p.getCantRegistrosGratis()));
         DTFecha f = p.getFecha();
