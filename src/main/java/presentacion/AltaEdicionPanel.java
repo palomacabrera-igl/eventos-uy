@@ -6,7 +6,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import logica.*;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.time.LocalDate;
 

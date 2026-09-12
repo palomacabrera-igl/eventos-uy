@@ -121,12 +121,26 @@ public interface IControladorSistema {
 
     // ===== Consulta de Usuario =====
 
+    /**
+     * Precondicion: se ejecuto seleccionarUsuario() sobre un organizador
+     * (Sistema recuerda el Organizador seleccionado). Lista sus ediciones.
+     */
     Set<DTEdicionEvento> listarEdiciones();
 
+    /**
+     * Precondicion: se ejecuto listarEdiciones() previamente (recuerda el
+     * Organizador seleccionado) y existe una EdicionEvento suya con ese nombre.
+     */
     DTEdicionCompleto seleccionarEdicion(String nombreEdicion);
 
+    /** Precondicion: existe un Asistente con ese nickname. */
     Set<DTRegistro> listarRegistroUsuario(String nickname);
 
+    /**
+     * Precondicion: se ejecuto seleccionarUsuario() sobre un asistente
+     * (Sistema recuerda el Asistente seleccionado) y ese asistente tiene un
+     * Registro en la edicion 'nombreEdicion'.
+     */
     DTRegistro obtenerRegistro(String nombreEdicion);
 
     // ===== Consulta de Registro =====

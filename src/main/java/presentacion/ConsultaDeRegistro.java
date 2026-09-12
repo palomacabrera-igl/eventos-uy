@@ -32,7 +32,6 @@ public class ConsultaDeRegistro {
     private JComboBox UsuarioCBox;
     private JComboBox EdicionCBox;
     private JPanel mainPanel;
-    private JTextField EdicionTxt;
     private JTextField TipoRegistroTxt;
     private JTextField CostoTxt;
     private JTextField FechaRegistroTxt;
