@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class RegistroEdicionDeEvento {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Registro a Edición de Evento";
 
     private JPanel mainPanel;

@@ -22,12 +22,10 @@ public class ManejadorInstitucion {
         return instancia;
     }
 
-    /** Agrega una institucion. Asume que Sistema ya valido la unicidad del nombre. */
     public void agregar(Institucion institucion) {
         Persistencia.enTransaccion(em -> em.persist(institucion));
     }
 
-    /** Devuelve la institucion con ese nombre, o null si no existe. */
     public Institucion buscar(String nombre) {
         return Persistencia.getEntityManager()
                 .createQuery("SELECT i FROM Institucion i WHERE i.nombre = :nombre", Institucion.class)
@@ -37,7 +35,6 @@ public class ManejadorInstitucion {
                 .orElse(null);
     }
 
-    /** Todas las instituciones de la coleccion. */
     public List<Institucion> listar() {
         return Persistencia.getEntityManager()
                 .createQuery("SELECT i FROM Institucion i ORDER BY i.nombre", Institucion.class)

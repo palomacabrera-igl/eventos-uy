@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class AltaUsuarioPanel {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Alta de Usuario";
 
 

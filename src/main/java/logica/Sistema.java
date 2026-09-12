@@ -7,9 +7,6 @@ import java.util.*;
  * Controlador del sistema (patron GRASP Controller, mapea a :Sistema en
  * los diagramas).
  *
- * Ya NO guarda las colecciones directamente: delega en los Manejadores
- * (ManejadorCategoria, ManejadorUsuario, ManejadorInstitucion,
- * ManejadorEvento), que son los "collection objects" de cada entidad raiz.
  * Sistema solo coordina el caso de uso: valida reglas de negocio y guarda
  * las referencias retenidas entre llamados.
  */
@@ -223,7 +220,6 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion) {
-        // ed := buscarEdicion(nombreEdicion)
         EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
         this.edicionSeleccionada = ed;
         return ed.obtenerDT();
@@ -245,12 +241,9 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTDatosRegistro listarDatosRegistro(String nombreEdicion) {
-        // 1.1: ed := find(nombreEdicion)  (dentro del evento recordado)
         EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
         this.edicionSeleccionada = ed;
-        // 1.2: registros := obtenerTiposRegistro() : Set<DTTipoRegistro>
         Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
-        // 2*/4*: dt := obtenerDT() : DTAsistente  (todos los asistentes existentes)
         Set<DTAsistente> asistentes = listarAsistentes();
         return new DTDatosRegistro(tiposRegistro, asistentes);
     }
@@ -258,7 +251,6 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException {
-        // La Edicion es la recordada por listarDatosRegistro().
         EdicionEvento ed = edicionSeleccionada;
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
 
@@ -276,7 +268,6 @@ public class Sistema implements IControladorSistema {
         manejadorEvento.actualizar(ed.getEvento());
     }
 
-    /** Todos los asistentes existentes como DTs. La usa listarDatosRegistro(). */
     private Set<DTAsistente> listarAsistentes() {
         Set<DTAsistente> resultado = new HashSet<>();
         for (Usuario u : manejadorUsuario.listar()) {
@@ -342,7 +333,7 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTCategoria> listarCategoriasArbol() {
         // Solo las raices; cada una arma su DT de forma recursiva (con sus hijas
-        // anidadas), reflejando la jerarquia completa. 2*: dt := obtenerDT().
+        // anidadas), reflejando la jerarquia completa.
         Set<DTCategoria> raices = new HashSet<>();
         for (Categoria cat : manejadorCategoria.listar()) {
             if (cat.esRaiz()) {
@@ -354,13 +345,11 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void altaCategoria(String nombre, String nombrePadre) throws ReglaNegocioException {
-        // El nombre es unico en toda la plataforma.
         if (findCategoria(nombre) != null) {
             throw new ReglaNegocioException(
                     "Ya existe una categoria con el nombre \"" + nombre + "\".");
         }
         Categoria nueva = new Categoria(nombre);
-        // Si se indico un padre, la cuelga de el; si no, queda como raiz.
         if (nombrePadre != null && !nombrePadre.isBlank()) {
             Categoria padre = findCategoria(nombrePadre);
             padre.agregarHija(nueva);

@@ -26,7 +26,7 @@ import java.awt.*;
 
 public class ConsultaEdicionPanel {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Edición de Evento";
 
     private JPanel mainPanel;

@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class VentanaAltaInstitucion extends JInternalFrame {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Alta de Institución";
 
     // Variables del formulario

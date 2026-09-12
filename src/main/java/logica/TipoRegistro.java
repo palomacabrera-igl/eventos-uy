@@ -54,7 +54,6 @@ public class TipoRegistro extends EntidadBase {
     public int getCupo() {return cupo;}
     public EdicionEvento getEdicion() {return edicion;}
 
-    /** Sin 'public': solo lo usa EdicionEvento, dentro del paquete logica. */
     void setEdicion(EdicionEvento edicion) {this.edicion = edicion;}
 
     public void setNombre(String nombre) {this.nombre = nombre;}

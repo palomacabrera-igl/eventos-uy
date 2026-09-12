@@ -6,17 +6,6 @@ import java.util.Arrays;
 /**
  * Datos de prueba de la plataforma. NO es parte de ningun caso de uso.
  *
- * Antes esto vivia dentro de Sistema y corria en su constructor, asi que los
- * datos se recreaban en memoria en cada arranque. Ahora es un programa aparte
- * que se ejecuta a mano (ver persistencia.CargarDatos), por dos motivos:
- *
- *  1) Con JPA los datos van a quedar guardados en PostgreSQL. Volver a
- *     crearlos en cada arranque daria nombres repetidos y la aplicacion no
- *     abriria.
- *  2) Mientras se migran los Manejadores de Map a EntityManager de a uno,
- *     cargarlos automaticamente dejaria un estado mitad en memoria y mitad en
- *     la base.
- *
  * Vive en el paquete logica porque usa metodos de paquete de las entidades
  * (agregarEdicion, agregarTipoRegistro, agregarPatrocinio), que a proposito no
  * son publicos: no forman parte del contrato de la GUI.
@@ -46,12 +35,7 @@ public final class DatosDePrueba {
         // ORDEN DE CARGA: primero lo que no depende de nadie, y cada evento
         // se guarda RECIEN cuando ya tiene colgadas todas sus ediciones,
         // tipos de registro, patrocinios y registros.
-        //
-        // Por que importa: JPA sincroniza con la base al hacer commit. Si se
-        // guarda el evento y despues se le cuelga una edicion, esa edicion
-        // queda fuera de toda transaccion y NO se guarda. Guardando el evento
-        // al final, la edicion (y todo lo que cuelga de ella) viaja sola por
-        // el cascade = PERSIST.
+
 
         // ===== 1. Lo que no depende de nada =====
         Categoria catIngenieria = new Categoria("Ingeniería");
@@ -78,10 +62,10 @@ public final class DatosDePrueba {
 
         // ===== 3. JIAP: se arma entero y se guarda al final =====
         Evento jiap = new Evento(
-                "JIAP",                                   // nombre
-                "Jornadas de Ingeniería y Aplicaciones",  // descripcion
-                LocalDate.of(2025, 1, 10),                // fechaAlta
-                "JIAP",                                   // sigla
+                "JIAP",
+                "Jornadas de Ingeniería y Aplicaciones",
+                LocalDate.of(2025, 1, 10),
+                "JIAP",
                 Arrays.asList(catIngenieria, catAplicaciones)
         );
 
@@ -108,9 +92,9 @@ public final class DatosDePrueba {
 
         jiap2026.altaRegistro(paloma, entradaGeneral, LocalDate.of(2026, 9, 1));
 
-        manejadorEvento.agregar(jiap);   // <- una sola transaccion baja TODO el arbol
+        manejadorEvento.agregar(jiap);
 
-        // ===== 4. Semana de la Ingenieria, igual =====
+        // ===== 4. Semana de la Ingenieria=====
         Evento semanaIngenieria = new Evento("Semana de la Ingeniería",
                 "Charlas y talleres de ingeniería",
                 LocalDate.of(2025, 3, 1),

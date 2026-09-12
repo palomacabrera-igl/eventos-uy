@@ -39,8 +39,7 @@ public class Patrocinio extends EntidadBase {
 
     /**
      * EnumType.STRING guarda "ORO" / "PLATA" / "BRONCE" como texto.
-     * Con el valor por defecto (ORDINAL) se guardaria 0, 1, 2, y si alguien
-     * reordena el enum se corrompen todos los datos ya guardados.
+     * Con el valor por defecto (ORDINAL) se guardaria 0, 1, 2.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "nivel", length = 20)
@@ -88,7 +87,6 @@ public class Patrocinio extends EntidadBase {
     public TipoRegistro getTipoRegistro() {return tipoRegistro;}
     public EdicionEvento getEdicion() {return edicion;}
 
-    /** Sin 'public': solo lo usa EdicionEvento, dentro del paquete logica. */
     void setEdicion(EdicionEvento edicion) {this.edicion = edicion;}
 
     public void setFechaIni(LocalDate fechaIni) {this.fechaIni = fechaIni;}

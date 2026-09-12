@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class ConsultaPatrocinioPanel {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Patrocinio";
 
     // ===== Atados al .form =====

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 public class AltaEdicionPanel {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Alta de Edición de Evento";
 
     // ===== Atados al .form =====

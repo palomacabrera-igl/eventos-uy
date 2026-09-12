@@ -8,16 +8,6 @@ import java.util.List;
  * Manejador de la coleccion de Usuario (patron "collection object" de GRASP).
  *
  * Singleton. Responsabilidad: guardar, buscar y listar Usuario.
- *
- * MIGRADO A JPA. Antes tenia un Map en memoria; ahora la "coleccion" es la
- * tabla usuario de PostgreSQL y este manejador es el unico lugar de la logica
- * que sabe como consultarla. Los metodos son los mismos de antes, asi que ni
- * Sistema ni las pantallas cambian: esa fue toda la razon de separar los
- * Manejadores antes de meter JPA.
- *
- * Nota de capas: logica usa persistencia, nunca al reves. La letra (7.1) lo
- * permite explicitamente: "el acceso a la base se realiza desde la capa de
- * logica o de persistencia, nunca desde la interfaz grafica".
  */
 public class ManejadorUsuario {
 
@@ -33,31 +23,18 @@ public class ManejadorUsuario {
         return instancia;
     }
 
-    /**
-     * Da de alta un usuario nuevo. Asume que Sistema ya valido la unicidad de
-     * nickname y correo (ademas de las restricciones UNIQUE de la tabla).
-     */
+
     public void agregar(Usuario usuario) {
         Persistencia.enTransaccion(em -> em.persist(usuario));
     }
 
     /**
-     * Confirma en la base los cambios hechos sobre un usuario que YA existe.
+     * Confirma en la base los cambios hechos sobre un usuario que ya existe.
      *
-     * Hace falta porque modificar un objeto no alcanza: JPA sincroniza con la
-     * base recien al hacer commit de una transaccion. Sin esto, el cambio se
-     * pierde en silencio.
-     *
-     * OJO con merge(): NO se usa cuando la entidad ya esta managed. merge()
-     * devuelve una COPIA administrada, y si otra entidad seguia apuntando al
-     * objeto original, JPA termina insertando el mismo hijo dos veces y la
-     * base lo rechaza por nombre repetido. (Nos paso exactamente eso con una
-     * edicion nueva, que cuelga a la vez del Evento y del Organizador.)
-     *
-     * Como la entidad vino de una consulta de nuestro unico EntityManager, ya
-     * esta managed: alcanza con abrir y cerrar la transaccion, y al hacer
-     * commit JPA detecta solo lo que cambio. El merge queda como red de
-     * seguridad por si alguna vez llega desconectada.
+     * No se usa merge() cuando la entidad ya esta managed: merge() devuelve una
+     * copia, y si otra entidad sigue apuntando a la original, JPA inserta el
+     * mismo hijo dos veces. Alcanza con abrir la transaccion: al hacer commit,
+     * JPA detecta solo lo que cambio.
      */
     public void actualizar(Usuario usuario) {
         Persistencia.enTransaccion(em -> {
@@ -96,10 +73,9 @@ public class ManejadorUsuario {
     /**
      * Todos los usuarios, ordenados por nickname.
      *
-     * Consultar Usuario (la clase abstracta) trae asistentes Y organizadores
-     * mezclados: es una consulta polimorfica. Hibernate mira la columna
-     * tipo_usuario de cada fila y arma la subclase que corresponde, asi que el
-     * instanceof de Sistema y de las pantallas sigue funcionando igual.
+     * Es una consulta polimorfica: al consultar Usuario vienen asistentes y
+     * organizadores, y Hibernate arma la subclase de cada fila segun la
+     * columna tipo_usuario.
      */
     public List<Usuario> listar() {
         return Persistencia.getEntityManager()

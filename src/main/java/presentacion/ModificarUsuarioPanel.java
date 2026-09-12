@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class ModificarUsuarioPanel {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Modificar Datos de Usuario";
 
 
@@ -184,9 +184,12 @@ public class ModificarUsuarioPanel {
             if (usuarioActual instanceof DTAsistente) {
                 DTFecha fecha = new DTFecha((int) spinnerDia.getValue(),
                         (int) spinnerMes.getValue(), (int) spinnerAnio.getValue());
+                // La institucion no se edita en este caso de uso: se reenvia
+                // la que ya tenia, para que el DT quede completo.
                 dtModificado = new DTAsistente(usuarioActual.getNickname(),
                         nombre, usuarioActual.getCorreo(),
-                        campoApellido.getText().trim(), fecha);
+                        campoApellido.getText().trim(), fecha,
+                        ((DTAsistente) usuarioActual).getInstitucion());
             } else {
                 dtModificado = new DTOrganizador(usuarioActual.getNickname(),
                         nombre, usuarioActual.getCorreo(),

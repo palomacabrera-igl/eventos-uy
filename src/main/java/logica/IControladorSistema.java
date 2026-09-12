@@ -53,9 +53,6 @@ public interface IControladorSistema {
     /**
      * Precondicion: deben haberse seleccionado previamente un evento y un
      * organizador (seleccionarEvento() y seleccionarOrganizador()).
-     * Retorna false y no crea ninguna instancia si ya existe una
-     * EdicionEvento con el mismo nombre; retorna true y da de alta la
-     * edicion en caso contrario.
      */
     void ingresarDatosEdicion(DTEdicionEvento dt) throws ReglaNegocioException;
 
@@ -80,22 +77,13 @@ public interface IControladorSistema {
     Set<String> listarNombresInstituciones();
 
     // ===== Alta de Tipo de Registro =====
-    // (listarEventos() ya esta declarado arriba y se reutiliza; listarEdicionesDeEvento()
+    // listarEventos() ya esta declarado arriba y se reutiliza; listarEdicionesDeEvento()
     // ya esta declarado arriba, en Consulta de Patrocinio, y tambien recuerda el Evento
-    // seleccionado, asi que no hace falta un seleccionarEvento() aparte aca)
-
+    // seleccionado.
     /**
      * Precondicion: se ejecuto listarEdicionesDeEvento() previamente (recuerda
      * el Evento seleccionado), y existe una EdicionEvento con ese nombre
      * asociada a dicho evento.
-     *
-     * Nota: el DSS de este caso de uso (y tambien el de Consulta de Evento,
-     * que reutiliza esta misma operacion) la llama "seleccionarEdicion", pero
-     * ese nombre ya lo usa Consulta de Usuario con otra firma (retorna
-     * DTEdicionCompleto en vez de DTEdicionEvento, y busca dentro del
-     * organizador seleccionado en vez del evento seleccionado). Java no
-     * permite dos metodos iguales que solo difieran en el tipo de retorno,
-     * asi que esta operacion se llama seleccionarEdicionEvento() en el codigo.
      */
     DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion);
 
@@ -104,18 +92,15 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     // ===== Consulta de Evento =====
-    // (listarEventos() ya esta declarado arriba y se reutiliza como consultarEvento();
-    // seleccionarEvento() ya esta declarado arriba, en Alta de Edicion de Evento, con la
-    // misma firma y semantica exacta que pide este DSS; listarEdicionesDeEvento() ya esta
-    // declarado arriba, en Consulta de Patrocinio, para llenar el combo de ediciones; y
+    // listarEventos() ya esta declarado arriba y se reutiliza como consultarEvento();
+    // seleccionarEvento() ya esta declarado arriba, en Alta de Edicion de Evento,
+    // listarEdicionesDeEvento() ya esta declarado arriba, en Consulta de Patrocinio, y
     // seleccionarEdicionEvento() ya esta declarado arriba, en Alta de Tipo de Registro,
-    // devolviendo el DTEdicionEvento que este caso de uso necesita mostrar. No hace falta
-    // ningun metodo nuevo para Consulta de Evento.
+    // devolviendo el DTEdicionEvento que este caso de uso necesita mostrar.
 
     // ===== Registro a Edicion de Evento =====
-    // (listarEventos() ya esta declarado arriba y se reutiliza para llenar el combo
-    // de eventos; listarEdicionesDeEvento() ya esta declarado arriba, en Consulta de
-    // Patrocinio, y ademas recuerda el Evento seleccionado, asi que se reutiliza para
+    // (listarEventos() ya esta declarado arriba; listarEdicionesDeEvento() ya esta declarado
+    // arriba, en Consulta de Patrocinio, y ademas recuerda el Evento seleccionado, asi que se reutiliza para
     // el combo de ediciones.)
 
     /**
@@ -130,9 +115,6 @@ public interface IControladorSistema {
      * Precondicion: se ejecuto listarDatosRegistro() previamente (recuerda la
      * Edicion seleccionada); existen un Asistente con ese nickname y un
      * TipoRegistro con ese nombre en la edicion.
-     * Retorna ERROR y no crea nada si el asistente ya esta registrado en la
-     * edicion o el tipo de registro no tiene cupo; en caso contrario crea el
-     * registro (fecha actual, costo = costo del tipo) y retorna OK.
      */
     void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException;
@@ -148,33 +130,27 @@ public interface IControladorSistema {
     DTRegistro obtenerRegistro(String nombreEdicion);
 
     // ===== Consulta de Registro =====
-    // (listarUsuarios() y listarRegistroUsuario(nickname) ya estan declarados arriba
-    // y se reutilizan. Para llenar los registros de un usuario, la capa de
-    // presentacion llama antes a seleccionarUsuario(nickname), que deja recordado
-    // el asistente seleccionado del que listarRegistroUsuario() toma los registros.)
+    // (listarUsuarios() y listarRegistroUsuario(nickname) ya estan declarados. Para llenar
+    // los registros de un usuario, la capa de presentacion llama antes a seleccionarUsuario(nickname),
+    // que deja recordado el asistente seleccionado del que listarRegistroUsuario() toma los registros.
 
     /**
      * Precondicion: existe un Asistente con ese nickname y un Registro suyo en
      * la edicion 'nombre'. Retorna el DTRegistro detallado (edicion, tipo de
      * registro, costo y fecha) de ese registro.
      *
-     * Sobrecarga propia de Consulta de Registro (su DSS pide
-     * obtenerRegistro(nickname, nombre)); no reemplaza al obtenerRegistro(nombreEdicion)
-     * de Consulta de Usuario, convive con el como sobrecarga.
+     * Sobrecarga: convive con obtenerRegistro(nombreEdicion), que usa el
+     * asistente ya seleccionado en vez de recibir el nickname.
      */
     DTRegistro obtenerRegistro(String nickname, String nombre);
 
     // ===== Alta de Categoria =====
 
-    /** Precondicion: ninguna. Retorna TODAS las categorias como lista plana (por
-     *  nombre, sin hijas). La usan selectores como Alta de Evento. */
+    /** Precondicion: ninguna. */
     Set<DTCategoria> listarCategorias();
 
     /**
-     * Precondicion: ninguna. Retorna las categorias RAIZ, cada una con sus hijas
-     * anidadas (DTCategoria que encapsula DTCategoria), reflejando la jerarquia
-     * completa. Es la estructura que consume el arbol (JTree) de Alta de Categoria.
-     */
+     * Precondicion: ninguna.*/
     Set<DTCategoria> listarCategoriasArbol();
 
     /**
@@ -201,13 +177,6 @@ public interface IControladorSistema {
      * Precondicion: se ejecuto listarEdicionesDeEvento() o seleccionarEvento()
      * previamente (Sistema recuerda el Evento seleccionado), y existe una
      * EdicionEvento con ese nombre dentro de ese evento.
-     *
-     * Nota: el DSS de este caso de uso la llama "seleccionarEdicion", pero ese
-     * nombre ya lo usa Consulta de Usuario, que busca la edicion dentro del
-     * organizador seleccionado en vez de dentro del evento seleccionado.
-     *
-     * Ademas de retornar el DT, Sistema retiene la edicion como
-     * edicionSeleccionada.
      */
     DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion);
 

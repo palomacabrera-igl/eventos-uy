@@ -19,7 +19,7 @@ import java.util.Set;
 @Table(name = "evento")
 public class Evento extends EntidadBase {
 
-    /** Nombre unico en la plataforma (letra). Es la clave de ManejadorEvento. */
+    /** Nombre unico en la plataforma. */
     @Column(nullable = false, unique = true, length = 150)
     private String nombre;
 
@@ -38,8 +38,7 @@ public class Evento extends EntidadBase {
     /**
      * Muchos a muchos: un evento tiene varias categorias y una categoria puede
      * estar en varios eventos. JPA crea una TERCERA tabla intermedia
-     * (evento_categoria) con las dos claves. Mismo patron que Libro N-N Autor
-     * en la demo del profe.
+     * (evento_categoria) con las dos claves.
      */
     @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(name = "evento_categoria",
@@ -67,9 +66,6 @@ public class Evento extends EntidadBase {
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
 
-    /**
-     * Agrega una edicion a este evento.
-     */
     void agregarEdicion(EdicionEvento edicion) {
         ediciones.add(edicion);
         edicion.setEvento(this);

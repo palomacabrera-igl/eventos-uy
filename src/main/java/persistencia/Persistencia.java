@@ -14,20 +14,11 @@ import java.util.function.Consumer;
  * Este paquete es esa tercera capa: es el UNICO lugar del proyecto que conoce
  * al EntityManagerFactory. Ni la GUI ni el Sistema saben que existe Hibernate.
  *
- * UN SOLO EntityManager PARA TODA LA APLICACION
- *
- * Es lo mismo que hace la demo ProyectoJPA del curso: su App.java crea UN
- * EntityManager al principio, lo usa en todos los metodos y lo cierra al final.
- *
- * Por que nos importa: si cada Manejador abriera y cerrara el suyo, un objeto
- * leido por uno quedaria "detached" (desconectado) para el otro, y al intentar
- * guardarlo saltaria "detached entity passed to persist". Por ejemplo, en Alta
- * de Usuario se busca la Institucion con un Manejador y se guarda el Asistente
- * con otro: con dos EntityManager distintos, eso falla.
- *
- * Con uno solo, todas las entidades viven en el mismo contexto de persistencia
- * y el problema no existe. Para el volumen de datos del laboratorio no tiene
- * ninguna contra.
+ * Hay UN SOLO EntityManager para toda la aplicacion. Si cada Manejador
+ * abriera el suyo, un objeto leido por uno quedaria desconectado (detached)
+ * para el otro y al guardarlo fallaria con "detached entity passed to
+ * persist": pasa, por ejemplo, en Alta de Usuario, donde se busca la
+ * Institucion con un Manejador y se guarda el Asistente con otro.
  */
 public final class Persistencia {
 
@@ -62,8 +53,8 @@ public final class Persistencia {
     /**
      * Ejecuta una operacion de escritura dentro de una transaccion.
      *
-     * Es el patron begin / commit / rollback del teorico y de la demo del
-     * profe, escrito UNA sola vez en lugar de repetirlo en cada Manejador:
+     * Es el patron begin / commit / rollback, escrito una sola vez en lugar de
+     * repetirlo en cada Manejador:
      *
      *     tx.begin();
      *     try { ...; tx.commit(); }

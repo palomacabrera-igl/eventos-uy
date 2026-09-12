@@ -176,6 +176,10 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                                 + "\nCorreo: " + asistente.getCorreo()
                                 + "\nFecha de nacimiento: "
                                 + asistente.getFechaNacimiento().aLocalDate()
+                                + "\nInstitución: "
+                                + (asistente.getInstitucion() == null
+                                        ? "(no pertenece a ninguna)"
+                                        : asistente.getInstitucion())
                 );
 
                 listaEdiciones.setListData(new DTEdicionEvento[0]);

@@ -20,18 +20,12 @@ import jakarta.persistence.UniqueConstraint;
  * los datos, pero no estos dos).
  */
 /*
- * MAPEO DE LA HERENCIA (acuerdo del equipo): SINGLE_TABLE.
+ * Herencia SINGLE_TABLE: Usuario, Asistente y Organizador comparten la tabla
+ * 'usuario', y la columna 'tipo_usuario' distingue cada fila.
  *
- * Usuario, Asistente y Organizador comparten UNA sola tabla 'usuario'. Una
- * columna extra, 'tipo_usuario', dice de que tipo es cada fila.
- *
- * Ventaja: no hay que unir tablas para leer un usuario, las consultas son
- * mas rapidas y simples.
- * Precio: las columnas propias de un subtipo (apellido, descripcion...) tienen
- * que aceptar NULL, porque en las filas del otro subtipo van vacias.
- *
- * Las dos unicidades que pide la letra (nickname y correo electronico unicos
- * en la plataforma) se declaran aca, sobre la tabla comun.
+ * Ventaja: no hay que unir tablas para leer un usuario.
+ * Costo: las columnas propias de un subtipo aceptan NULL, porque en las
+ * filas del otro subtipo van vacias.
  */
 @Entity
 @Table(name = "usuario",

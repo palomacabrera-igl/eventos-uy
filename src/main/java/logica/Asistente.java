@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Usuario de tipo asistente. Ademas de los datos de {@link Usuario}, tiene
- * apellido y fecha de nacimiento (ver letra, seccion 4). Opcionalmente puede
+ * apellido y fecha de nacimiento. Opcionalmente puede
  * estar asociado a una Institucion (ver caso de uso "Alta de Usuario":
  * la asociacion se hace despues de crear el Asistente, mediante
  * seleccionarInstitucion(), no en el alta).
@@ -35,12 +35,9 @@ public class Asistente extends Usuario {
     private LocalDate fechaNacimiento;
 
     /**
-     * EAGER (que es el valor por defecto de @ManyToOne, lo dejamos explicito).
-     *
-     * El profe usa LAZY en su demo, pero ahi mantiene UN EntityManager abierto
-     * durante todo el programa. Nosotros abrimos y cerramos uno por operacion,
-     * asi que con LAZY al armar el DT fuera de esa ventana saltaria el error
-     * clasico LazyInitializationException.
+     * EAGER (el valor por defecto de @ManyToOne, explicito para que se lea).
+     * Con LAZY, armar el DT fuera de la transaccion daria
+     * LazyInitializationException.
      */
     @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "institucion_id",
@@ -87,7 +84,8 @@ public class Asistente extends Usuario {
     @Override
     public DTUsuario obtenerDT() {
         return new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
-                apellido, DTFecha.desde(fechaNacimiento));
+                apellido, DTFecha.desde(fechaNacimiento),
+                institucion == null ? null : institucion.getNombre());
     }
 
     @Override

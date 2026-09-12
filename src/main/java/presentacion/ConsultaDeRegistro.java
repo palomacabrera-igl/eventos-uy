@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class ConsultaDeRegistro {
 
-    /** Titulo de todos los dialogos de este caso de uso (criterio del equipo). */
+    /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Registro";
 
     private JComboBox UsuarioCBox;

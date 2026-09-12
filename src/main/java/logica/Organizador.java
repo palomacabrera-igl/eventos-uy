@@ -86,7 +86,7 @@ public class Organizador extends Usuario {
                 return ed;
             }
         }
-        return null; // si no se encuentra la edición
+        return null;
     }
 
 

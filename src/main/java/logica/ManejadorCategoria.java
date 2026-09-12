@@ -37,7 +37,6 @@ public class ManejadorCategoria {
                 .orElse(null);
     }
 
-    /** Todas las categorias de la coleccion. */
     public List<Categoria> listar() {
         return Persistencia.getEntityManager()
                 .createQuery("SELECT c FROM Categoria c ORDER BY c.nombre", Categoria.class)

@@ -1,13 +1,6 @@
 package logica;
 
-/**
- * Datos de un patrocinio que cruzan entre la logica y la interfaz grafica.
- *
- * El nivel viaja como String y no como el enum NivelPatrocinio: la letra
- * (seccion 7.3) pide que "los objetos del dominio no deben viajar a la
- * interfaz grafica", y el enum es una clase del paquete logica. La conversion
- * entre el texto y el enum la hace Sistema, del lado de la logica.
- */
+
 public class DTPatrocinio {
 
     private int codigoPatrocinio;

@@ -19,7 +19,7 @@ import java.util.Set;
 @Table(name = "edicion_evento")
 public class EdicionEvento extends EntidadBase {
 
-    /** Nombre unico en la plataforma (letra): no se repite en ningun evento. */
+    /** Nombre unico en la plataforma */
     @Column(nullable = false, unique = true, length = 150)
     private String nombre;
 
@@ -92,24 +92,13 @@ public class EdicionEvento extends EntidadBase {
     public void setCiudad(String ciudad) {this.ciudad = ciudad;}
     public void setPais(String pais) {this.pais = pais;}
 
-    /**
-     * Paquete-visible: la usan Sistema (datos de prueba) y Alta de Patrocinio.
-     * No es parte del contrato de la GUI.
-     *
-     * Helper de sincronizacion: engancha los DOS lados de la relacion.
-     */
+
     void agregarPatrocinio(Patrocinio patrocinio) {
         patrocinios.add(patrocinio);
         patrocinio.setEdicion(this);
     }
 
-    /**
-     * Paquete-visible: la usa Sistema para cargar datos de prueba, y tambien
-     * crearTipoRegistro(). No es parte del contrato de la GUI.
-     *
-     * Helper de sincronizacion: UNICA puerta por la que un TipoRegistro entra
-     * a la coleccion, asi que garantiza que los dos lados queden enganchados.
-     */
+
     void agregarTipoRegistro(TipoRegistro tipoRegistro) {
         tipoRegistros.add(tipoRegistro);
         tipoRegistro.setEdicion(this);
@@ -140,8 +129,7 @@ public class EdicionEvento extends EntidadBase {
 
     /**
      * true si la institucion ya tiene un patrocinio en esta edicion.
-     * Una institucion puede tener como maximo un
-     * patrocinio para una misma edicion de evento.
+     * Una institucion puede tener como maximo un patrocinio para una misma edicion de evento.
      */
     public boolean tienePatrocinioDe(String nombreInstitucion) {
         for (Patrocinio p : patrocinios) {
@@ -152,7 +140,6 @@ public class EdicionEvento extends EntidadBase {
         return false;
     }
 
-    /** Busqueda interna de EdicionEvento sobre su propia coleccion de TipoRegistro. */
     public TipoRegistro buscarTipoRegistro(String nombre) {
         for (TipoRegistro t : tipoRegistros) {
             if (t.getNombre().equals(nombre)) {
@@ -171,7 +158,6 @@ public class EdicionEvento extends EntidadBase {
 
     // ===== Registro a Edicion de Evento =====
 
-    /**Tipos de registro de esta edicion como DTs. */
     public Set<DTTipoRegistro> obtenerTiposRegistro() {
         Set<DTTipoRegistro> resultado = new HashSet<>();
         for (TipoRegistro t : tipoRegistros) {

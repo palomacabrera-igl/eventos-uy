@@ -52,7 +52,7 @@ public class PruebaUsuarioEvento {
             Usuario paloma = mu.buscar("pfernandez");
             String nuevoNombre = "Paloma " + (paloma.getNombre().length() % 2 == 0 ? "A." : "B.");
             paloma.modificarDatos(new DTAsistente("pfernandez", nuevoNombre,
-                    "paloma@example.com", "Fernandez", DTFecha.desde(LocalDate.of(2000, 5, 14))));
+                    "paloma@example.com", "Fernandez", DTFecha.desde(LocalDate.of(2000, 5, 14)), null));
             mu.actualizar(paloma);
             System.out.println("  nombre cambiado a: " + nuevoNombre);
             System.out.println("  releido de la base: " + mu.buscar("pfernandez").getNombre());
@@ -115,7 +115,7 @@ public class PruebaUsuarioEvento {
             DTUsuario antes = ctrl.seleccionarUsuario("pfernandez");
             String nombreCU = "Paloma CU" + (antes.getNombre().endsWith("1") ? "2" : "1");
             ctrl.modificarDatosUsuario(new DTAsistente("pfernandez", nombreCU,
-                    "paloma@example.com", "Fernandez", DTFecha.desde(LocalDate.of(2000, 5, 14))));
+                    "paloma@example.com", "Fernandez", DTFecha.desde(LocalDate.of(2000, 5, 14)), null));
             System.out.println("     antes: " + antes.getNombre());
             System.out.println("     ahora: " + ctrl.seleccionarUsuario("pfernandez").getNombre());
 

@@ -6,9 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Prueba de integracion: los casos de uso que necesitan los CUATRO Manejadores
- * migrados, y que por eso no se podian probar mientras cada uno trabajaba en su
- * mitad. Todo pasa por IControladorSistema, igual que los paneles Swing.
+ * Prueba de integracion: los casos de uso que involucran a los cuatro
+ * Manejadores. Todo pasa por IControladorSistema, igual que los paneles Swing.
  *
  *   .\mvnw.cmd exec:java "-Dexec.mainClass=persistencia.PruebaIntegracion"
  *
@@ -75,6 +74,14 @@ public class PruebaIntegracion {
                 System.out.println("  INESPERADO: acepto 50 gratis sobre un aporte de 100.");
             } catch (ReglaNegocioException e) {
                 System.out.println("  rechazado, correcto");
+            }
+
+            System.out.println("\n=== F2. La institucion llega hasta el DT (lo que ve la pantalla) ===");
+            for (DTUsuario u : c.listarUsuarios()) {
+                if (u instanceof DTAsistente a) {
+                    System.out.printf("  %-14s institucion: %s%n", a.getNickname(),
+                            a.getInstitucion() == null ? "(ninguna)" : a.getInstitucion());
+                }
             }
 
             System.out.println("\n=== G. Estado leido de la base ===");

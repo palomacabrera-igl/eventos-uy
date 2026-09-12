@@ -21,7 +21,7 @@ import java.time.DateTimeException;
 public class VentanaAltaEvento extends JInternalFrame {
 
     /**
-     * Titulo de todos los dialogos de este caso de uso (criterio del equipo).
+     * Titulo de todos los dialogos de este caso de uso.
      */
     private static final String TITULO = "Alta de Evento";
 
@@ -56,10 +56,7 @@ public class VentanaAltaEvento extends JInternalFrame {
         pack();
     }
 
-    /**
-     * Carga las categorias en el JList. Estaba suelto en el constructor: si
-     * listarCategorias() fallaba, la ventana ni siquiera abria.
-     */
+    /** Carga el arbol de categorias. */
     private void cargarCategorias() {
         try {
             Set<DTCategoria> categorias = controlador.listarCategoriasArbol();
