@@ -8,7 +8,7 @@ import javax.swing.JInternalFrame;
 public class VentanaAltaUsuario extends JInternalFrame {
 
     public VentanaAltaUsuario() {
-        super("Crear Cuenta", true, true, true, true);
+        super("Alta de Usuario", true, true, true, true);
         AltaUsuarioPanel panel = new AltaUsuarioPanel();
         panel.setAccionCerrar(this::dispose);
         setContentPane(panel.getMainPanel());
