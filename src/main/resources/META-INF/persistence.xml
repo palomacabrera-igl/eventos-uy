@@ -26,7 +26,7 @@
             <property name="jakarta.persistence.jdbc.password" value="eventosuy"/>
 
             <property name="hibernate.hbm2ddl.auto"  value="update"/>
-            <property name="hibernate.show_sql"      value="true"/> <!-- Dejar en true mientras probamos, quitar para la entrega -->
+            <property name="hibernate.show_sql"      value="false"/>
             <property name="hibernate.format_sql"    value="true"/>
             <property name="hibernate.dialect"       value="org.hibernate.dialect.PostgreSQLDialect"/>
         </properties>

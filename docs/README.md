@@ -2,27 +2,40 @@
 
 Diagramas del proyecto **eventos.uy** (Laboratorio 1 — Programación de Aplicaciones, UTEC).
 
-Están en formato **draw.io** (`.drawio.xml`). Se abren en [app.diagrams.net](https://app.diagrams.net):
-*File → Open from → Device*, o arrastrando el archivo a la ventana.
+Todos los diagramas están en **dos formatos**, con el mismo contenido. Se puede usar el que resulte más cómodo:
 
-> Cada archivo tiene **varias hojas** (las pestañas de abajo de la pantalla). Ahí está cada
-> caso de uso por separado.
+| Formato | Para qué sirve | Cómo se abre |
+|---|---|---|
+| **PDF** (`.pdf`) | Leerlos o imprimirlos | Con cualquier visor de PDF o con el navegador |
+| **draw.io** (`.drawio.xml`) | Recorrerlos con zoom o modificarlos | Con draw.io, de escritorio o en su versión web ([app.diagrams.net](https://app.diagrams.net)): *File → Open from → Device*, o arrastrando el archivo a la ventana |
+
+> Cada archivo tiene **varias hojas**, una por caso de uso. En draw.io son las pestañas de la parte de abajo de la pantalla.
 
 ---
 
 ## Cómo están organizados
 
-Un archivo por **área del sistema**, igual que los menús de la Estación de Trabajo. Así, para
-ver cualquier caso de uso, se abre un solo archivo y se cambia de pestaña.
+```
+docs/
+├── README.md
+├── ModeloDeDominio.drawio.pdf
+├── ModeloDeDominio.drawio.xml
+├── DSS y diagramas de comunicacion/
+│   ├── Formato pdf/          un PDF por área del sistema
+│   └── Formato xml/          los mismos diagramas, en draw.io
+└── Registro de horas_.xlsx
+```
 
-| Archivo | Hojas | Casos de uso |
-|---|---|---|
-| [`ModeloDeDominio`](ModeloDeDominio.drawio.xml) | 2 | Modelo de dominio · Diagrama de clases de diseño (DCD) |
-| [`comunicacion/Usuario`](comunicacion/Usuario.drawio.xml) | 3 | Alta de Usuario · Consulta de Usuario · Modificar Datos de Usuario |
-| [`comunicacion/EventosYEdiciones`](comunicacion/EventosYEdiciones.drawio.xml) | 4 | Alta de Evento · Consulta de Evento · Alta de Edición · Consulta de Edición |
-| [`comunicacion/InstitucionYPatrocinio`](comunicacion/InstitucionYPatrocinio.drawio.xml) | 3 | Alta de Institución · Alta de Patrocinio · Consulta de Patrocinio |
-| [`comunicacion/Categoria`](comunicacion/Categoria.drawio.xml) | 1 | Alta de Categoría |
-| [`comunicacion/Registro`](comunicacion/Registro.drawio.xml) | 4 | Alta de Tipo de Registro · Consulta de Tipo de Registro · Registro a Edición · Consulta de Registro |
+Los casos de uso están agrupados por **área del sistema**, igual que los menús de la Estación de Trabajo: para ver cualquiera se abre un solo archivo y se cambia de hoja.
+
+| Archivo | Hojas | Contenido | Abrir |
+|---|---|---|---|
+| `ModeloDeDominio` | 2 | Modelo de dominio · Diagrama de clases de diseño (DCD) | [PDF](ModeloDeDominio.drawio.pdf) · [draw.io](ModeloDeDominio.drawio.xml) |
+| `Usuario` | 3 | Alta de Usuario · Consulta de Usuario · Modificar Datos de Usuario | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Usuario.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Usuario.drawio.xml) |
+| `EventosYEdiciones` | 4 | Alta de Evento · Consulta de Evento · Alta de Edición · Consulta de Edición | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/EventosYEdiciones.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/EventosYEdiciones.drawio.xml) |
+| `InstitucionYPatrocinio` | 3 | Alta de Institución · Alta de Patrocinio · Consulta de Patrocinio | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/InstitucionYPatrocinio.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/InstitucionYPatrocinio.drawio.xml) |
+| `Categoria` | 1 | Alta de Categoría | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Categoria.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Categoria.drawio.xml) |
+| `Registro` | 4 | Alta de Tipo de Registro · Consulta de Tipo de Registro · Registro a Edición · Consulta de Registro | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Registro.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Registro.drawio.xml) |
 
 **15 casos de uso**, uno por cada entrada del menú de la Estación de Trabajo.
 
@@ -38,14 +51,13 @@ Cada caso de uso tiene las tres cosas juntas, una al lado de la otra:
 | **Tipos de datos (DT)** | Los atributos de cada DataType que cruza entre la lógica y la interfaz |
 | **Diagramas de comunicación** | Uno por operación del DSS: qué objetos colaboran, con los mensajes numerados |
 
-> Si al abrir una hoja solo ves una parte, alejá el zoom: **`Ctrl + Shift + H`** encuadra todo.
+> Si al abrir una hoja en draw.io solo se ve una parte, alejar el zoom: **`Ctrl + Shift + H`** encuadra todo.
 
 ---
 
-## Cómo exportar a PDF
+## Registro de horas
 
-En draw.io: **File → Export as → PDF**. Marcar **All Pages** para que salgan todas las hojas
-en un mismo PDF, y *Crop* para que no queden márgenes vacíos. Guardar en `docs/pdf/`.
+`Registro de horas_.xlsx` detalla las horas que dedicó cada integrante, semana a semana, separadas por actividad: reuniones y teórico, estudio, análisis, diseño, implementación, interfaz gráfica, verificación y otros.
 
 ---
 
@@ -74,3 +86,6 @@ algunas firmas de operaciones cambiaron —principalmente al unificar el manejo 
 
 **El código es la referencia para las firmas exactas**; los diagramas documentan la estructura
 y las colaboraciones entre objetos, que sí se mantienen.
+
+Si se modifica un diagrama, hay que volver a exportar su PDF desde draw.io: *File → Export as → PDF*,
+con **All pages** marcado.

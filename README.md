@@ -97,6 +97,7 @@ src/main/java/persistencia/    Acceso a JPA (Persistencia) y carga de datos
 src/main/java/presentacion/    Interfaz gráfica Swing (paneles .form + ventanas)
 src/main/resources/META-INF/   persistence.xml (configuración de JPA)
 scripts/crear-base.sql         Creación del rol y la base en PostgreSQL
+docs/                          Documentación de análisis y diseño, y registro de horas
 pom.xml                        Proyecto Maven (Java 25)
 ```
 
@@ -109,6 +110,17 @@ El sistema está organizado en capas:
 - **Persistencia** (`persistencia`) — encapsula JPA. Ni la presentación ni la lógica de negocio conocen Hibernate.
 
 Los objetos del dominio no cruzan hacia la interfaz gráfica: la comunicación entre capas se hace con tipos de datos (`DT*`).
+
+## Documentación
+
+La documentación de análisis y diseño está en [`docs/`](docs/README.md):
+
+- Modelo de dominio y diagrama de clases de diseño.
+- Diagramas de secuencia del sistema (DSS) y diagramas de comunicación de los 15 casos de uso.
+- Registro de horas del equipo.
+
+Los diagramas están en **PDF**, para leerlos directamente, y en formato **draw.io** (`.drawio.xml`),
+para abrirlos con zoom o editarlos con draw.io.
 
 ## Equipo
 
