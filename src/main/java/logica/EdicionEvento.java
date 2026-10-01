@@ -199,10 +199,31 @@ public class EdicionEvento extends EntidadBase {
      * contiene la coleccion de Registro.
      */
     public Registro altaRegistro(Asistente asistente, TipoRegistro tipoRegistro, LocalDate fecha) {
-        Registro r = new Registro(asistente, this, tipoRegistro, tipoRegistro.getCosto(), fecha);
+        return altaRegistro(asistente, tipoRegistro, fecha, null);
+    }
+
+    /**
+     * Da de alta el registro. Si viene un patrocinio, el registro es uno de los
+     * gratuitos que esa institucion otorga y su costo es cero (ver letra, seccion 4).
+     */
+    public Registro altaRegistro(Asistente asistente, TipoRegistro tipoRegistro,
+                                 LocalDate fecha, Patrocinio patrocinio) {
+        double costo = (patrocinio == null) ? tipoRegistro.getCosto() : 0.0;
+        Registro r = new Registro(asistente, this, tipoRegistro, costo, fecha, patrocinio);
         registros.add(r);
         asistente.agregarRegistro(r);
         return r;
+    }
+
+    /** Cuantos de los registros gratuitos de ese patrocinio ya se usaron. */
+    public int registrosGratisUsados(Patrocinio patrocinio) {
+        int cantidad = 0;
+        for (Registro r : registros) {
+            if (r.getPatrocinio() == patrocinio) {
+                cantidad++;
+            }
+        }
+        return cantidad;
     }
 
     public DTEdicionCompleto obtenerDTCompleto() {

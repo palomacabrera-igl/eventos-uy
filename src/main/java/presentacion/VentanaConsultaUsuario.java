@@ -166,7 +166,10 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                                 + "\nNombre: " + organizador.getNombre()
                                 + "\nCorreo: " + organizador.getCorreo()
                                 + "\nDescripción: " + organizador.getDescripcion()
-                                + "\nSitio web: " + organizador.getSitioWeb()
+                                + "\nSitio web: "
+                                + (organizador.getSitioWeb() == null
+                                        ? "(no definido)"
+                                        : organizador.getSitioWeb())
                 );
 
                 listaRegistros.setListData(new DTRegistro[0]);

@@ -7,6 +7,11 @@ import java.util.Set;
 /**
  * Unica interfaz que conoce la capa de presentacion (GUI). No expone
  * objetos de dominio: todo lo que cruza hacia la GUI son DTs.
+ *
+ * Las precondiciones que declara cada operacion se verifican en la capa
+ * logica. Si no se cumplen —no existe lo que se pide, o falta una seleccion
+ * previa— la operacion lanza ReglaNegocioException con un mensaje para
+ * mostrarle al administrador, en lugar de fallar con NullPointerException.
  */
 public interface IControladorSistema {
 
@@ -16,13 +21,13 @@ public interface IControladorSistema {
     Set<DTUsuario> listarUsuarios();
 
     /** Precondicion: debe existir un Usuario con ese nickname. */
-    DTUsuario seleccionarUsuario(String nickname);
+    DTUsuario seleccionarUsuario(String nickname) throws ReglaNegocioException;
 
     /**
      * Precondicion: debe haberse ejecutado seleccionarUsuario() previamente,
      * y dt debe corresponder al mismo nickname seleccionado.
      */
-    void modificarDatosUsuario(DTUsuario dt);
+    void modificarDatosUsuario(DTUsuario dt) throws ReglaNegocioException;
 
     // ===== Consulta de Patrocinio =====
 
@@ -30,25 +35,29 @@ public interface IControladorSistema {
     Set<DTEvento> listarEventos();
 
     /** Precondicion: debe existir un Evento con ese nombre. */
-    Set<DTEdicionEvento> listarEdicionesDeEvento(String nombreEvento);
+    Set<DTEdicionEvento> listarEdicionesDeEvento(String nombreEvento)
+            throws ReglaNegocioException;
 
     /** Precondicion: debe existir una EdicionEvento con ese nombre (del evento seleccionado). */
-    Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion);
+    Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion)
+            throws ReglaNegocioException;
 
     /** Precondicion: debe existir un Patrocinio con ese codigo (de la edicion seleccionada). */
-    DTPatrocinio mostrarPatrocinio(int codigoPatrocinio);
+    DTPatrocinio mostrarPatrocinio(int codigoPatrocinio)
+            throws ReglaNegocioException;
 
     // ===== Alta de Edicion de Evento =====
     // (listarEventos() ya esta declarado arriba, en Consulta de Patrocinio, y se reutiliza)
 
     /** Precondicion: debe existir un Evento con ese nombre. */
-    DTEvento seleccionarEvento(String nombre);
+    DTEvento seleccionarEvento(String nombre) throws ReglaNegocioException;
 
     /** Precondicion: ninguna. */
     Set<DTOrganizador> listarOrganizadores();
 
     /** Precondicion: debe existir un Organizador con ese nickname. */
-    DTOrganizador seleccionarOrganizador(String nickname);
+    DTOrganizador seleccionarOrganizador(String nickname)
+            throws ReglaNegocioException;
 
     /**
      * Precondicion: deben haberse seleccionado previamente un evento y un
@@ -62,16 +71,19 @@ public interface IControladorSistema {
     void ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo) throws ReglaNegocioException;
 
     /** Precondicion: ingresarDatosUsuario() se ejecuto con exito y el tipo recordado es ASISTENTE. */
-    void ingresarDatosAsistente(String apellido, DTFecha fechaNac);
+    void ingresarDatosAsistente(String apellido, DTFecha fechaNac)
+            throws ReglaNegocioException;
 
     /**
      * Precondicion: ingresarDatosAsistente() se ejecuto previamente durante
      * la misma alta, y existe una Institucion con ese nombre.
      */
-    void seleccionarInstitucion(String nombreInstitucion);
+    void seleccionarInstitucion(String nombreInstitucion)
+            throws ReglaNegocioException;
 
     /** Precondicion: ingresarDatosUsuario() se ejecuto con exito y el tipo recordado es ORGANIZADOR. */
-    void ingresarDatosOrganizador(String descripcion, String sitioWeb);
+    void ingresarDatosOrganizador(String descripcion, String sitioWeb)
+            throws ReglaNegocioException;
 
     /** Precondicion: ninguna. */
     Set<String> listarNombresInstituciones();
@@ -85,7 +97,8 @@ public interface IControladorSistema {
      * el Evento seleccionado), y existe una EdicionEvento con ese nombre
      * asociada a dicho evento.
      */
-    DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion);
+    DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion)
+            throws ReglaNegocioException;
 
     /** Precondicion: se ejecuto seleccionarEdicionEvento() previamente. */
     void ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo)
@@ -109,7 +122,8 @@ public interface IControladorSistema {
      * evento. Recuerda la Edicion seleccionada. Retorna un DTDatosRegistro con
      * los tipos de registro de la edicion y todos los asistentes existentes.
      */
-    DTDatosRegistro listarDatosRegistro(String nombreEdicion);
+    DTDatosRegistro listarDatosRegistro(String nombreEdicion)
+            throws ReglaNegocioException;
 
     /**
      * Precondicion: se ejecuto listarDatosRegistro() previamente (recuerda la
@@ -119,29 +133,44 @@ public interface IControladorSistema {
     void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException;
 
+    /**
+     * Igual que altaRegistro(nickname, nombreEdicion, nombreTipo), pero el
+     * asistente presenta un codigo de patrocinio y el registro no se cobra.
+     *
+     * @param codigoPatrocinio codigo que le dio su institucion; null si paga.
+     * @throws ReglaNegocioException si el codigo no es de un patrocinio de esa
+     *         edicion, si el asistente no pertenece a la institucion que lo
+     *         otorga, si el tipo de registro no es el que el patrocinio regala,
+     *         o si ya se usaron todos los registros gratuitos.
+     */
+    void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
+                      Integer codigoPatrocinio) throws ReglaNegocioException;
+
     // ===== Consulta de Usuario =====
 
     /**
      * Precondicion: se ejecuto seleccionarUsuario() sobre un organizador
      * (Sistema recuerda el Organizador seleccionado). Lista sus ediciones.
      */
-    Set<DTEdicionEvento> listarEdiciones();
+    Set<DTEdicionEvento> listarEdiciones() throws ReglaNegocioException;
 
     /**
      * Precondicion: se ejecuto listarEdiciones() previamente (recuerda el
      * Organizador seleccionado) y existe una EdicionEvento suya con ese nombre.
      */
-    DTEdicionCompleto seleccionarEdicion(String nombreEdicion);
+    DTEdicionCompleto seleccionarEdicion(String nombreEdicion)
+            throws ReglaNegocioException;
 
     /** Precondicion: existe un Asistente con ese nickname. */
-    Set<DTRegistro> listarRegistroUsuario(String nickname);
+    Set<DTRegistro> listarRegistroUsuario(String nickname)
+            throws ReglaNegocioException;
 
     /**
      * Precondicion: se ejecuto seleccionarUsuario() sobre un asistente
      * (Sistema recuerda el Asistente seleccionado) y ese asistente tiene un
      * Registro en la edicion 'nombreEdicion'.
      */
-    DTRegistro obtenerRegistro(String nombreEdicion);
+    DTRegistro obtenerRegistro(String nombreEdicion) throws ReglaNegocioException;
 
     // ===== Consulta de Registro =====
     // (listarUsuarios() y listarRegistroUsuario(nickname) ya estan declarados. Para llenar
@@ -156,7 +185,8 @@ public interface IControladorSistema {
      * Sobrecarga: convive con obtenerRegistro(nombreEdicion), que usa el
      * asistente ya seleccionado en vez de recibir el nickname.
      */
-    DTRegistro obtenerRegistro(String nickname, String nombre);
+    DTRegistro obtenerRegistro(String nickname, String nombre)
+            throws ReglaNegocioException;
 
     // ===== Alta de Categoria =====
 
@@ -177,9 +207,11 @@ public interface IControladorSistema {
     void altaCategoria(String nombre, String nombrePadre) throws ReglaNegocioException;
 
     // ===== Consulta de Tipo de Registro =====
-    Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion);
+    Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion)
+            throws ReglaNegocioException;
 
-    DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro);
+    DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro)
+            throws ReglaNegocioException;
 
     // ===== Alta Institucion  =====
     void altaInstitucion(String nombre, String descripcion, String sitioWeb)
@@ -192,7 +224,8 @@ public interface IControladorSistema {
      * previamente (Sistema recuerda el Evento seleccionado), y existe una
      * EdicionEvento con ese nombre dentro de ese evento.
      */
-    DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion);
+    DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion)
+            throws ReglaNegocioException;
 
     // ===== Alta de Patrocinio =====
 

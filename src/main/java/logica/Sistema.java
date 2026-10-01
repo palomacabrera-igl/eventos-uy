@@ -52,8 +52,12 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public DTUsuario seleccionarUsuario(String nickname) {
+    public DTUsuario seleccionarUsuario(String nickname) throws ReglaNegocioException {
         Usuario u = find(nickname);
+        if (u == null) {
+            throw new ReglaNegocioException(
+                    "No existe un usuario con el nickname \"" + nickname + "\".");
+        }
         this.usuarioSeleccionado = u;
 
         if (u instanceof Asistente) {
@@ -69,7 +73,11 @@ public class Sistema implements IControladorSistema {
 
 
     @Override
-    public void modificarDatosUsuario(DTUsuario dt) {
+    public void modificarDatosUsuario(DTUsuario dt) throws ReglaNegocioException {
+        if (usuarioSeleccionado == null) {
+            throw new ReglaNegocioException(
+                    "Primero hay que seleccionar el usuario a modificar.");
+        }
         // 1: usuarioSeleccionado.modificarDatos(dt)
         usuarioSeleccionado.modificarDatos(dt);
         // JPA: confirma el cambio en la base (sin transaccion se perderia).
@@ -93,22 +101,36 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public Set<DTEdicionEvento> listarEdicionesDeEvento(String nombreEvento) {
+    public Set<DTEdicionEvento> listarEdicionesDeEvento(String nombreEvento)
+            throws ReglaNegocioException {
         Evento e = findEvento(nombreEvento);
+        if (e == null) {
+            throw new ReglaNegocioException(
+                    "No existe un evento con el nombre \"" + nombreEvento + "\".");
+        }
         this.eventoSeleccionado = e;
         return e.obtenerEdiciones();
     }
 
     @Override
-    public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion) {
-        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+    public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion)
+            throws ReglaNegocioException {
+        EdicionEvento ed = buscarEdicionDelEvento(nombreEdicion);
         this.edicionSeleccionada = ed;
         return ed.obtenerPatrocinios();
     }
 
     @Override
-    public DTPatrocinio mostrarPatrocinio(int codigoPatrocinio) {
+    public DTPatrocinio mostrarPatrocinio(int codigoPatrocinio)
+            throws ReglaNegocioException {
+        if (edicionSeleccionada == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar una edicion.");
+        }
         Patrocinio p = edicionSeleccionada.buscarPatrocinio(codigoPatrocinio);
+        if (p == null) {
+            throw new ReglaNegocioException("La edicion " + edicionSeleccionada.getNombre()
+                    + " no tiene un patrocinio con el codigo " + codigoPatrocinio + ".");
+        }
         return p.obtenerDT();
     }
 
@@ -120,8 +142,12 @@ public class Sistema implements IControladorSistema {
     // ===== Alta de Edicion de Evento =====
 
     @Override
-    public DTEvento seleccionarEvento(String nombre) {
+    public DTEvento seleccionarEvento(String nombre) throws ReglaNegocioException {
         Evento e = findEvento(nombre);
+        if (e == null) {
+            throw new ReglaNegocioException(
+                    "No existe un evento con el nombre \"" + nombre + "\".");
+        }
         this.eventoSeleccionado = e;
         return e.obtenerDT();
     }
@@ -138,8 +164,13 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public DTOrganizador seleccionarOrganizador(String nickname) {
+    public DTOrganizador seleccionarOrganizador(String nickname)
+            throws ReglaNegocioException {
         Usuario u = find(nickname);
+        if (!(u instanceof Organizador)) {
+            throw new ReglaNegocioException(
+                    "No existe un organizador con el nickname \"" + nickname + "\".");
+        }
         this.organizadorSeleccionado = (Organizador) u;
         return (DTOrganizador) u.obtenerDT();
     }
@@ -150,6 +181,10 @@ public class Sistema implements IControladorSistema {
         if (manejadorEvento.buscarEdicion(dt.getNombre()) != null) {
             throw new ReglaNegocioException(
                     "Ya existe una edicion con el nombre \"" + dt.getNombre() + "\".");
+        }
+        if (eventoSeleccionado == null || organizadorSeleccionado == null) {
+            throw new ReglaNegocioException(
+                    "Primero hay que seleccionar el evento y el organizador de la edicion.");
         }
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
         // JPA: confirma el cambio en la base. La edicion nueva viaja por el
@@ -175,7 +210,9 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public void ingresarDatosAsistente(String apellido, DTFecha fechaNac) {
+    public void ingresarDatosAsistente(String apellido, DTFecha fechaNac)
+            throws ReglaNegocioException {
+        exigirDatosDeUsuarioEnCurso();
         Asistente a = new Asistente(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), apellido, fechaNac.aLocalDate());
         manejadorUsuario.agregar(a);
@@ -183,15 +220,26 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public void seleccionarInstitucion(String nombreInstitucion) {
+    public void seleccionarInstitucion(String nombreInstitucion)
+            throws ReglaNegocioException {
         Institucion i = findInstitucion(nombreInstitucion);
+        if (i == null) {
+            throw new ReglaNegocioException(
+                    "No existe una institucion con el nombre \"" + nombreInstitucion + "\".");
+        }
+        if (asistenteRecordado == null) {
+            throw new ReglaNegocioException(
+                    "Primero hay que ingresar los datos del asistente.");
+        }
         asistenteRecordado.setInstitucion(i);
         // JPA: confirma el cambio en la base (sin transaccion se perderia).
         manejadorUsuario.actualizar(asistenteRecordado);
     }
 
     @Override
-    public void ingresarDatosOrganizador(String descripcion, String sitioWeb) {
+    public void ingresarDatosOrganizador(String descripcion, String sitioWeb)
+            throws ReglaNegocioException {
+        exigirDatosDeUsuarioEnCurso();
         Organizador o = new Organizador(datosUsuarioRecordados.getNickname(), datosUsuarioRecordados.getNombre(),
                 datosUsuarioRecordados.getCorreo(), descripcion, sitioWeb);
         manejadorUsuario.agregar(o);
@@ -219,8 +267,9 @@ public class Sistema implements IControladorSistema {
     // ===== Alta de Tipo de Registro =====
 
     @Override
-    public DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion) {
-        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+    public DTEdicionEvento seleccionarEdicionEvento(String nombreEdicion)
+            throws ReglaNegocioException {
+        EdicionEvento ed = buscarEdicionDelEvento(nombreEdicion);
         this.edicionSeleccionada = ed;
         return ed.obtenerDT();
     }
@@ -228,6 +277,9 @@ public class Sistema implements IControladorSistema {
     @Override
     public void ingresarDatosTipoRegistro(String nombre, String descripcion, double costo, int cupo)
             throws ReglaNegocioException {
+        if (edicionSeleccionada == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar una edicion.");
+        }
         if (edicionSeleccionada.buscarTipoRegistro(nombre) != null) {
             throw new ReglaNegocioException("Ya existe un tipo de registro con el nombre \""
                     + nombre + "\" en la edicion " + edicionSeleccionada.getNombre() + ".");
@@ -240,8 +292,9 @@ public class Sistema implements IControladorSistema {
     // ===== Registro a Edicion de Evento =====
 
     @Override
-    public DTDatosRegistro listarDatosRegistro(String nombreEdicion) {
-        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+    public DTDatosRegistro listarDatosRegistro(String nombreEdicion)
+            throws ReglaNegocioException {
+        EdicionEvento ed = buscarEdicionDelEvento(nombreEdicion);
         this.edicionSeleccionada = ed;
         Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
         Set<DTAsistente> asistentes = listarAsistentes();
@@ -251,8 +304,26 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException {
-        EdicionEvento ed = edicionSeleccionada;
+        altaRegistro(nickname, nombreEdicion, nombreTipo, null);
+    }
+
+    @Override
+    public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
+                             Integer codigoPatrocinio) throws ReglaNegocioException {
+        // La edicion se resuelve por el nombre que llega como parametro, no por
+        // la que quedo retenida de un llamado anterior.
+        EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
+        if (ed == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        this.edicionSeleccionada = ed;
+
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
+        if (tr == null) {
+            throw new ReglaNegocioException("La edicion " + ed.getNombre()
+                    + " no tiene un tipo de registro \"" + nombreTipo + "\".");
+        }
 
         if (ed.estaRegistrado(nickname)) {
             throw new ReglaNegocioException("El asistente " + nickname
@@ -263,9 +334,61 @@ public class Sistema implements IControladorSistema {
                     + "\" ya alcanzo su cupo de " + tr.getCupo() + " lugares.");
         }
 
-        Asistente a = (Asistente) find(nickname);
-        ed.altaRegistro(a, tr, LocalDate.now());
+        Usuario u = find(nickname);
+        if (!(u instanceof Asistente)) {
+            throw new ReglaNegocioException(
+                    "No existe un asistente con el nickname \"" + nickname + "\".");
+        }
+
+        Patrocinio patrocinio = null;
+        if (codigoPatrocinio != null) {
+            patrocinio = validarCodigoPatrocinio(ed, tr, (Asistente) u, codigoPatrocinio);
+        }
+
+        ed.altaRegistro((Asistente) u, tr, LocalDate.now(), patrocinio);
         manejadorEvento.actualizar(ed.getEvento());
+    }
+
+    /**
+     * Reglas del registro gratuito por patrocinio (ver letra, seccion 4): el
+     * codigo tiene que ser de un patrocinio de ESA edicion, el asistente tiene
+     * que pertenecer a la institucion que lo otorga, el tipo de registro tiene
+     * que ser el que el patrocinio regala, y tienen que quedar lugares gratuitos.
+     */
+    private Patrocinio validarCodigoPatrocinio(EdicionEvento ed, TipoRegistro tr,
+                                               Asistente asistente, int codigo)
+            throws ReglaNegocioException {
+        Patrocinio p = ed.buscarPatrocinio(codigo);
+        if (p == null) {
+            throw new ReglaNegocioException("La edicion " + ed.getNombre()
+                    + " no tiene un patrocinio con el codigo " + codigo + ".");
+        }
+
+        Institucion institucion = asistente.getInstitucion();
+        if (institucion == null
+                || !institucion.getNombre().equals(p.getInstitucion().getNombre())) {
+            throw new ReglaNegocioException("El asistente " + asistente.getNickname()
+                    + " no pertenece a " + p.getInstitucion().getNombre()
+                    + ", que es la institucion del codigo " + codigo + ".");
+        }
+
+        if (p.getTipoRegistro() == null
+                || !p.getTipoRegistro().getNombre().equals(tr.getNombre())) {
+            String tipoDelPatrocinio = (p.getTipoRegistro() == null)
+                    ? "ninguno" : p.getTipoRegistro().getNombre();
+            throw new ReglaNegocioException("El codigo " + codigo
+                    + " da registros gratuitos del tipo \"" + tipoDelPatrocinio
+                    + "\", no del tipo \"" + tr.getNombre() + "\".");
+        }
+
+        int usados = ed.registrosGratisUsados(p);
+        if (usados >= p.getCantRegistrosGratis()) {
+            throw new ReglaNegocioException("El patrocinio " + codigo
+                    + " ya uso sus " + p.getCantRegistrosGratis()
+                    + " registros gratuitos.");
+        }
+
+        return p;
     }
 
     private Set<DTAsistente> listarAsistentes() {
@@ -281,7 +404,8 @@ public class Sistema implements IControladorSistema {
 
 
     // ===== Consulta de Usuario =====
-    public Set<DTEdicionEvento> listarEdiciones() {
+    public Set<DTEdicionEvento> listarEdiciones() throws ReglaNegocioException {
+        exigirOrganizadorSeleccionado();
         Set<DTEdicionEvento> resultado = new HashSet<>();
         for (EdicionEvento ed : this.organizadorSeleccionado.getEdiciones()) {
             resultado.add(ed.obtenerDT());
@@ -289,32 +413,55 @@ public class Sistema implements IControladorSistema {
         return resultado;
     }
 
-    public DTEdicionCompleto seleccionarEdicion(String nombreEdicion) {
+    public DTEdicionCompleto seleccionarEdicion(String nombreEdicion)
+            throws ReglaNegocioException {
+        exigirOrganizadorSeleccionado();
         EdicionEvento ed = organizadorSeleccionado.buscarEdicion(nombreEdicion);
+        if (ed == null) {
+            throw new ReglaNegocioException("El organizador "
+                    + organizadorSeleccionado.getNickname()
+                    + " no organiza la edicion \"" + nombreEdicion + "\".");
+        }
         return ed.obtenerDTCompleto();
     }
 
-    public Set<DTRegistro> listarRegistroUsuario(String nickname) {
+    public Set<DTRegistro> listarRegistroUsuario(String nickname)
+            throws ReglaNegocioException {
         Set<DTRegistro> resultado = new HashSet<>();
-        Asistente asistente = (Asistente) find(nickname);
+        Asistente asistente = exigirAsistente(nickname);
         for (Registro reg : asistente.getRegistros()) {
             resultado.add(reg.obtenerDT());
         }
         return resultado;
     }
 
-    public DTRegistro obtenerRegistro(String nombreEdicion) {
-        Asistente asistente = this.asistenteSeleccionado;
-        return asistente.darRegistro(nombreEdicion);
+    public DTRegistro obtenerRegistro(String nombreEdicion)
+            throws ReglaNegocioException {
+        if (asistenteSeleccionado == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar un asistente.");
+        }
+        DTRegistro registro = asistenteSeleccionado.darRegistro(nombreEdicion);
+        if (registro == null) {
+            throw new ReglaNegocioException("El asistente "
+                    + asistenteSeleccionado.getNickname()
+                    + " no tiene un registro en la edicion \"" + nombreEdicion + "\".");
+        }
+        return registro;
     }
 
     // ===== Consulta de Registro =====
 
     @Override
-    public DTRegistro obtenerRegistro(String nickname, String nombre) {
+    public DTRegistro obtenerRegistro(String nickname, String nombre)
+            throws ReglaNegocioException {
         // 1: u := find(nickname)  /  2: darRegistro(nombre) : DTRegistro
-        Usuario u = find(nickname);
-        return ((Asistente) u).darRegistro(nombre);
+        Asistente asistente = exigirAsistente(nickname);
+        DTRegistro registro = asistente.darRegistro(nombre);
+        if (registro == null) {
+            throw new ReglaNegocioException("El asistente " + nickname
+                    + " no tiene un registro en la edicion \"" + nombre + "\".");
+        }
+        return registro;
     }
 
     // ===== Alta de Categoria =====
@@ -352,6 +499,10 @@ public class Sistema implements IControladorSistema {
         Categoria nueva = new Categoria(nombre);
         if (nombrePadre != null && !nombrePadre.isBlank()) {
             Categoria padre = findCategoria(nombrePadre);
+            if (padre == null) {
+                throw new ReglaNegocioException(
+                        "No existe una categoria con el nombre \"" + nombrePadre + "\".");
+            }
             padre.agregarHija(nueva);
         }
         manejadorCategoria.agregar(nueva);
@@ -365,15 +516,24 @@ public class Sistema implements IControladorSistema {
     // ===== Consulta de Tipo de Registro =====
 
     @Override
-    public Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion) {
-        EdicionEvento edicion = eventoSeleccionado.buscarEdicion(nombreEdicion);
+    public Set<DTTipoRegistro> listarTiposRegistroDeEdicion(String nombreEdicion)
+            throws ReglaNegocioException {
+        EdicionEvento edicion = buscarEdicionDelEvento(nombreEdicion);
         this.edicionSeleccionada = edicion;
         return edicion.obtenerTiposRegistro();
     }
 
     @Override
-    public DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro) {
+    public DTTipoRegistro seleccionarTipoRegistro(String nombreTipoRegistro)
+            throws ReglaNegocioException {
+        if (edicionSeleccionada == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar una edicion.");
+        }
         TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(nombreTipoRegistro);
+        if (tipo == null) {
+            throw new ReglaNegocioException("La edicion " + edicionSeleccionada.getNombre()
+                    + " no tiene un tipo de registro \"" + nombreTipoRegistro + "\".");
+        }
         return tipo.obtenerDT();
     }
 
@@ -392,8 +552,9 @@ public class Sistema implements IControladorSistema {
     // ===== Consulta de Edicion de Evento =====
 
     @Override
-    public DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion) {
-        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+    public DTEdicionCompleto seleccionarEdicionCompleta(String nombreEdicion)
+            throws ReglaNegocioException {
+        EdicionEvento ed = buscarEdicionDelEvento(nombreEdicion);
         this.edicionSeleccionada = ed;
         return ed.obtenerDTCompleto();
     }
@@ -402,8 +563,19 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException {
+        if (edicionSeleccionada == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar una edicion.");
+        }
         Institucion institucion = findInstitucion(dt.getInstitucion());
+        if (institucion == null) {
+            throw new ReglaNegocioException("No existe una institucion con el nombre \""
+                    + dt.getInstitucion() + "\".");
+        }
         TipoRegistro tipo = edicionSeleccionada.buscarTipoRegistro(dt.getTipoRegistro());
+        if (tipo == null) {
+            throw new ReglaNegocioException("La edicion " + edicionSeleccionada.getNombre()
+                    + " no tiene un tipo de registro \"" + dt.getTipoRegistro() + "\".");
+        }
 
         // Regla 1: una institucion no puede patrocinar dos veces la misma edicion.
         if (edicionSeleccionada.tienePatrocinioDe(dt.getInstitucion())) {
@@ -463,4 +635,42 @@ public class Sistema implements IControladorSistema {
         manejadorEvento.agregar(evento);
     }
 
+    // ===== Chequeos que se repiten en varios casos de uso =====
+
+    /** Busca una edicion dentro del evento seleccionado, o falla con un mensaje claro. */
+    private EdicionEvento buscarEdicionDelEvento(String nombreEdicion)
+            throws ReglaNegocioException {
+        if (eventoSeleccionado == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar un evento.");
+        }
+        EdicionEvento ed = eventoSeleccionado.buscarEdicion(nombreEdicion);
+        if (ed == null) {
+            throw new ReglaNegocioException("El evento " + eventoSeleccionado.getNombre()
+                    + " no tiene una edicion \"" + nombreEdicion + "\".");
+        }
+        return ed;
+    }
+
+    /** Devuelve el Asistente con ese nickname, o falla si no existe o no es asistente. */
+    private Asistente exigirAsistente(String nickname) throws ReglaNegocioException {
+        Usuario u = find(nickname);
+        if (!(u instanceof Asistente)) {
+            throw new ReglaNegocioException(
+                    "No existe un asistente con el nickname \"" + nickname + "\".");
+        }
+        return (Asistente) u;
+    }
+
+    private void exigirOrganizadorSeleccionado() throws ReglaNegocioException {
+        if (organizadorSeleccionado == null) {
+            throw new ReglaNegocioException("Primero hay que seleccionar un organizador.");
+        }
+    }
+
+    private void exigirDatosDeUsuarioEnCurso() throws ReglaNegocioException {
+        if (datosUsuarioRecordados == null) {
+            throw new ReglaNegocioException(
+                    "Primero hay que ingresar los datos comunes del usuario.");
+        }
+    }
 }

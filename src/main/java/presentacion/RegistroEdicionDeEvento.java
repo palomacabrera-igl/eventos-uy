@@ -34,6 +34,7 @@ public class RegistroEdicionDeEvento {
     private JLabel costoLbl;
     private JButton cancelarButton;
     private JButton confirmarButton;
+    private JTextField codigoPatrocinioTxt;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -153,10 +154,26 @@ public class RegistroEdicionDeEvento {
             return;
         }
 
+        // El codigo es opcional: vacio significa que el asistente paga.
+        Integer codigoPatrocinio = null;
+        String textoCodigo = codigoPatrocinioTxt.getText().trim();
+        if (!textoCodigo.isEmpty()) {
+            try {
+                codigoPatrocinio = Integer.valueOf(textoCodigo);
+            } catch (NumberFormatException ex) {
+                Mensajes.aviso(mainPanel, TITULO,
+                        "El código de patrocinio tiene que ser un número.");
+                return;
+            }
+        }
+
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
-            controlador.altaRegistro(nickname, nombreEdicion, nombreTipo);
-            Mensajes.exito(mainPanel, TITULO, "Registro creado con éxito.");
+            controlador.altaRegistro(nickname, nombreEdicion, nombreTipo, codigoPatrocinio);
+            Mensajes.exito(mainPanel, TITULO, codigoPatrocinio == null
+                    ? "Registro creado con éxito."
+                    : "Registro creado con éxito, sin costo por el patrocinio "
+                            + codigoPatrocinio + ".");
             accionCerrar.run();
         } catch (ReglaNegocioException ex) {
             Mensajes.error(mainPanel, TITULO, ex.getMessage());
@@ -181,7 +198,7 @@ public class RegistroEdicionDeEvento {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(8, 3, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(9, 3, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Registro a Edicion de Evento");
         mainPanel.add(label1, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -209,17 +226,22 @@ public class RegistroEdicionDeEvento {
         final JLabel label5 = new JLabel();
         label5.setText("Tipos de Registro");
         mainPanel.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label6 = new JLabel();
+        label6.setText("Código de patrocinio (opcional)");
+        mainPanel.add(label6, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        codigoPatrocinioTxt = new JTextField();
+        mainPanel.add(codigoPatrocinioTxt, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         costoLbl = new JLabel();
         costoLbl.setText("");
-        mainPanel.add(costoLbl, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(costoLbl, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelarButton = new JButton();
         cancelarButton.setText("Cancelar");
-        mainPanel.add(cancelarButton, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, 30), null, 0, false));
+        mainPanel.add(cancelarButton, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, 30), null, 0, false));
         confirmarButton = new JButton();
         confirmarButton.setText("Aceptar");
-        mainPanel.add(confirmarButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, 30), null, 0, false));
+        mainPanel.add(confirmarButton, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, 30), null, 0, false));
         final JToolBar.Separator toolBar$Separator1 = new JToolBar.Separator();
-        mainPanel.add(toolBar$Separator1, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(toolBar$Separator1, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

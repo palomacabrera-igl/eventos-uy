@@ -37,23 +37,41 @@ public class Registro extends EntidadBase {
                 foreignKey = @ForeignKey(name = "fk_registro_tipo"))
     private TipoRegistro tipoRegistro;
 
+    /**
+     * Patrocinio que pago este registro, o null si el asistente lo pago.
+     * Guardarlo permite contar cuantos registros gratuitos lleva usados cada
+     * patrocinio y explicar por que este registro costo cero.
+     */
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinColumn(name = "patrocinio_id",
+                foreignKey = @ForeignKey(name = "fk_registro_patrocinio"))
+    private Patrocinio patrocinio;
+
     private Double costo;
     private LocalDate fechaRegistro;
 
     protected Registro() {}
 
     public Registro(Asistente asistente, EdicionEvento edicion, TipoRegistro tipoRegistro, Double costo, LocalDate fechaRegistro) {
+        this(asistente, edicion, tipoRegistro, costo, fechaRegistro, null);
+    }
+
+    public Registro(Asistente asistente, EdicionEvento edicion, TipoRegistro tipoRegistro,
+                    Double costo, LocalDate fechaRegistro, Patrocinio patrocinio) {
         this.asistente = asistente;
         this.edicion = edicion;
         this.tipoRegistro = tipoRegistro;
         this.costo = costo;
         this.fechaRegistro = fechaRegistro;
+        this.patrocinio = patrocinio;
     }
 
     public Asistente getAsistente() { return asistente; }
     public EdicionEvento getEdicion() { return edicion; }
     public TipoRegistro getTipoRegistro() { return tipoRegistro; }
     public Double getCosto() { return costo; }
+
+    public Patrocinio getPatrocinio() { return patrocinio; }
     public LocalDate getFechaRegistro() { return fechaRegistro; }
 
     public void setTipoRegistro(TipoRegistro tipoRegistro) { this.tipoRegistro = tipoRegistro; }

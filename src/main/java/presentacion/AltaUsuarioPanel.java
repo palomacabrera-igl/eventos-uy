@@ -184,7 +184,7 @@ public class AltaUsuarioPanel {
         return true;
     }
 
-    private void confirmarAsistente() {
+    private void confirmarAsistente() throws ReglaNegocioException {
         String apellido = txtApellido.getText().trim();
         int dia = (Integer) FechaNacDiaCBox.getSelectedItem();
         int mes = (Integer) FechaNacMesCBox.getSelectedItem();
@@ -201,7 +201,7 @@ public class AltaUsuarioPanel {
         }
     }
 
-    private void confirmarOrganizador() {
+    private void confirmarOrganizador() throws ReglaNegocioException {
         String descripcion = textField1.getText().trim();
         String sitioWeb = textField2.getText().trim();
 

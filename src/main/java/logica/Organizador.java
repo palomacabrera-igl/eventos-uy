@@ -35,7 +35,7 @@ public class Organizador extends Usuario {
                        String descripcion, String sitioWeb) {
         super(nickname, nombre, correoElectronico);
         this.descripcion = descripcion;
-        this.sitioWeb = sitioWeb;
+        this.sitioWeb = normalizarOpcional(sitioWeb);
     }
 
     public String getDescripcion() {
@@ -51,7 +51,16 @@ public class Organizador extends Usuario {
     }
 
     public void setSitioWeb(String sitioWeb) {
-        this.sitioWeb = sitioWeb;
+        this.sitioWeb = normalizarOpcional(sitioWeb);
+    }
+
+    /**
+     * El sitio web puede no estar definido (ver letra, seccion 4). Un campo
+     * vacio en la pantalla llega como cadena vacia, y guardarlo asi haria que
+     * un dato ausente parezca presente: se normaliza a null.
+     */
+    private static String normalizarOpcional(String valor) {
+        return (valor == null || valor.isBlank()) ? null : valor.trim();
     }
 
     @Override
@@ -70,7 +79,7 @@ public class Organizador extends Usuario {
         super.modificarDatos(dt);
         DTOrganizador dorg = (DTOrganizador) dt;
         this.descripcion = dorg.getDescripcion();
-        this.sitioWeb = dorg.getSitioWeb();
+        this.sitioWeb = normalizarOpcional(dorg.getSitioWeb());
     }
     public void agregarEdicion(EdicionEvento edicion) {
         ediciones.add(edicion);
