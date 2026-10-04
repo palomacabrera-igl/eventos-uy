@@ -81,7 +81,7 @@ const datos = {
       fechaInicio: "2026-10-01",
       fechaFin: "2026-10-03",
       fechaAlta: "2026-01-15",
-      estado: "aceptada",
+      estado: "rechazada",
       organizadorNickname: "utec",
       imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2026.png"
     },
@@ -95,7 +95,7 @@ const datos = {
       fechaInicio: "2027-10-02",
       fechaFin: "2027-10-04",
       fechaAlta: "2026-09-25",
-      estado: "ingresada",
+      estado: "rechazada",
       organizadorNickname: "utec",
       imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2027.png"
     },
@@ -109,7 +109,7 @@ const datos = {
       fechaInicio: "2025-10-01",
       fechaFin: "2025-10-03",
       fechaAlta: "2025-01-15",
-      estado: "rechazada",
+      estado: "aceptada",
       organizadorNickname: "utec",
       imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2025.png"
     },
@@ -123,7 +123,7 @@ const datos = {
       fechaInicio: "2026-10-01",
       fechaFin: "2026-10-07",
       fechaAlta: "2026-01-15",
-      estado: "rechazada",
+      estado: "aceptada",
       organizadorNickname: "utec",
       imagen: "web/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
     },
