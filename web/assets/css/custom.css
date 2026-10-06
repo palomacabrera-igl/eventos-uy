@@ -1,0 +1,103 @@
+/* ============================================================
+   eventos.uy — estilos compartidos (look "cartelera" sobre Bootstrap).
+   Lo usan TODAS las páginas del sitio.
+   ============================================================ */
+
+:root {
+  --ev-bg:#f4f4f1; --ev-ink:#17170f; --ev-muted:#6c6c62; --ev-border:rgba(20,20,15,.12);
+  --ev-accent:#c0360f; --ev-accent-ink:#ffffff;
+  --ev-poster-ink-bg:#17170f;   --ev-poster-ink-fg:#f4f4f1;
+  --ev-poster-paper-bg:#eae9e3; --ev-poster-paper-fg:#17170f;
+  --ev-sans:"Archivo","Helvetica Neue",system-ui,sans-serif;
+  --ev-mono:"JetBrains Mono","SF Mono",ui-monospace,monospace;
+}
+body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-sans); }
+
+/* ---------- Cabezal ---------- */
+.ev-header { position: sticky; top: 0; z-index: 1020; background: var(--ev-bg); border-bottom: 1px solid var(--ev-border); }
+.ev-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.03em; color: var(--ev-ink); text-decoration: none; }
+.ev-brand span { color: var(--ev-accent); }
+.ev-verc { font-family: var(--ev-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ev-muted); display: flex; align-items: center; gap: 6px; }
+.ev-select { width: auto; font-family: var(--ev-mono); font-size: .75rem; }
+.btn-accent { background: var(--ev-accent); color: var(--ev-accent-ink); border: 1px solid var(--ev-accent); }
+.btn-accent:hover { background: #a62e0c; color: #fff; }
+.ev-who { font-weight: 600; font-size: .9rem; line-height: 1.1; }
+.ev-who small { display: block; font-family: var(--ev-mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ev-muted); font-weight: 400; }
+.ev-cats { display: flex; gap: 7px; flex-wrap: wrap; padding-bottom: 12px; }
+.ev-chip { font-family: var(--ev-mono); font-size: .76rem; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ev-border); background: transparent; color: var(--ev-ink); text-decoration: none; display: inline-block; transition: border-color .15s, background .15s, color .15s; }
+.ev-chip:hover { border-color: var(--ev-ink); }
+.ev-chip.active { background: var(--ev-accent); border-color: var(--ev-accent); color: var(--ev-accent-ink); }
+
+/* ---------- Hero / encabezado de página ---------- */
+.ev-hero { padding: 3.5rem 0 1.5rem; max-width: 60ch; }
+.ev-kicker { font-family: var(--ev-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .2em; color: var(--ev-accent); margin: 0 0 1rem; }
+.ev-h1 { font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin: 0; font-size: clamp(2.3rem, 6vw, 4rem); }
+.ev-sub { color: var(--ev-muted); font-size: 1.05rem; margin: 1.1rem 0 0; max-width: 46ch; }
+
+.ev-pagehead { padding: 2.4rem 0 1.4rem; }
+.ev-pagetitle { font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: .2rem 0 0; font-size: clamp(1.8rem, 4.5vw, 2.6rem); }
+
+/* Enlace "volver" */
+.ev-back { font-family: var(--ev-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ev-muted); text-decoration: none; }
+.ev-back:hover { color: var(--ev-ink); }
+
+/* Título de sección (dentro de una pantalla) */
+.ev-section { font-family: var(--ev-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ev-muted); border-bottom: 1px solid var(--ev-border); padding-bottom: .5rem; margin: 2rem 0 1rem; }
+
+/* ---------- Pestañas ---------- */
+.ev-tabs { border-bottom: 1px solid var(--ev-border); gap: 1.4rem; }
+.ev-tabs .nav-link { font-family: var(--ev-mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ev-muted); background: none; border: none; border-bottom: 2px solid transparent; padding: 0 0 .7rem; margin-bottom: -1px; }
+.ev-tabs .nav-link.active { color: var(--ev-ink); border-bottom-color: var(--ev-accent); }
+.ev-fnote { font-family: var(--ev-mono); font-size: .78rem; color: var(--ev-muted); margin-bottom: 1rem; }
+.ev-fnote b { color: var(--ev-ink); }
+
+/* ---------- Tarjeta / póster de evento ---------- */
+.ev-card { border: 1px solid var(--ev-border); border-radius: 4px; overflow: hidden; background: #fff; height: 100%; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s; }
+.ev-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+.ev-poster { aspect-ratio: 5/4; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+.ev-card-wrap.featured .ev-poster { aspect-ratio: 16/9; }
+.ev-poster--ink    { background: var(--ev-poster-ink-bg);   color: var(--ev-poster-ink-fg); }
+.ev-poster--paper  { background: var(--ev-poster-paper-bg); color: var(--ev-poster-paper-fg); }
+.ev-poster--accent { background: var(--ev-accent);          color: var(--ev-accent-ink); }
+.ev-poster-top { display: flex; justify-content: space-between; font-family: var(--ev-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+.ev-poster-title { font-weight: 800; letter-spacing: -.03em; line-height: .98; text-transform: uppercase; font-size: 1.9rem; }
+.ev-card-wrap.featured .ev-poster-title { font-size: clamp(2.2rem, 5vw, 3.2rem); }
+.ev-cardbody { padding: 14px 16px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1; }
+.ev-meta { font-family: var(--ev-mono); font-size: .72rem; color: var(--ev-muted); line-height: 1.5; }
+.ev-meta b { color: var(--ev-ink); font-weight: 600; }
+
+/* ---------- Listas de usuarios ---------- */
+.ev-user { display: flex; align-items: center; gap: 14px; padding: 16px 2px; border-bottom: 1px solid var(--ev-border); cursor: pointer; text-decoration: none; color: inherit; }
+.ev-user:hover .ev-uname { color: var(--ev-accent); }
+.ev-ava { width: 42px; height: 42px; border-radius: 4px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--ev-poster-ink-bg); color: var(--ev-poster-ink-fg); }
+.ev-uname { font-weight: 600; }
+.ev-uhandle { font-family: var(--ev-mono); font-size: .7rem; color: var(--ev-muted); }
+.ev-utag { margin-left: auto; font-family: var(--ev-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ev-muted); border: 1px solid var(--ev-border); padding: 3px 10px; border-radius: 999px; }
+
+/* ---------- Formularios ---------- */
+.ev-form { max-width: 520px; }
+.ev-form .form-label { font-family: var(--ev-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ev-muted); margin-bottom: .3rem; }
+.ev-form .form-text { font-family: var(--ev-mono); font-size: .68rem; }
+.ev-form .btn-accent { padding-inline: 1.3rem; }
+
+/* ---------- Detalle (fichas de datos) ---------- */
+.ev-detail { display: grid; grid-template-columns: 180px 1fr; gap: .4rem 1.2rem; font-size: .95rem; }
+.ev-detail dt { font-family: var(--ev-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ev-muted); align-self: center; }
+.ev-detail dd { margin: 0; }
+@media (max-width: 520px) { .ev-detail { grid-template-columns: 1fr; gap: .1rem .4rem; } .ev-detail dt { margin-top: .6rem; } }
+
+/* Pastilla de estado de edición */
+.ev-estado { font-family: var(--ev-mono); font-size: .62rem; text-transform: uppercase; letter-spacing: .06em; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--ev-border); }
+.ev-estado--aceptada { background: #edf3ec; color: #346538; border-color: #cfe3cd; }
+.ev-estado--ingresada { background: #fbf3db; color: #956400; border-color: #ecdcae; }
+.ev-estado--rechazada { background: #fdebec; color: #9f2f2d; border-color: #f2cdcd; }
+
+/* Fila simple (tipos de registro, patrocinios, registros) */
+.ev-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 2px; border-bottom: 1px solid var(--ev-border); text-decoration: none; color: inherit; }
+.ev-row:hover .ev-rowname { color: var(--ev-accent); }
+.ev-rowname { font-weight: 600; }
+.ev-rowmeta { font-family: var(--ev-mono); font-size: .72rem; color: var(--ev-muted); }
+
+/* ---------- Footer ---------- */
+.ev-footer { border-top: 1px solid var(--ev-border); margin-top: 3.5rem; padding: 1.6rem 0; font-family: var(--ev-mono); font-size: .7rem; color: var(--ev-muted); }
+.ev-footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eventos.uy — Alta de edición</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/custom.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cabezal"></div>
+
+  <main class="container">
+    <section class="ev-pagehead">
+      <p class="ev-kicker">Alta de edición</p>
+      <h1 class="ev-pagetitle">Crear una edición</h1>
+    </section>
+
+    <form class="ev-form" onsubmit="return false">
+      <div class="mb-3"><label class="form-label" for="evento">Evento</label>
+        <select class="form-select" id="evento">
+          <option>Maratón de Montevideo</option><option>Montevideo Comics</option><option>Montevideo Rock</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="form-label" for="nombre">Nombre de la edición</label><input class="form-control" id="nombre" type="text"></div>
+      <div class="mb-3"><label class="form-label" for="sigla">Sigla</label><input class="form-control" id="sigla" type="text"></div>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ciudad">Ciudad</label><input class="form-control" id="ciudad" type="text"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="pais">País</label><input class="form-control" id="pais" type="text" value="Uruguay"></div>
+      </div>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ini">Fecha de inicio</label><input class="form-control" id="ini" type="date"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="fin">Fecha de fin</label><input class="form-control" id="fin" type="date"></div>
+      </div>
+      <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" type="file" accept="image/*"></div>
+
+      <p class="form-text">La edición queda en estado <b>Ingresada</b> hasta que el administrador la acepte o rechace.</p>
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-accent" type="submit">Crear edición</button>
+        <a class="btn btn-outline-secondary" href="index.html">Cancelar</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/cabezal.js"></script>
+</body>
+</html>
