@@ -17,8 +17,6 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-header { position: sticky; top: 0; z-index: 1020; background: var(--ev-bg); border-bottom: 1px solid var(--ev-border); }
 .ev-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.03em; color: var(--ev-ink); text-decoration: none; }
 .ev-brand span { color: var(--ev-accent); }
-.ev-verc { font-family: var(--ev-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ev-muted); display: flex; align-items: center; gap: 6px; }
-.ev-select { width: auto; font-family: var(--ev-mono); font-size: .75rem; }
 .btn-accent { background: var(--ev-accent); color: var(--ev-accent-ink); border: 1px solid var(--ev-accent); }
 .btn-accent:hover { background: #a62e0c; color: #fff; }
 .ev-who { font-weight: 600; font-size: .9rem; line-height: 1.1; }

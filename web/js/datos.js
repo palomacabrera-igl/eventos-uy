@@ -19,36 +19,59 @@ const datos = {
       nombre: "UTEC",
       descripcion: "Universidad Tecnológica del Uruguay.",
       sitioWeb: "https://utec.edu.uy",
-      imagen: "web/public/images/instituciones/avatarInstitucion.png"
+      imagen: "public/images/instituciones/avatarInstitucion.png"
     }
   ],
 
   usuarios: [
     {
-      nickname: "pfernandez",
+      nickname: "vale23",
       rol: "asistente",
-      nombre: "Paloma",
-      apellido: "Fernández",
-      correo: "paloma@example.com",
-      password: "Paloma2026!",
-      fechaNacimiento: "2000-05-14",
+      nombre: "Valentina",
+      apellido: "Díaz",
+      correo: "valentina@mail.com",
+      password: "Vale2026!",
+      fechaNacimiento: "2001-03-22",
       fechaAlta: "2026-01-10",
-      institucionId: null,
-      imagen: "web/public/images/usuarios/avatarFemenino.png"
+      institucionId: "utec",
+      imagen: "public/images/usuarios/avatarFemenino.png"
     },
     {
-      nickname: "utec",
+      nickname: "jperez",
+      rol: "asistente",
+      nombre: "Juan",
+      apellido: "Pérez",
+      correo: "jperez@mail.com",
+      password: "Juan2026!",
+      fechaNacimiento: "1998-11-05",
+      fechaAlta: "2026-02-18",
+      institucionId: null,
+      imagen: "public/images/usuarios/avatarMasculino.png"
+    },
+    {
+      nickname: "imm",
       rol: "organizador",
-      nombre: "UTEC Eventos",
-      correo: "eventos@utec.edu.uy",
-      password: "Utec2026!",
-      descripcion: "Organizador institucional de eventos académicos de UTEC.",
-      sitioWeb: "https://utec.edu.uy",
+      nombre: "Intendencia de Montevideo",
+      correo: "eventos@imm.gub.uy",
+      password: "Imm2026!",
+      descripcion: "Organismo que coordina los eventos culturales y deportivos de la capital.",
+      sitioWeb: "https://montevideo.gub.uy",
       fechaAlta: "2025-01-05",
-      imagen: "web/public/images/usuarios/avatarMasculino.png"
+      imagen: "public/images/instituciones/avatarInstitucion.png"
+    },
+    {
+      nickname: "antel",
+      rol: "organizador",
+      nombre: "ANTEL",
+      correo: "eventos@antel.com.uy",
+      password: "Antel2026!",
+      descripcion: "Empresa de telecomunicaciones del Estado uruguayo.",
+      sitioWeb: "",
+      fechaAlta: "2025-06-30",
+      imagen: "public/images/instituciones/avatarInstitucion.png"
     }
   ],
-
+  
   eventos: [
     {
       id: "2",
@@ -57,7 +80,7 @@ const datos = {
       descripcion: "Jornadas de Ingeniería",
       fechaAlta: "2025-01-10",
       categoriaIds: ["1"],
-      imagen: "web/public/images/eventos/jiap/eventoIng.png"
+      imagen: "public/images/eventos/JIAP/eventoIng.png"
     },
     {
       id: "1",
@@ -66,7 +89,7 @@ const datos = {
       descripcion: "Semana del libro",
       fechaAlta: "2017-01-01",
       categoriaIds: ["2"],
-      imagen: "web/public/images/eventos/FeriaDelLibro/eventoLibro.png"
+      imagen: "public/images/eventos/FeriaDelLibro/eventoLibro.png"
     }
   ],
 
@@ -81,9 +104,9 @@ const datos = {
       fechaInicio: "2026-10-01",
       fechaFin: "2026-10-03",
       fechaAlta: "2026-01-15",
-      estado: "rechazada",
-      organizadorNickname: "utec",
-      imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2026.png"
+      estado: "aceptada",
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/JIAP/ediciones/edicionIng2026.png"
     },
     {
       id: "3",
@@ -95,9 +118,9 @@ const datos = {
       fechaInicio: "2027-10-02",
       fechaFin: "2027-10-04",
       fechaAlta: "2026-09-25",
-      estado: "rechazada",
-      organizadorNickname: "utec",
-      imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2027.png"
+      estado: "ingresada",
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/JIAP/ediciones/edicionIng2027.png"
     },
     {
       id: "1",
@@ -109,9 +132,9 @@ const datos = {
       fechaInicio: "2025-10-01",
       fechaFin: "2025-10-03",
       fechaAlta: "2025-01-15",
-      estado: "aceptada",
-      organizadorNickname: "utec",
-      imagen: "web/public/images/eventos/JIAP/ediciones/edicionIng2025.png"
+      estado: "rechazada",
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/JIAP/ediciones/edicionIng2025.png"
     },
     {
       id: "4",
@@ -124,8 +147,8 @@ const datos = {
       fechaFin: "2026-10-07",
       fechaAlta: "2026-01-15",
       estado: "aceptada",
-      organizadorNickname: "utec",
-      imagen: "web/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
+      organizadorNickname: "antel",
+      imagen: "public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
     },
   ],
 
@@ -143,9 +166,9 @@ const datos = {
       institucionId: "utec",
       nivel: "oro",
       aporte: 20000,
-      tipoRegistroId: "2",
+      tipoRegistroId: "1",
       cantidadRegistrosGratuitos: 10,
-      usosActuales: 0,
+      usosActuales: 1,
       codigo: "UTEC-JIAP-26",
       fechaAlta: "2026-02-01"
     },
@@ -178,11 +201,11 @@ const datos = {
   registros: [
     {
       id: "1",
-      asistenteNickname: "pfernandez",
+      asistenteNickname: "vale23",
       edicionId: "2",
       tipoRegistroId: "1",
       fechaRegistro: "2026-09-01",
-      costo: 1500,
+      costo: 0,
       patrocinioId: 1
     }
   ],
