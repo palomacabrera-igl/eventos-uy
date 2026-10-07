@@ -10,6 +10,8 @@
   // Rol actual (sesión simulada)
   let rol = "visitante";
   try { const g = localStorage.getItem("demoRol"); if (g) rol = g; } catch (e) {}
+  let nick = null;
+  try { nick = localStorage.getItem("demoNick"); } catch (e) {}
 
   // Categoría activa (solo tiene sentido en la home)
   let catActiva = null;
@@ -22,14 +24,14 @@
              '<a class="btn btn-accent btn-sm" href="alta-usuario.html">Registrarse</a>';
     }
     if (rol === "asistente") {
-      return '<span class="ev-who">vale23<small>Asistente</small></span>' +
+      return '<span class="ev-who">' + (nick || "vale23") + '<small>Asistente</small></span>' +
              '<a class="btn btn-outline-secondary btn-sm" href="perfil.html">Mi perfil</a>' +
              '<a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="#" id="ev-salir">Salir</a>';
     }
     return '<a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="alta-evento.html">Alta de evento</a>' +
            '<a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="alta-edicion.html">Alta de edición</a>' +
            '<a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="alta-institucion.html">Alta de institución</a>' +
-           '<span class="ev-who">imm<small>Organizador</small></span>' +
+           '<span class="ev-who">' + (nick || "imm") + '<small>Organizador</small></span>' +
            '<a class="btn btn-outline-secondary btn-sm" href="perfil.html">Mi perfil</a>' +
            '<a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="#" id="ev-salir">Salir</a>';
   }
@@ -51,11 +53,6 @@
       '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">' +
         '<a href="index.html" class="ev-brand">eventos<span>.uy</span></a>' +
         '<div class="d-flex align-items-center gap-3 flex-wrap">' +
-          '<label class="ev-verc mb-0">Ver como ' +
-            '<select id="ev-rol" class="form-select form-select-sm ev-select">' +
-              opt("visitante", "Visitante") + opt("asistente", "Asistente") + opt("organizador", "Organizador") +
-            '</select>' +
-          '</label>' +
           '<nav class="d-flex align-items-center gap-2 flex-wrap" aria-label="Sesión">' + authHTML() + '</nav>' +
         '</div>' +
       '</div>' +
@@ -75,18 +72,14 @@
   // Insertar el footer al final del body
   document.body.insertAdjacentHTML("beforeend", footerHTML);
 
-  // Cambiar de rol -> guardar y recargar (para re-dibujar el cabezal)
-  const sel = document.getElementById("ev-rol");
-  if (sel) sel.addEventListener("change", (e) => {
-    try { localStorage.setItem("demoRol", e.target.value); } catch (err) {}
-    location.reload();
-  });
-
   // Cerrar sesión -> vuelve a visitante y a la home
   const salir = document.getElementById("ev-salir");
   if (salir) salir.addEventListener("click", (e) => {
     e.preventDefault();
-    try { localStorage.setItem("demoRol", "visitante"); } catch (err) {}
+    try {
+      localStorage.removeItem("demoRol");
+      localStorage.removeItem("demoNick");
+    } catch (err) {}
     location.href = "index.html";
   });
 })();
