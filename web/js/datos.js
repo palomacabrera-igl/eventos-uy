@@ -106,6 +106,38 @@ const datos = {
       fechaAlta: "2017-01-01",
       categoriaIds: ["cul"],
       imagen: "public/images/eventos/FeriaDelLibro/eventoLibro.png"
+    },
+    {
+      id: "3",
+      nombre: "Maratón de Montevideo",
+      sigla: "MARATON",
+      descripcion: "Competencia deportiva anual en la capital.",
+      fechaAlta: "2024-03-12",
+      categoriaIds: ["dep"]
+    },
+    {
+      id: "4",
+      nombre: "Montevideo Rock",
+      sigla: "MVDROCK",
+      descripcion: "Festival con artistas nacionales e internacionales.",
+      fechaAlta: "2023-08-20",
+      categoriaIds: ["mus"]
+    },
+    {
+      id: "5",
+      nombre: "Expo Negocios UY",
+      sigla: "EXPONEG",
+      descripcion: "Encuentro de empresas y emprendedores del país.",
+      fechaAlta: "2025-02-05",
+      categoriaIds: ["neg", "tec"]
+    },
+    {
+      id: "6",
+      nombre: "Montevideo Comics",
+      sigla: "MVDCOM",
+      descripcion: "Convención de historietas, cine y cultura geek.",
+      fechaAlta: "2022-06-30",
+      categoriaIds: ["cul"]
     }
   ],
 
@@ -166,6 +198,71 @@ const datos = {
       organizadorNickname: "antel",
       imagen: "public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
     },
+    {
+      id: "5",
+      eventoId: "3",
+      nombre: "Maratón 2026",
+      sigla: "MVD26",
+      ciudad: "Montevideo",
+      pais: "Uruguay",
+      fechaInicio: "2026-11-15",
+      fechaFin: "2026-11-15",
+      fechaAlta: "2026-03-01",
+      estado: "aceptada",
+      organizadorNickname: "imm"
+    },
+    {
+      id: "6",
+      eventoId: "3",
+      nombre: "Maratón 2025",
+      sigla: "MVD25",
+      ciudad: "Montevideo",
+      pais: "Uruguay",
+      fechaInicio: "2025-11-16",
+      fechaFin: "2025-11-16",
+      fechaAlta: "2025-02-20",
+      estado: "aceptada",
+      organizadorNickname: "imm"
+    },
+    {
+      id: "7",
+      eventoId: "4",
+      nombre: "Montevideo Rock 2026",
+      sigla: "ROCK26",
+      ciudad: "Montevideo",
+      pais: "Uruguay",
+      fechaInicio: "2026-12-05",
+      fechaFin: "2026-12-06",
+      fechaAlta: "2026-04-18",
+      estado: "aceptada",
+      organizadorNickname: "antel"
+    },
+    {
+      id: "8",
+      eventoId: "5",
+      nombre: "Expo Negocios 2026",
+      sigla: "EXPO26",
+      ciudad: "Punta del Este",
+      pais: "Uruguay",
+      fechaInicio: "2026-09-18",
+      fechaFin: "2026-09-20",
+      fechaAlta: "2026-05-30",
+      estado: "ingresada",
+      organizadorNickname: "antel"
+    },
+    {
+      id: "9",
+      eventoId: "6",
+      nombre: "Comics 2026",
+      sigla: "COM26",
+      ciudad: "Montevideo",
+      pais: "Uruguay",
+      fechaInicio: "2026-10-03",
+      fechaFin: "2026-10-04",
+      fechaAlta: "2026-01-22",
+      estado: "aceptada",
+      organizadorNickname: "imm"
+    }
   ],
 
   tiposRegistro: [
@@ -173,7 +270,11 @@ const datos = {
     { id: "2", edicionId: "2", nombre: "Estudiante", descripcion: "Acceso con tarifa estudiantil.", costo: 800, cupo: 80, cuposOcupados: 0 },
     { id: "3", edicionId: "3", nombre: "Taller intensivo", descripcion: "Incluye talleres prácticos con cupo limitado.", costo: 2200, cupo: 30, cuposOcupados: 30 },
     { id: "4", edicionId: "4", nombre: "General", descripcion: "Acceso a charlas y talleres de la semana.", costo: 1200, cupo: 150, cuposOcupados: 0 },
-      ],
+    { id: "5", edicionId: "5", nombre: "Corredor 10K", descripcion: "Recorrido de 10 kilómetros por la rambla.", costo: 1200, cupo: 500, cuposOcupados: 1 },
+    { id: "6", edicionId: "5", nombre: "Corredor 21K", descripcion: "Media maratón.", costo: 1800, cupo: 300, cuposOcupados: 0 },
+    { id: "7", edicionId: "7", nombre: "Entrada general", descripcion: "Acceso a los dos días del festival.", costo: 2500, cupo: 1000, cuposOcupados: 1 },
+    { id: "8", edicionId: "9", nombre: "Entrada general", descripcion: "Acceso a la convención.", costo: 900, cupo: 400, cuposOcupados: 0 }
+  ],
 
   patrocinios: [
     {
@@ -211,6 +312,30 @@ const datos = {
       usosActuales: 0,
       codigo: "UTEC-L1",
       fechaAlta: "2025-05-01"
+    },
+    {
+      id: "4",
+      edicionId: "5",
+      institucionId: "ancap",
+      nivel: "oro",
+      aporte: 50000,
+      tipoRegistroId: "5",
+      cantidadRegistrosGratuitos: 8,
+      usosActuales: 0,
+      codigo: "ANCAP-MVD-26",
+      fechaAlta: "2026-04-10"
+    },
+    {
+      id: "5",
+      edicionId: "7",
+      institucionId: "udelar",
+      nivel: "plata",
+      aporte: 30000,
+      tipoRegistroId: "7",
+      cantidadRegistrosGratuitos: 2,
+      usosActuales: 0,
+      codigo: "UDELAR-ROCK-26",
+      fechaAlta: "2026-05-12"
     }
   ],
 
@@ -223,6 +348,24 @@ const datos = {
       fechaRegistro: "2026-09-01",
       costo: 0,
       patrocinioId: 1
+    },
+    {
+      id: "2",
+      asistenteNickname: "jperez",
+      edicionId: "5",
+      tipoRegistroId: "5",
+      fechaRegistro: "2026-05-02",
+      costo: 1200,
+      patrocinioId: null
+    },
+    {
+      id: "3",
+      asistenteNickname: "vale23",
+      edicionId: "7",
+      tipoRegistroId: "7",
+      fechaRegistro: "2026-06-01",
+      costo: 2500,
+      patrocinioId: null
     }
   ],
 };
