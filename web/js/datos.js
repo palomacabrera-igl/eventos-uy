@@ -65,6 +65,18 @@ const datos = {
       imagen: "public/images/usuarios/avatarMasculino.png"
     },
     {
+      nickname: "lgomez",
+      rol: "asistente",
+      nombre: "Lucía",
+      apellido: "Gómez",
+      correo: "lucia@mail.com",
+      password: "Lucia2026!",
+      fechaNacimiento: "1999-07-30",
+      fechaAlta: "2026-03-05",
+      institucionId: "utec",
+      imagen: "public/images/usuarios/avatarFemenino.png"
+    },
+    {
       nickname: "imm",
       rol: "organizador",
       nombre: "Intendencia de Montevideo",
@@ -267,7 +279,7 @@ const datos = {
 
   tiposRegistro: [
     { id: "1", edicionId: "2", nombre: "General", descripcion: "Acceso a todas las charlas.", costo: 1500, cupo: 200, cuposOcupados: 1 },
-    { id: "2", edicionId: "2", nombre: "Estudiante", descripcion: "Acceso con tarifa estudiantil.", costo: 800, cupo: 80, cuposOcupados: 0 },
+    { id: "2", edicionId: "2", nombre: "Estudiante", descripcion: "Acceso con tarifa estudiantil.", costo: 800, cupo: 80, cuposOcupados: 80 },
     { id: "3", edicionId: "3", nombre: "Taller intensivo", descripcion: "Incluye talleres prácticos con cupo limitado.", costo: 2200, cupo: 30, cuposOcupados: 30 },
     { id: "4", edicionId: "4", nombre: "General", descripcion: "Acceso a charlas y talleres de la semana.", costo: 1200, cupo: 150, cuposOcupados: 0 },
     { id: "5", edicionId: "5", nombre: "Corredor 10K", descripcion: "Recorrido de 10 kilómetros por la rambla.", costo: 1200, cupo: 500, cuposOcupados: 1 },
@@ -284,7 +296,7 @@ const datos = {
       nivel: "oro",
       aporte: 20000,
       tipoRegistroId: "1",
-      cantidadRegistrosGratuitos: 2,
+      cantidadRegistrosGratuitos: 1,
       usosActuales: 1,
       codigo: "UTEC-JIAP-26",
       fechaAlta: "2026-02-01"

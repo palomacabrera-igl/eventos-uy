@@ -15,51 +15,250 @@
 
   <main class="container">
     <section class="ev-pagehead">
-      <a class="ev-back" href="edicion.html">&larr; Maratón de Montevideo 2022</a>
+      <a class="ev-back" id="volver" href="index.html">&larr; Volver</a>
       <p class="ev-kicker mt-2">Registro a edición</p>
       <h1 class="ev-pagetitle">Registrarme a la edición</h1>
     </section>
 
-    <form class="ev-form" onsubmit="return false">
+    <div id="solo-asistentes" class="alert alert-warning d-none">
+      Solo un asistente con la sesión iniciada puede registrarse a una edición.
+      <a href="login.html">Iniciá sesión</a> o <a href="alta-usuario.html">creá tu cuenta</a>.
+    </div>
+
+    <form class="ev-form" id="form-registro">
       <div class="mb-3"><label class="form-label" for="evento">Evento</label>
-        <select class="form-select" id="evento"><option>Maratón de Montevideo</option></select>
+        <select class="form-select" id="evento" name="evento" required></select>
       </div>
       <div class="mb-3"><label class="form-label" for="edicion">Edición</label>
-        <select class="form-select" id="edicion"><option>Maratón de Montevideo 2022</option></select>
+        <select class="form-select" id="edicion" name="edicion" required>
+          <option value="">Elegí primero un evento</option>
+        </select>
       </div>
       <div class="mb-3"><label class="form-label" for="tipo">Tipo de registro</label>
-        <select class="form-select" id="tipo">
-          <option>Corredor 10K — $ 1.200</option><option>Corredor 21K — $ 1.800</option><option>Corredor 42K — $ 2.400</option>
+        <select class="form-select" id="tipo" name="tipo" required>
+          <option value="">Elegí primero una edición</option>
         </select>
       </div>
 
-      <label class="form-label d-block">Tipo de inscripción</label>
-      <div class="mb-3 d-flex gap-4">
-        <div class="form-check"><input class="form-check-input" type="radio" name="modo" id="mGeneral" value="general" checked><label class="form-check-label" for="mGeneral">General</label></div>
-        <div class="form-check"><input class="form-check-input" type="radio" name="modo" id="mCodigo" value="codigo"><label class="form-check-label" for="mCodigo">Con código de patrocinio</label></div>
-      </div>
+      <fieldset class="mb-3">
+        <legend class="form-label d-block">Tipo de inscripción</legend>
+        <div class="d-flex gap-4">
+          <div class="form-check"><input class="form-check-input" type="radio" name="modo" id="mGeneral" value="general" checked><label class="form-check-label" for="mGeneral">General</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="modo" id="mCodigo" value="codigo"><label class="form-check-label" for="mCodigo">Con código de patrocinio</label></div>
+        </div>
+      </fieldset>
 
-      <div class="mb-3" id="boxCodigo" hidden>
+      <fieldset class="mb-3" id="boxCodigo" hidden disabled>
         <label class="form-label" for="codigo">Código de patrocinio</label>
-        <input class="form-control" id="codigo" type="text" placeholder="Ej: 4821">
+        <input class="form-control" id="codigo" name="codigo" type="text" placeholder="Ej: UTEC-JIAP-26" required>
         <p class="form-text">Con un código válido de tu institución, el costo es $ 0.</p>
-      </div>
+      </fieldset>
 
-      <p class="form-text">Un asistente sin institución solo puede registrarse de forma general.</p>
+      <p class="form-text" id="nota-institucion"></p>
+
+      <div class="alert alert-danger d-none" id="error-registro"></div>
+      <div class="alert alert-success d-none" id="exito-registro"></div>
+
       <div class="d-flex gap-2 mt-3">
         <button class="btn btn-accent" type="submit">Confirmar registro</button>
-        <a class="btn btn-outline-secondary" href="edicion.html">Cancelar</a>
+        <a class="btn btn-outline-secondary" id="cancelar" href="index.html">Cancelar</a>
       </div>
     </form>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/cabezal.js"></script>
+  <script src="js/datos.js"></script>
   <script>
-    const box = document.getElementById("boxCodigo");
-    document.querySelectorAll('input[name="modo"]').forEach((r) =>
-      r.addEventListener("change", () => { box.hidden = !document.getElementById("mCodigo").checked; })
-    );
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
+    const rol = leer("demoRol") || "visitante";
+    const yo = leer("demoNick");
+    const asistente = datos.usuarios.find(function (u) { return u.nickname === yo; });
+
+    const form = document.getElementById("form-registro");
+    const selEvento = document.getElementById("evento");
+    const selEdicion = document.getElementById("edicion");
+    const selTipo = document.getElementById("tipo");
+    const boxCodigo = document.getElementById("boxCodigo");
+    const error = document.getElementById("error-registro");
+    const exito = document.getElementById("exito-registro");
+
+    function mostrarError(texto) {
+      error.textContent = texto;
+      error.classList.remove("d-none");
+    }
+
+    function cargarEdiciones() {
+      // La letra: el asistente ve las ediciones en estado Aceptada.
+      const aceptadas = datos.ediciones.filter(function (edicion) {
+        return edicion.eventoId === selEvento.value && edicion.estado === "aceptada";
+      });
+      if (aceptadas.length === 0) {
+        selEdicion.innerHTML = '<option value="">Este evento no tiene ediciones publicadas</option>';
+      } else {
+        selEdicion.innerHTML = '<option value="">Elegí una edición</option>' +
+          aceptadas.map(function (edicion) {
+            return '<option value="' + edicion.id + '">' + edicion.nombre + '</option>';
+          }).join("");
+      }
+    }
+
+    function cargarTipos() {
+      const tipos = datos.tiposRegistro.filter(function (tipo) {
+        return tipo.edicionId === selEdicion.value;
+      });
+      if (tipos.length === 0) {
+        selTipo.innerHTML = '<option value="">Esta edición no tiene tipos de registro</option>';
+      } else {
+        selTipo.innerHTML = '<option value="">Elegí un tipo</option>' +
+          tipos.map(function (tipo) {
+            const libres = tipo.cupo - tipo.cuposOcupados;
+            return '<option value="' + tipo.id + '">' + tipo.nombre +
+                   ' — $ ' + tipo.costo + ' — ' + libres + ' cupos libres</option>';
+          }).join("");
+      }
+    }
+
+    function actualizarVolver() {
+      if (!selEdicion.value) { return; }
+      const edicion = datos.ediciones.find(function (e) { return e.id === selEdicion.value; });
+      const volver = document.getElementById("volver");
+      volver.textContent = "← " + edicion.nombre;
+      volver.href = "edicion.html?id=" + edicion.id;
+      document.getElementById("cancelar").href = "edicion.html?id=" + edicion.id;
+    }
+
+    // Si llegue desde una edicion (registro-edicion.html?edicion=5), queda elegida.
+    function preseleccionar() {
+      const params = new URLSearchParams(location.search);
+      const pedida = params.get("edicion");
+      if (!pedida) { return; }
+      const edicion = datos.ediciones.find(function (e) { return e.id === pedida; });
+      if (!edicion || edicion.estado !== "aceptada") { return; }
+      selEvento.value = edicion.eventoId;
+      cargarEdiciones();
+      selEdicion.value = edicion.id;
+      cargarTipos();
+      actualizarVolver();
+    }
+
+    function arrancar() {
+      selEvento.innerHTML = '<option value="">Elegí un evento</option>' +
+        datos.eventos.map(function (evento) {
+          return '<option value="' + evento.id + '">' + evento.nombre + '</option>';
+        }).join("");
+
+      // La letra: un asistente sin institucion solo puede registrarse de forma general.
+      const nota = document.getElementById("nota-institucion");
+      if (!asistente.institucionId) {
+        document.getElementById("mCodigo").disabled = true;
+        nota.textContent = "No pertenecés a ninguna institución, así que solo podés registrarte de forma general.";
+      } else {
+        const institucion = datos.instituciones.find(function (i) {
+          return i.id === asistente.institucionId;
+        });
+        nota.textContent = "Pertenecés a " + institucion.nombre +
+                           ": podés usar un código de patrocinio de esa institución.";
+      }
+
+      selEvento.addEventListener("change", function () { cargarEdiciones(); cargarTipos(); });
+      selEdicion.addEventListener("change", function () { cargarTipos(); actualizarVolver(); });
+
+      document.querySelectorAll('input[name="modo"]').forEach(function (radio) {
+        radio.addEventListener("change", function () {
+          const conCodigo = document.getElementById("mCodigo").checked;
+          boxCodigo.hidden = !conCodigo;
+          boxCodigo.disabled = !conCodigo;
+        });
+      });
+
+      preseleccionar();
+    }
+
+    function confirmar(edicion, tipo, costo, patrocinio) {
+      const hoy = new Date().toLocaleDateString("es-UY");
+      let texto = "Registro a " + edicion.nombre + " confirmado el " + hoy +
+                  ". Tipo " + tipo.nombre + ", costo $ " + costo + ".";
+      if (patrocinio) {
+        texto += " Sin cargo por el patrocinio " + patrocinio.codigo + ".";
+      }
+      exito.textContent = texto;
+      exito.classList.remove("d-none");
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      error.classList.add("d-none");
+      exito.classList.add("d-none");
+
+      const edicion = datos.ediciones.find(function (e) { return e.id === selEdicion.value; });
+      const tipo = datos.tiposRegistro.find(function (t) { return t.id === selTipo.value; });
+      const conCodigo = document.getElementById("mCodigo").checked;
+
+      // 1. El asistente ya esta registrado en esa edicion.
+      const yaRegistrado = datos.registros.some(function (r) {
+        return r.edicionId === edicion.id && r.asistenteNickname === yo;
+      });
+      if (yaRegistrado) {
+        mostrarError("Ya estás registrado en " + edicion.nombre + ".");
+        return;
+      }
+
+      // 2. Se alcanzo el cupo del tipo de registro.
+      if (tipo.cuposOcupados >= tipo.cupo) {
+        mostrarError("El tipo de registro " + tipo.nombre + " agotó sus " + tipo.cupo + " cupos.");
+        return;
+      }
+
+      // 3. Registro general: paga el costo del tipo.
+      if (!conCodigo) {
+        confirmar(edicion, tipo, tipo.costo, null);
+        return;
+      }
+
+      // 4. Registro con codigo: las comprobaciones que pide la letra.
+      const codigo = document.getElementById("codigo").value.trim();
+      const patrocinio = datos.patrocinios.find(function (p) {
+        return p.codigo.toLowerCase() === codigo.toLowerCase();
+      });
+
+      if (!patrocinio) {
+        mostrarError('No existe ningún patrocinio con el código "' + codigo + '".');
+        return;
+      }
+      if (patrocinio.edicionId !== edicion.id) {
+        mostrarError("Ese código no corresponde a " + edicion.nombre + ".");
+        return;
+      }
+      if (patrocinio.tipoRegistroId !== tipo.id) {
+        const suyo = datos.tiposRegistro.find(function (t) { return t.id === patrocinio.tipoRegistroId; });
+        mostrarError("Ese código da registros gratuitos de " + suyo.nombre +
+                     ", no de " + tipo.nombre + ".");
+        return;
+      }
+      if (patrocinio.institucionId !== asistente.institucionId) {
+        const duenia = datos.instituciones.find(function (i) { return i.id === patrocinio.institucionId; });
+        mostrarError("Ese código es de " + duenia.nombre + " y vos no pertenecés a esa institución.");
+        return;
+      }
+      if (patrocinio.usosActuales >= patrocinio.cantidadRegistrosGratuitos) {
+        mostrarError("Ese código ya usó sus " + patrocinio.cantidadRegistrosGratuitos +
+                     " registros gratuitos.");
+        return;
+      }
+
+      confirmar(edicion, tipo, 0, patrocinio);
+    });
+
+    // ---- Solo los asistentes pueden registrarse (actor del caso de uso) ----
+    if (rol !== "asistente" || !asistente) {
+      form.hidden = true;
+      document.getElementById("solo-asistentes").classList.remove("d-none");
+    } else {
+      arrancar();
+    }
   </script>
 </body>
 </html>
