@@ -22,6 +22,20 @@ const datos = {
       descripcion: "Universidad Tecnológica del Uruguay.",
       sitioWeb: "https://utec.edu.uy",
       imagen: "public/images/instituciones/avatarInstitucion.png"
+    },
+    {
+      id: "udelar",
+      nombre: "Universidad de la República",
+      descripcion: "Universidad pública del Uruguay.",
+      sitioWeb: "https://udelar.edu.uy",
+      imagen: "public/images/instituciones/avatarInstitucion.png"
+    },
+    {
+      id: "ancap",
+      nombre: "ANCAP",
+      descripcion: "Administración Nacional de Combustibles, Alcohol y Portland.",
+      sitioWeb: "https://ancap.com.uy",
+      imagen: "public/images/instituciones/avatarInstitucion.png"
     }
   ],
 
@@ -169,7 +183,7 @@ const datos = {
       nivel: "oro",
       aporte: 20000,
       tipoRegistroId: "1",
-      cantidadRegistrosGratuitos: 10,
+      cantidadRegistrosGratuitos: 2,
       usosActuales: 1,
       codigo: "UTEC-JIAP-26",
       fechaAlta: "2026-02-01"
@@ -179,11 +193,11 @@ const datos = {
       edicionId: "3",
       institucionId: "utec",
       nivel: "plata",
-      aporte: 10000,
+      aporte: 25000,
       tipoRegistroId: "3",
-      cantidadRegistrosGratuitos: 4,
+      cantidadRegistrosGratuitos: 2,
       usosActuales: 0,
-      codigo: "UTEC-JIAP-25",
+      codigo: "UTEC-JIAP-27",
       fechaAlta: "2025-02-10"
     },
     {
@@ -193,7 +207,7 @@ const datos = {
       nivel: "bronce",
       aporte: 8000,
       tipoRegistroId: "4",
-      cantidadRegistrosGratuitos: 2,
+      cantidadRegistrosGratuitos: 1,
       usosActuales: 0,
       codigo: "UTEC-L1",
       fechaAlta: "2025-05-01"

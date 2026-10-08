@@ -19,30 +19,43 @@
       <h1 class="ev-pagetitle">Crear un patrocinio</h1>
     </section>
 
-    <form class="ev-form" onsubmit="return false">
+    <form class="ev-form" id="form-patrocinio">
       <div class="mb-3"><label class="form-label" for="evento">Evento</label>
-        <select class="form-select" id="evento"><option>Maratón de Montevideo</option></select>
+        <select class="form-select" id="evento" name="evento" required></select>
       </div>
       <div class="mb-3"><label class="form-label" for="edicion">Edición</label>
-        <select class="form-select" id="edicion"><option>Maratón de Montevideo 2022</option></select>
+        <select class="form-select" id="edicion" name="edicion" required>
+          <option value="">Elegí primero un evento</option>
+        </select>
       </div>
       <div class="mb-3"><label class="form-label" for="inst">Institución</label>
-        <select class="form-select" id="inst"><option>UTEC</option><option>ANTEL</option><option>Intendencia de Montevideo</option></select>
+        <select class="form-select" id="inst" name="inst" required></select>
       </div>
       <div class="row g-3">
         <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="nivel">Nivel de patrocinio</label>
-          <select class="form-select" id="nivel"><option>Platino</option><option>Oro</option><option>Plata</option><option>Bronce</option></select>
+          <select class="form-select" id="nivel" name="nivel" required>
+            <option value="">Elegí un nivel</option>
+            <option value="platino">Platino</option>
+            <option value="oro">Oro</option>
+            <option value="plata">Plata</option>
+            <option value="bronce">Bronce</option>
+          </select>
         </div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="aporte">Aporte económico</label><input class="form-control" id="aporte" type="number" min="0" placeholder="50000"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="aporte">Aporte económico</label><input class="form-control" id="aporte" name="aporte" type="number" min="1" placeholder="" required></div>
       </div>
       <div class="mb-3"><label class="form-label" for="tipo">Tipo de registro (gratuito)</label>
-        <select class="form-select" id="tipo"><option>Corredor 10K</option><option>Corredor 21K</option><option>Corredor 42K</option></select>
+        <select class="form-select" id="tipo" name="tipo" required>
+          <option value="">Elegí primero una edición</option>
+        </select>
       </div>
       <div class="row g-3">
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="cant">Cantidad de registros gratuitos</label><input class="form-control" id="cant" type="number" min="0" placeholder="5"></div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="codigo">Código de patrocinio</label><input class="form-control" id="codigo" type="text" placeholder="4821"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="cant">Cantidad de registros gratuitos</label><input class="form-control" id="cant" name="cant" type="number" min="0" placeholder="" required></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="codigo">Código de patrocinio</label><input class="form-control" id="codigo" name="codigo" type="text" placeholder="" required></div>
+      </div>
       </div>
       <p class="form-text">El costo de los registros gratuitos no puede superar el 20% del aporte.</p>
+      <div class="alert alert-danger d-none" id="error-patrocinio"></div>
+      <div class="alert alert-success d-none" id="exito-patrocinio"></div>
       <div class="d-flex gap-2 mt-3">
         <button class="btn btn-accent" type="submit">Crear patrocinio</button>
         <a class="btn btn-outline-secondary" href="index.html">Cancelar</a>
@@ -52,5 +65,113 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/cabezal.js"></script>
+  <script src="js/datos.js"></script>
+  <script>
+    // Quien tiene la sesion iniciada: el patrocinio se da de alta sobre MIS ediciones.
+    const yo = localStorage.getItem("demoNick") || "imm";
+
+    const selEvento = document.getElementById("evento");
+    const selEdicion = document.getElementById("edicion");
+    const selTipo = document.getElementById("tipo");
+    const selInst = document.getElementById("inst");
+
+    selEvento.innerHTML = '<option value="">Elegí un evento</option>' +
+            datos.eventos.map(function (evento) {
+              return '<option value="' + evento.id + '">' + evento.nombre + '</option>';
+            }).join("");
+
+    selInst.innerHTML = '<option value="">Elegí una institución</option>' +
+            datos.instituciones.map(function (institucion) {
+              return '<option value="' + institucion.id + '">' + institucion.nombre + '</option>';
+            }).join("");
+
+    // Al elegir un evento se cargan MIS ediciones de ese evento, en cualquier estado.
+    selEvento.addEventListener("change", function () {
+      const mias = datos.ediciones.filter(function (edicion) {
+        return edicion.eventoId === selEvento.value
+                && edicion.organizadorNickname === yo;
+      });
+
+      if (mias.length === 0) {
+        selEdicion.innerHTML = '<option value="">No organizás ediciones de este evento</option>';
+      } else {
+        selEdicion.innerHTML = '<option value="">Elegí una edición</option>' +
+                mias.map(function (edicion) {
+                  return '<option value="' + edicion.id + '">' +
+                          edicion.nombre + ' (' + edicion.estado + ')</option>';
+                }).join("");
+      }
+      selTipo.innerHTML = '<option value="">Elegí primero una edición</option>';
+    });
+
+    // Al elegir una edicion se cargan sus tipos de registro.
+    selEdicion.addEventListener("change", function () {
+      const tipos = datos.tiposRegistro.filter(function (tipo) {
+        return tipo.edicionId === selEdicion.value;
+      });
+
+      if (tipos.length === 0) {
+        selTipo.innerHTML = '<option value="">Esta edición no tiene tipos de registro</option>';
+      } else {
+        selTipo.innerHTML = '<option value="">Elegí un tipo</option>' +
+                tipos.map(function (tipo) {
+                  return '<option value="' + tipo.id + '">' +
+                          tipo.nombre + ' ($' + tipo.costo + ')</option>';
+                }).join("");
+      }
+    });
+
+    // ----- Validacion al enviar -----
+    const form = document.getElementById("form-patrocinio");
+    const error = document.getElementById("error-patrocinio");
+    const exito = document.getElementById("exito-patrocinio");
+
+    function mostrarError(texto) {
+      error.textContent = texto;
+      error.classList.remove("d-none");
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      error.classList.add("d-none");
+      exito.classList.add("d-none");
+
+      const edicionId = selEdicion.value;
+      const institucionId = selInst.value;
+      const aporte = Number(document.getElementById("aporte").value);
+      const cantidad = Number(document.getElementById("cant").value);
+      const codigo = document.getElementById("codigo").value.trim();
+      const tipo = datos.tiposRegistro.find(function (t) { return t.id === selTipo.value; });
+
+      const yaPatrocina = datos.patrocinios.some(function (p) {
+        return p.edicionId === edicionId && p.institucionId === institucionId;
+      });
+      if (yaPatrocina) {
+        mostrarError("Esa institución ya patrocina esta edición.");
+        return;
+      }
+
+      const codigoRepetido = datos.patrocinios.some(function (p) {
+        return p.codigo.toLowerCase() === codigo.toLowerCase();
+      });
+      if (codigoRepetido) {
+        mostrarError('Ya existe un patrocinio con el código "' + codigo + '".');
+        return;
+      }
+
+      const costoGratuitos = tipo.costo * cantidad;
+      const tope = aporte * 0.2;
+      if (costoGratuitos > tope) {
+        mostrarError("Los " + cantidad + " registros gratuitos de " + tipo.nombre +
+                " cuestan $" + costoGratuitos + ", y el 20% del aporte es $" +
+                tope + ". Bajá la cantidad o subí el aporte.");
+        return;
+      }
+
+      const hoy = new Date().toLocaleDateString("es-UY");
+      exito.textContent = "Patrocinio " + codigo + " creado con éxito el " + hoy + ".";
+      exito.classList.remove("d-none");
+    });
+  </script>
 </body>
 </html>
