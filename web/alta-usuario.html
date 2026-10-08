@@ -56,6 +56,8 @@
         <div class="mb-3"><label class="form-label" for="web">Sitio web (opcional)</label><input class="form-control" id="web" name="web" type="url" placeholder="https://"></div>
       </fieldset>
 
+      <div class="alert alert-danger d-none" id="error-alta"></div>
+      <div class="alert alert-success d-none" id="exito-alta"></div>
       <div class="d-flex gap-2 mt-4">
         <button class="btn btn-accent" type="submit">Crear cuenta</button>
         <a class="btn btn-outline-secondary" href="index.html">Cancelar</a>
@@ -87,6 +89,53 @@
         fo.hidden = !org;
         fo.disabled = !org;
       });
+    });
+    // ----- Validacion al enviar (caso de uso 3) -----
+    const form = document.getElementById("form-alta");
+    const error = document.getElementById("error-alta");
+    const exito = document.getElementById("exito-alta");
+
+    function mostrarError(texto) {
+      error.textContent = texto;
+      error.classList.remove("d-none");
+    }
+
+    form.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+
+      error.classList.add("d-none");
+      exito.classList.add("d-none");
+
+      const nick = document.getElementById("nick").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const pass = document.getElementById("pass").value;
+      const pass2 = document.getElementById("pass2").value;
+
+      const nickEnUso = datos.usuarios.some(function (u) {
+        return u.nickname.toLowerCase() === nick.toLowerCase();
+      });
+      if (nickEnUso) {
+        mostrarError('Ya existe un usuario con el nickname "' + nick + '".');
+        return;
+      }
+
+      const correoEnUso = datos.usuarios.some(function (u) {
+        return (u.correo || "").toLowerCase() === correo.toLowerCase();
+      });
+      if (correoEnUso) {
+        mostrarError('Ya existe un usuario con el correo "' + correo + '".');
+        return;
+      }
+
+      if (pass !== pass2) {
+        mostrarError("La contraseña y su confirmación no coinciden.");
+        return;
+      }
+
+      const hoy = new Date().toLocaleDateString("es-UY");
+      exito.textContent = "Usuario " + nick + " creado con éxito el " + hoy +
+              ". Ya podés iniciar sesión.";
+      exito.classList.remove("d-none");
     });
   </script>
 </body>

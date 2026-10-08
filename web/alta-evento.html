@@ -19,21 +19,20 @@
       <h1 class="ev-pagetitle">Crear un evento</h1>
     </section>
 
-    <form class="ev-form" onsubmit="return false">
-      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" type="text"></div>
-      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" rows="2"></textarea></div>
-      <div class="mb-3"><label class="form-label" for="sigla">Sigla</label><input class="form-control" id="sigla" type="text"></div>
+    <form class="ev-form" id="form-evento">
+      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" type="text" required></div>
+      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" name="desc" rows="2" required></textarea></div>
+      <div class="mb-3"><label class="form-label" for="sigla">Sigla</label><input class="form-control" id="sigla" name="sigla" type="text" required></div>
 
-      <label class="form-label d-block">Categorías (al menos una)</label>
-      <div class="mb-3 d-flex flex-wrap gap-3">
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="cTec"><label class="form-check-label" for="cTec">Tecnología</label></div>
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="cCul"><label class="form-check-label" for="cCul">Cultura</label></div>
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="cDep"><label class="form-check-label" for="cDep">Deporte</label></div>
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="cMus"><label class="form-check-label" for="cMus">Música</label></div>
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="cNeg"><label class="form-check-label" for="cNeg">Negocios</label></div>
-      </div>
+      <fieldset class="mb-3">
+        <legend class="form-label d-block">Categorías (al menos una)</legend>
+        <div id="lista-categorias" class="d-flex flex-wrap gap-3"></div>
+      </fieldset>
 
-      <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" type="file" accept="image/*"></div>
+      <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" name="imagen" type="file" accept="image/*"></div>
+
+      <div class="alert alert-danger d-none" id="error-evento"></div>
+      <div class="alert alert-success d-none" id="exito-evento"></div>
 
       <div class="d-flex gap-2 mt-4">
         <button class="btn btn-accent" type="submit">Crear evento</button>
@@ -44,5 +43,56 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/cabezal.js"></script>
+  <script src="js/datos.js"></script>
+  <script>
+    // Dibuja una casilla por cada categoria existente.
+    const contenedor = document.getElementById("lista-categorias");
+    contenedor.innerHTML = datos.categorias.map(function (categoria) {
+      return '<div class="form-check">' +
+              '<input class="form-check-input" type="checkbox" name="categorias"' +
+              ' id="cat-' + categoria.id + '" value="' + categoria.id + '">' +
+              '<label class="form-check-label" for="cat-' + categoria.id + '">' +
+              categoria.nombre +
+              '</label>' +
+              '</div>';
+    }).join("");
+
+    // ----- Validacion al enviar -----
+    const form = document.getElementById("form-evento");
+    const error = document.getElementById("error-evento");
+    const exito = document.getElementById("exito-evento");
+
+    function mostrarError(texto) {
+      error.textContent = texto;
+      error.classList.remove("d-none");
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+
+      error.classList.add("d-none");
+      exito.classList.add("d-none");
+
+      const nombre = document.getElementById("nombre").value.trim();
+      const elegidas = document.querySelectorAll('input[name="categorias"]:checked');
+
+      if (elegidas.length === 0) {
+        mostrarError("Elegí al menos una categoría para el evento.");
+        return;
+      }
+
+      const nombreEnUso = datos.eventos.some(function (evento) {
+        return evento.nombre.toLowerCase() === nombre.toLowerCase();
+      });
+      if (nombreEnUso) {
+        mostrarError('Ya existe un evento con el nombre "' + nombre + '".');
+        return;
+      }
+
+      const hoy = new Date().toLocaleDateString("es-UY");
+      exito.textContent = 'Evento "' + nombre + '" creado con éxito el ' + hoy + ".";
+      exito.classList.remove("d-none");
+    });
+  </script>
 </body>
 </html>

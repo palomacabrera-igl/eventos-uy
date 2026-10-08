@@ -8,9 +8,11 @@
 
 const datos = {
   categorias: [
-    { id: "1", nombre: "Ingeniería" },
-    { id: "2", nombre: "Charlas" },
-    { id: "3", nombre: "Talleres" }
+    { id: "tec", nombre: "Tecnología" },
+    { id: "cul", nombre: "Cultura" },
+    { id: "dep", nombre: "Deporte" },
+    { id: "mus", nombre: "Música" },
+    { id: "neg", nombre: "Negocios" }
   ],
 
   instituciones: [
@@ -79,7 +81,7 @@ const datos = {
       sigla: "JIAP",
       descripcion: "Jornadas de Ingeniería",
       fechaAlta: "2025-01-10",
-      categoriaIds: ["1"],
+      categoriaIds: ["tec"],
       imagen: "public/images/eventos/JIAP/eventoIng.png"
     },
     {
@@ -88,7 +90,7 @@ const datos = {
       sigla: "FL",
       descripcion: "Semana del libro",
       fechaAlta: "2017-01-01",
-      categoriaIds: ["2"],
+      categoriaIds: ["cul"],
       imagen: "public/images/eventos/FeriaDelLibro/eventoLibro.png"
     }
   ],
