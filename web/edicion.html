@@ -121,7 +121,7 @@
       document.getElementById("fin").textContent = fecha(edicion.fechaFin);
       document.getElementById("alta").textContent = fecha(edicion.fechaAlta);
       document.getElementById("organizador").innerHTML =
-              '<a href="perfil.html?nick=' + organizador.nickname + '">' + organizador.nombre + '</a>';
+              '<a href="perfil.html?nickname=' + organizador.nickname + '">' + organizador.nombre + '</a>';
 
       const tipos = datos.tiposRegistro.filter(function (t) {
         return t.edicionId === edicion.id;
