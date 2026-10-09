@@ -5,6 +5,9 @@
    una página puede ocultarla poniendo data-cats="no" en ese div
    (ej. el detalle de evento). El rol se guarda en localStorage; las
    categorías enlazan a la home filtrada (index.html?cat=...).
+   IMPORTANTE: datos.js se carga ANTES que este archivo en todas las
+   páginas, para que las categorías salgan de los datos reales. La lista
+   CATS de abajo es solo un respaldo por si algún día falta.
    ============================================================ */
 (function () {
   // Categorías: salen de datos.js cuando está cargado (home); si no, un fallback.
