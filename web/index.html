@@ -27,32 +27,22 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- datos.js ANTES de cabezal.js: así el cabezal arma las categorías con las reales -->
+  <script src="js/datos.js"></script>
   <script src="assets/js/cabezal.js"></script>
   <script>
-    const EVENTOS = [
-      { n: "Montevideo Rock",           cat: "Música",     lugar: "Antel Arena",               fecha: "14 nov 2026", tono: "ink" },
-      { n: "Maratón de Montevideo",     cat: "Deporte",    lugar: "Rambla de Montevideo",      fecha: "21 set 2026", tono: "ink" },
-      { n: "Montevideo Comics",         cat: "Cultura",    lugar: "LATU",                      fecha: "3 oct 2026",  tono: "paper" },
-      { n: "DevFest Montevideo",        cat: "Tecnología", lugar: "UTEC",                      fecha: "21 jun 2026", tono: "ink" },
-      { n: "Expo Negocios UY",          cat: "Negocios",   lugar: "Radisson",                  fecha: "9 may 2026",  tono: "paper" },
-      { n: "Noche de la Nostalgia",     cat: "Música",     lugar: "Varios locales",            fecha: "24 ago 2026", tono: "ink" },
-      { n: "Punta Tech Meetup",         cat: "Tecnología", lugar: "Punta del Este",            fecha: "15 feb 2026", tono: "paper" },
-      { n: "Hackathon ANII",            cat: "Tecnología", lugar: "LATU",                      fecha: "3 abr 2026",  tono: "ink" },
-      { n: "Feria del Libro",           cat: "Cultura",    lugar: "Intendencia de Montevideo", fecha: "2 oct 2026",  tono: "paper" },
-      { n: "Noche de los Museos",       cat: "Cultura",    lugar: "Ciudad Vieja",              fecha: "11 dic 2026", tono: "ink" },
-      { n: "Clásico del fútbol",        cat: "Deporte",    lugar: "Estadio Centenario",        fecha: "5 jul 2026",  tono: "paper" },
-      { n: "Torneo de Verano",          cat: "Deporte",    lugar: "Maldonado",                 fecha: "10 ene 2026", tono: "ink" },
-      { n: "Cosquín Rock Uruguay",      cat: "Música",     lugar: "Parque Roosevelt",          fecha: "7 mar 2026",  tono: "paper" },
-      { n: "Punta del Este Convention", cat: "Negocios",   lugar: "Punta del Este",            fecha: "18 set 2026", tono: "paper" },
-      { n: "Foro de Emprendedores ANDE",cat: "Negocios",   lugar: "LATU",                      fecha: "26 jun 2026", tono: "ink" },
-    ];
-    const USUARIOS = [
-      { nick: "vale23", nombre: "Valentina Díaz",            rol: "Asistente" },
-      { nick: "imm",    nombre: "Intendencia de Montevideo", rol: "Organizador" },
-      { nick: "jperez", nombre: "Juan Pérez",                rol: "Asistente" },
-      { nick: "antel",  nombre: "ANTEL",                     rol: "Organizador" },
-    ];
+    // Helpers chicos
     const ini = (t) => (t.trim()[0] || "?").toUpperCase();
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+    // Nombres de las categorías de un evento (de ids -> nombres)
+    function nombresCats(ev) {
+      return ev.categoriaIds
+        .map((id) => { const c = datos.categorias.find((c) => c.id === id); return c ? c.nombre : null; })
+        .filter(Boolean);
+    }
+
+    // Categoría activa (viene del cabezal: index.html?cat=Ingeniería)
     let catOn = null;
     try { catOn = new URLSearchParams(location.search).get("cat"); } catch (e) {}
 
@@ -61,32 +51,45 @@
     const usersPanel = document.getElementById("usersPanel");
 
     function renderBoard() {
-      const lista = catOn ? EVENTOS.filter((e) => e.cat === catOn) : EVENTOS;
+      // Si hay categoría elegida, filtro los eventos que la tienen
+      const lista = catOn
+        ? datos.eventos.filter((e) => nombresCats(e).includes(catOn))
+        : datos.eventos;
+
       if (catOn) { fnote.hidden = false; fnote.innerHTML = lista.length + " evento(s) en <b>" + catOn + "</b>"; }
       else { fnote.hidden = true; }
+
       board.innerHTML = lista.map((e, i) => {
-        const feat = !catOn && i === 0;
-        const tono = feat ? "accent" : e.tono;
+        const feat = !catOn && i === 0;                 // el primero, destacado
+        const tono = feat ? "accent" : (i % 2 ? "paper" : "ink");
         const col = feat ? "col-12 col-lg-8" : "col-12 col-sm-6 col-lg-4";
-        return '<div class="' + col + " ev-card-wrap" + (feat ? " featured" : "") + '">' +
-          '<article class="ev-card">' +
-            '<div class="ev-poster ev-poster--' + tono + '">' +
-              '<div class="ev-poster-top"><span>' + e.cat + "</span><span>" + (feat ? "Destacado" : e.fecha) + "</span></div>" +
-              '<div class="ev-poster-title">' + e.n + "</div></div>" +
-            '<div class="ev-cardbody">' +
-              '<div class="ev-meta"><b>' + e.lugar + "</b><br>" + e.fecha + "</div>" +
-              '<a class="btn btn-outline-secondary btn-sm" href="evento.html">Ver evento</a></div>' +
-          "</article></div>";
+        const cats = nombresCats(e).join(" · ");
+        return `<div class="${col} ev-card-wrap${feat ? " featured" : ""}">
+          <article class="ev-card">
+            <div class="ev-poster ev-poster--${tono}">
+              <div class="ev-poster-top"><span>${cats}</span><span>${feat ? "Destacado" : ""}</span></div>
+              <div class="ev-poster-title">${e.nombre}</div>
+            </div>
+            <div class="ev-cardbody">
+              <div class="ev-meta"><b>${e.sigla}</b></div>
+              <a class="btn btn-outline-secondary btn-sm" href="evento.html?id=${e.id}">Ver evento</a>
+            </div>
+          </article>
+        </div>`;
       }).join("");
     }
+
     function renderUsers() {
-      usersPanel.innerHTML = USUARIOS.map((u) =>
-        '<a class="ev-user" href="perfil.html">' +
-          '<div class="ev-ava">' + ini(u.nombre) + "</div>" +
-          "<div><div class=\"ev-uname\">" + u.nombre + "</div><div class=\"ev-uhandle\">@" + u.nick + "</div></div>" +
-          '<span class="ev-utag">' + u.rol + "</span></a>"
-      ).join("");
+      usersPanel.innerHTML = datos.usuarios.map((u) => {
+        const nombre = u.nombre + (u.apellido ? " " + u.apellido : "");
+        return `<a class="ev-user" href="perfil.html?nickname=${u.nickname}">
+          <div class="ev-ava">${ini(u.nombre)}</div>
+          <div><div class="ev-uname">${nombre}</div><div class="ev-uhandle">@${u.nickname}</div></div>
+          <span class="ev-utag">${cap(u.rol)}</span>
+        </a>`;
+      }).join("");
     }
+
     function verTab(cual) {
       const ev = cual === "eventos";
       document.getElementById("tab-eventos").classList.toggle("active", ev);

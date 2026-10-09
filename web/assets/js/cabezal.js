@@ -5,7 +5,10 @@
    filtrada (index.html?cat=...).
    ============================================================ */
 (function () {
-  const CATS = ["Tecnología", "Cultura", "Deporte", "Música", "Negocios"];
+  // Categorías: salen de datos.js cuando está cargado (home); si no, un fallback.
+  const CATS = (typeof datos !== "undefined" && datos.categorias)
+    ? datos.categorias.map(function (c) { return c.nombre; })
+    : ["Ingeniería", "Charlas", "Talleres"];
 
   // Rol actual (sesión simulada)
   let rol = "visitante";
