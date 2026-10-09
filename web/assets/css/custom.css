@@ -21,15 +21,18 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .btn-accent:hover { background: #a62e0c; color: #fff; }
 .ev-who { font-weight: 600; font-size: .9rem; line-height: 1.1; }
 .ev-who small { display: block; font-family: var(--ev-mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ev-muted); font-weight: 400; }
-.ev-cats { display: flex; gap: 7px; flex-wrap: wrap; padding-bottom: 12px; }
+/* Barra de categorías (debajo del cabezal, estilo YouTube) */
+.ev-catbar { background: var(--ev-bg); border-bottom: 1px solid var(--ev-border); }
+.ev-catbar > .container { display: flex; align-items: center; gap: 8px; overflow-x: auto; white-space: nowrap; padding-top: 10px; padding-bottom: 10px; scrollbar-width: thin; }
+.ev-catbar .ev-chip { flex: 0 0 auto; }
+.ev-catbar > .container::-webkit-scrollbar { height: 6px; }
+.ev-catbar > .container::-webkit-scrollbar-thumb { background: var(--ev-border); border-radius: 999px; }
 .ev-chip { font-family: var(--ev-mono); font-size: .76rem; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ev-border); background: transparent; color: var(--ev-ink); text-decoration: none; display: inline-block; transition: border-color .15s, background .15s, color .15s; }
 .ev-chip:hover { border-color: var(--ev-ink); }
 .ev-chip.active { background: var(--ev-accent); border-color: var(--ev-accent); color: var(--ev-accent-ink); }
 
-/* ---------- Hero / encabezado de página ---------- */
-.ev-hero { padding: 3.5rem 0 1.5rem; max-width: 60ch; }
+/* ---------- Encabezado de página ---------- */
 .ev-kicker { font-family: var(--ev-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .2em; color: var(--ev-accent); margin: 0 0 1rem; }
-.ev-h1 { font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin: 0; font-size: clamp(2.3rem, 6vw, 4rem); }
 .ev-sub { color: var(--ev-muted); font-size: 1.05rem; margin: 1.1rem 0 0; max-width: 46ch; }
 
 .ev-pagehead { padding: 2.4rem 0 1.4rem; }
@@ -49,18 +52,16 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-fnote { font-family: var(--ev-mono); font-size: .78rem; color: var(--ev-muted); margin-bottom: 1rem; }
 .ev-fnote b { color: var(--ev-ink); }
 
-/* ---------- Tarjeta / póster de evento ---------- */
+/* ---------- Tarjeta de evento (home) ---------- */
 .ev-card { border: 1px solid var(--ev-border); border-radius: 4px; overflow: hidden; background: #fff; height: 100%; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s; }
 .ev-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
 .ev-poster { aspect-ratio: 5/4; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
-.ev-card-wrap.featured .ev-poster { aspect-ratio: 16/9; }
 .ev-poster--ink    { background: var(--ev-poster-ink-bg);   color: var(--ev-poster-ink-fg); }
 .ev-poster--paper  { background: var(--ev-poster-paper-bg); color: var(--ev-poster-paper-fg); }
-.ev-poster--accent { background: var(--ev-accent);          color: var(--ev-accent-ink); }
 .ev-poster-top { display: flex; justify-content: space-between; font-family: var(--ev-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
 .ev-poster-title { font-weight: 800; letter-spacing: -.03em; line-height: .98; text-transform: uppercase; font-size: 1.9rem; }
-.ev-card-wrap.featured .ev-poster-title { font-size: clamp(2.2rem, 5vw, 3.2rem); }
-.ev-cardbody { padding: 14px 16px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1; }
+.ev-cardbody { padding: 14px 16px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
+.ev-carddesc { color: var(--ev-muted); font-size: .9rem; line-height: 1.45; margin: 0; }
 .ev-meta { font-family: var(--ev-mono); font-size: .72rem; color: var(--ev-muted); line-height: 1.5; }
 .ev-meta b { color: var(--ev-ink); font-weight: 600; }
 

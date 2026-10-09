@@ -21,21 +21,21 @@
 
     <form class="ev-form" onsubmit="return false">
       <div class="mb-3"><label class="form-label" for="evento">Evento</label>
-        <select class="form-select" id="evento">
+        <select class="form-select" id="evento" name="evento">
           <option>Maratón de Montevideo</option><option>Montevideo Comics</option><option>Montevideo Rock</option>
         </select>
       </div>
-      <div class="mb-3"><label class="form-label" for="nombre">Nombre de la edición</label><input class="form-control" id="nombre" type="text"></div>
-      <div class="mb-3"><label class="form-label" for="sigla">Sigla</label><input class="form-control" id="sigla" type="text"></div>
+      <div class="mb-3"><label class="form-label" for="nombre">Nombre de la edición</label><input class="form-control" id="nombre" name="nombre" type="text"></div>
+      <div class="mb-3"><label class="form-label" for="sigla">Sigla</label><input class="form-control" id="sigla" name="sigla" type="text"></div>
       <div class="row g-3">
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ciudad">Ciudad</label><input class="form-control" id="ciudad" type="text"></div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="pais">País</label><input class="form-control" id="pais" type="text" value="Uruguay"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ciudad">Ciudad</label><input class="form-control" id="ciudad" name="ciudad" type="text"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="pais">País</label><input class="form-control" id="pais" name="pais" type="text" value="Uruguay"></div>
       </div>
       <div class="row g-3">
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ini">Fecha de inicio</label><input class="form-control" id="ini" type="date"></div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="fin">Fecha de fin</label><input class="form-control" id="fin" type="date"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ini">Fecha de inicio</label><input class="form-control" id="ini" name="ini" type="date"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="fin">Fecha de fin</label><input class="form-control" id="fin" name="fin" type="date"></div>
       </div>
-      <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" type="file" accept="image/*"></div>
+      <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" name="imagen" type="file" accept="image/*"></div>
 
       <p class="form-text">La edición queda en estado <b>Ingresada</b> hasta que el administrador la acepte o rechace.</p>
       <div class="d-flex gap-2 mt-3">

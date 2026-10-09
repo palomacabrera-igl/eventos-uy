@@ -1,14 +1,16 @@
 /* ============================================================
-   eventos.uy — cabezal + footer compartidos (Parte 1, sesión simulada).
-   Cada página incluye <div id="cabezal"></div> y este script.
-   El rol se guarda en localStorage; las categorías enlazan a la home
-   filtrada (index.html?cat=...).
+   eventos.uy — cabezal + barra de categorías + footer compartidos
+   (Parte 1, sesión simulada). Cada página incluye <div id="cabezal"></div>
+   y este script. Las categorías van en una tira propia DEBAJO del cabezal;
+   una página puede ocultarla poniendo data-cats="no" en ese div
+   (ej. el detalle de evento). El rol se guarda en localStorage; las
+   categorías enlazan a la home filtrada (index.html?cat=...).
    ============================================================ */
 (function () {
   // Categorías: salen de datos.js cuando está cargado (home); si no, un fallback.
   const CATS = (typeof datos !== "undefined" && datos.categorias)
     ? datos.categorias.map(function (c) { return c.nombre; })
-    : ["Ingeniería", "Charlas", "Talleres"];
+    : ["Tecnología", "Cultura", "Deporte", "Música", "Negocios"];
 
   // Rol actual (sesión simulada)
   let rol = "visitante";
@@ -49,8 +51,6 @@
     return h;
   }
 
-  const opt = (v, t) => '<option value="' + v + '"' + (v === rol ? " selected" : "") + ">" + t + "</option>";
-
   const headerHTML =
     '<header class="ev-header"><div class="container">' +
       '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">' +
@@ -59,7 +59,6 @@
           '<nav class="d-flex align-items-center gap-2 flex-wrap" aria-label="Sesión">' + authHTML() + '</nav>' +
         '</div>' +
       '</div>' +
-      '<div class="ev-cats" aria-label="Categorías">' + catsHTML() + '</div>' +
     '</div></header>';
 
   const footerHTML =
@@ -67,10 +66,17 @@
       '<span>eventos.uy</span><span>Cartelera de eventos de Uruguay</span>' +
     '</div></footer>';
 
-  // Insertar el cabezal
+  // ¿Mostrar la tira de categorías? Se oculta en las páginas que lo pidan
+  // con data-cats="no" en el <div id="cabezal"> (ej. detalle de evento).
   const slot = document.getElementById("cabezal");
-  if (slot) { slot.outerHTML = headerHTML; }
-  else { document.body.insertAdjacentHTML("afterbegin", headerHTML); }
+  const mostrarCats = !slot || slot.dataset.cats !== "no";
+  const catbarHTML = mostrarCats
+    ? '<nav class="ev-catbar" aria-label="Categorías"><div class="container">' + catsHTML() + '</div></nav>'
+    : "";
+
+  // Insertar el cabezal (y la tira de categorías cuando corresponde)
+  if (slot) { slot.outerHTML = headerHTML + catbarHTML; }
+  else { document.body.insertAdjacentHTML("afterbegin", headerHTML + catbarHTML); }
 
   // Insertar el footer al final del body
   document.body.insertAdjacentHTML("beforeend", footerHTML);

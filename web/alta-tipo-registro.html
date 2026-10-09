@@ -21,15 +21,15 @@
 
     <form class="ev-form" onsubmit="return false">
       <div class="mb-3"><label class="form-label" for="edicion">Edición</label>
-        <select class="form-select" id="edicion">
+        <select class="form-select" id="edicion" name="edicion">
           <option>Maratón de Montevideo 2025</option><option>Maratón de Montevideo 2022</option>
         </select>
       </div>
-      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" type="text" placeholder="Corredor 10K"></div>
-      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" rows="2"></textarea></div>
+      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" type="text" placeholder="Corredor 10K"></div>
+      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" name="desc" rows="2"></textarea></div>
       <div class="row g-3">
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="costo">Costo</label><input class="form-control" id="costo" type="number" min="0" placeholder="1200"></div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="cupo">Cupo</label><input class="form-control" id="cupo" type="number" min="0" placeholder="500"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="costo">Costo</label><input class="form-control" id="costo" name="costo" type="number" min="0" placeholder="1200"></div>
+        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="cupo">Cupo</label><input class="form-control" id="cupo" name="cupo" type="number" min="0" placeholder="500"></div>
       </div>
       <div class="d-flex gap-2 mt-3">
         <button class="btn btn-accent" type="submit">Crear tipo de registro</button>

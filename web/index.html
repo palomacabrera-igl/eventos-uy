@@ -60,18 +60,16 @@
       else { fnote.hidden = true; }
 
       board.innerHTML = lista.map((e, i) => {
-        const feat = !catOn && i === 0;                 // el primero, destacado
-        const tono = feat ? "accent" : (i % 2 ? "paper" : "ink");
-        const col = feat ? "col-12 col-lg-8" : "col-12 col-sm-6 col-lg-4";
+        const tono = i % 2 ? "paper" : "ink";          // alterna el color del póster
         const cats = nombresCats(e).join(" · ");
-        return `<div class="${col} ev-card-wrap${feat ? " featured" : ""}">
+        return `<div class="col-12 col-sm-6 col-lg-4 ev-card-wrap">
           <article class="ev-card">
             <div class="ev-poster ev-poster--${tono}">
-              <div class="ev-poster-top"><span>${cats}</span><span>${feat ? "Destacado" : ""}</span></div>
+              <div class="ev-poster-top"><span>${cats}</span></div>
               <div class="ev-poster-title">${e.nombre}</div>
             </div>
             <div class="ev-cardbody">
-              <div class="ev-meta"><b>${e.sigla}</b></div>
+              <p class="ev-carddesc">${e.descripcion}</p>
               <a class="btn btn-outline-secondary btn-sm" href="evento.html?id=${e.id}">Ver evento</a>
             </div>
           </article>
