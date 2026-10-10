@@ -1,9 +1,9 @@
 /* ============================================================
    eventos.uy — cabezal + barra de categorías + footer compartidos
    (Parte 1, sesión simulada). Cada página incluye <div id="cabezal"></div>
-   y este script. Las categorías van en una tira propia DEBAJO del cabezal;
-   una página puede ocultarla poniendo data-cats="no" en ese div
-   (ej. el detalle de evento). El rol se guarda en localStorage; las
+   y este script. Las categorías van en una tira propia DEBAJO del cabezal,
+   pero SOLO en la home (index.html), que es donde sirven para filtrar.
+   El rol se guarda en localStorage; las
    categorías enlazan a la home filtrada (index.html?cat=...).
    IMPORTANTE: datos.js se carga ANTES que este archivo en todas las
    páginas, para que las categorías salgan de los datos reales. La lista
@@ -69,11 +69,12 @@
       '<span>eventos.uy</span><span>Cartelera de eventos de Uruguay</span>' +
     '</div></footer>';
 
-  // ¿Mostrar la tira de categorías? Se oculta en las páginas que lo pidan
-  // con data-cats="no" en el <div id="cabezal"> (ej. detalle de evento).
+  // La tira de categorías es solo para filtrar en la home (index.html);
+  // en el resto de las páginas no aporta, así que no se muestra.
   const slot = document.getElementById("cabezal");
-  const mostrarCats = !slot || slot.dataset.cats !== "no";
-  const catbarHTML = mostrarCats
+  const archivo = location.pathname.split("/").pop();
+  const esHome = archivo === "" || archivo === "index.html";
+  const catbarHTML = esHome
     ? '<nav class="ev-catbar" aria-label="Categorías"><div class="container">' + catsHTML() + '</div></nav>'
     : "";
 
