@@ -62,9 +62,16 @@
       board.innerHTML = lista.map((e, i) => {
         const tono = i % 2 ? "paper" : "ink";          // alterna el color del póster
         const cats = nombresCats(e).join(" · ");
+        // La letra pide mostrar la imagen "si tiene". El evento que no tiene
+        // conserva el cuadro de color, asi todas las tarjetas miden igual.
+        const fondo = e.imagen
+          ? `<img class="ev-poster-img" src="${e.imagen}" alt="Imagen del evento ${e.nombre}">`
+          : "";
+        const clase = e.imagen ? "ev-poster--foto" : `ev-poster--${tono}`;
         return `<div class="col-12 col-sm-6 col-lg-4 ev-card-wrap">
           <article class="ev-card">
-            <div class="ev-poster ev-poster--${tono}">
+            <div class="ev-poster ${clase}">
+              ${fondo}
               <div class="ev-poster-top"><span>${cats}</span></div>
               <div class="ev-poster-title">${e.nombre}</div>
             </div>

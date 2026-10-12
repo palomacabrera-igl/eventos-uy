@@ -17,6 +17,11 @@
       <h1 class="ev-pagetitle">Crear un patrocinio</h1>
     </section>
 
+    <div id="solo-organizadores" role="alert" class="alert alert-warning d-none">
+      Solo un organizador con la sesión iniciada puede crear un patrocinio.
+      <a href="login.html">Iniciá sesión</a> para continuar.
+    </div>
+
     <form class="ev-form" id="form-patrocinio">
       <div class="mb-3"><label class="form-label" for="evento">Evento</label>
         <select class="form-select" id="evento" name="evento" required></select>
@@ -65,8 +70,18 @@
   <script src="js/datos.js"></script>
   <script src="assets/js/cabezal.js"></script>
   <script>
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
+    const rol = leer("demoRol") || "visitante";
     // Quien tiene la sesion iniciada: el patrocinio se da de alta sobre MIS ediciones.
-    const yo = localStorage.getItem("demoNick") || "imm";
+    const yo = leer("demoNick");
+
+    // La letra: el actor de este caso de uso es el Organizador.
+    if (rol !== "organizador") {
+      document.getElementById("form-patrocinio").hidden = true;
+      document.getElementById("solo-organizadores").classList.remove("d-none");
+    }
 
     const selEvento = document.getElementById("evento");
     const selEdicion = document.getElementById("edicion");

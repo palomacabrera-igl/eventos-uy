@@ -17,6 +17,11 @@
       <h1 class="ev-pagetitle">Crear un evento</h1>
     </section>
 
+    <div id="solo-organizadores" role="alert" class="alert alert-warning d-none">
+      Solo un organizador con la sesión iniciada puede crear un evento.
+      <a href="login.html">Iniciá sesión</a> para continuar.
+    </div>
+
     <form class="ev-form" id="form-evento">
       <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" type="text" required></div>
       <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" name="desc" rows="2" required></textarea></div>
@@ -56,7 +61,17 @@
     }).join("");
 
     // ----- Validacion al enviar -----
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
     const form = document.getElementById("form-evento");
+
+    // La letra: el actor de este caso de uso es el Organizador.
+    if ((leer("demoRol") || "visitante") !== "organizador") {
+      form.hidden = true;
+      document.getElementById("solo-organizadores").classList.remove("d-none");
+    }
+
     const error = document.getElementById("error-evento");
     const exito = document.getElementById("exito-evento");
 

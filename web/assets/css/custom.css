@@ -63,6 +63,13 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-poster { aspect-ratio: 5/4; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
 .ev-poster--ink    { background: var(--ev-poster-ink-bg);   color: var(--ev-poster-ink-fg); }
 .ev-poster--paper  { background: var(--ev-poster-paper-bg); color: var(--ev-poster-paper-fg); }
+/* Tarjeta con foto: la imagen va detras y el texto encima, con un velo oscuro
+   abajo para que el nombre del evento se lea sobre cualquier foto. */
+.ev-poster--foto { position: relative; color: #fff; }
+.ev-poster-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ev-poster--foto::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.10)); }
+.ev-poster--foto .ev-poster-top, .ev-poster--foto .ev-poster-title { position: relative; z-index: 1; }
 .ev-poster-top { display: flex; justify-content: space-between; font-family: var(--ev-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
 .ev-poster-title { font-weight: 800; letter-spacing: -.03em; line-height: .98; text-transform: uppercase; font-size: 1.9rem; }
 .ev-cardbody { padding: 14px 16px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
