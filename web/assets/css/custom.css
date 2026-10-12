@@ -13,6 +13,11 @@
 }
 body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-sans); }
 
+/* Campo de solo lectura: se puede leer y copiar, pero no editar. Bootstrap pinta
+   los disabled y no los readonly, asi que la diferencia la marcamos nosotros. */
+.form-control[readonly] { background: var(--ev-poster-paper-bg); color: var(--ev-muted);
+  cursor: not-allowed; }
+
 /* ---------- Cabezal ---------- */
 .ev-header { position: sticky; top: 0; z-index: 1020; background: var(--ev-bg); border-bottom: 1px solid var(--ev-border); }
 .ev-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.03em; color: var(--ev-ink); text-decoration: none; }

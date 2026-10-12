@@ -164,6 +164,8 @@
       const mia = esMiEdicion(edicion);
 
       verSi("btn-registros", mia);
+      document.getElementById("btn-registros").href =
+        "consulta-registro.html?edicion=" + edicion.id;
       verSi("btn-alta-tipo", mia);
       verSi("btn-alta-patrocinio", mia);
 
