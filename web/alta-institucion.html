@@ -19,11 +19,20 @@
       <h1 class="ev-pagetitle">Crear una institución</h1>
     </section>
 
-    <form class="ev-form" onsubmit="return false">
-      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" type="text"></div>
-      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" name="desc" rows="2"></textarea></div>
-      <div class="mb-3"><label class="form-label" for="web">Sitio web</label><input class="form-control" id="web" name="web" type="url" placeholder="https://"></div>
+    <div id="solo-organizadores" class="alert alert-warning d-none">
+      Solo un organizador con la sesión iniciada puede crear una institución.
+      <a href="login.html">Iniciá sesión</a> para continuar.
+    </div>
+
+    <form class="ev-form" id="form-institucion">
+      <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" type="text" required></div>
+      <div class="mb-3"><label class="form-label" for="desc">Descripción</label><textarea class="form-control" id="desc" name="desc" rows="2" required></textarea></div>
+      <div class="mb-3"><label class="form-label" for="web">Sitio web</label><input class="form-control" id="web" name="web" type="url" placeholder="https://" required></div>
       <div class="mb-3"><label class="form-label" for="imagen">Imagen (opcional)</label><input class="form-control" id="imagen" name="imagen" type="file" accept="image/*"></div>
+
+      <div class="alert alert-danger d-none" id="error-institucion"></div>
+      <div class="alert alert-success d-none" id="exito-institucion"></div>
+
       <div class="d-flex gap-2 mt-4">
         <button class="btn btn-accent" type="submit">Crear institución</button>
         <a class="btn btn-outline-secondary" href="index.html">Cancelar</a>
@@ -34,5 +43,44 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/datos.js"></script>
   <script src="assets/js/cabezal.js"></script>
+  <script>
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
+    const rol = leer("demoRol") || "visitante";
+
+    const form = document.getElementById("form-institucion");
+    const error = document.getElementById("error-institucion");
+    const exito = document.getElementById("exito-institucion");
+
+    // La letra: el actor de este caso de uso es el Organizador.
+    if (rol !== "organizador") {
+      form.hidden = true;
+      document.getElementById("solo-organizadores").classList.remove("d-none");
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      error.classList.add("d-none");
+      exito.classList.add("d-none");
+
+      const campoNombre = document.getElementById("nombre");
+      const nombre = campoNombre.value.trim();
+
+      // La letra: el nombre es unico en la plataforma.
+      const enUso = datos.instituciones.some(function (i) {
+        return i.nombre.toLowerCase() === nombre.toLowerCase();
+      });
+      if (enUso) {
+        error.textContent = 'Ya existe una institución con el nombre "' + nombre + '".';
+        error.classList.remove("d-none");
+        campoNombre.focus();
+        return;
+      }
+
+      exito.textContent = 'Institución "' + nombre + '" creada con éxito.';
+      exito.classList.remove("d-none");
+    });
+  </script>
 </body>
 </html>
