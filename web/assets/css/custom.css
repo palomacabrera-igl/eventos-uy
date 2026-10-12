@@ -29,6 +29,11 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-catbar > .container::-webkit-scrollbar-thumb { background: var(--ev-border); border-radius: 999px; }
 .ev-chip { font-family: var(--ev-mono); font-size: .76rem; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ev-border); background: transparent; color: var(--ev-ink); text-decoration: none; display: inline-block; transition: border-color .15s, background .15s, color .15s; }
 .ev-chip:hover { border-color: var(--ev-ink); }
+/* Quien navega con el teclado tiene que ver donde esta parado. */
+.ev-chip:focus-visible, .ev-row:focus-visible, .ev-user:focus-visible,
+.ev-back:focus-visible, .ev-brand:focus-visible {
+  outline: 2px solid var(--ev-accent); outline-offset: 2px; border-radius: 3px;
+}
 .ev-chip.active { background: var(--ev-accent); border-color: var(--ev-accent); color: var(--ev-accent-ink); }
 
 /* ---------- Encabezado de página ---------- */

@@ -20,23 +20,23 @@
     <!-- Parte 1: el login valida contra los usuarios de datos.js y guarda el rol
          simulado en localStorage. En la Parte 2 lo resuelve un servlet. -->
     <form class="ev-form" id="form-login">
-      <div class="alert alert-danger d-none" id="error-login">
+      <div role="alert" class="alert alert-danger d-none" id="error-login">
         No existe un usuario con ese nickname o correo, o la contraseña no es correcta.
       </div>
       <div class="mb-3">
         <label class="form-label" for="usuario">Nickname o correo electrónico</label>
-        <input class="form-control" id="usuario" name="usuario" type="text" placeholder="" required>
+        <input class="form-control" id="usuario" name="usuario" type="text" autocomplete="username" placeholder="" required>
       </div>
       <div class="mb-3">
         <label class="form-label" for="pass">Contraseña</label>
-        <input class="form-control" id="pass" name="pass" type="password" placeholder="" required>
+        <input class="form-control" id="pass" name="pass" type="password" autocomplete="current-password" placeholder="" required>
       </div>
       <div class="d-flex gap-2 mt-4">
         <button class="btn btn-accent" type="submit">Ingresar</button>
         <a class="btn btn-outline-secondary" href="index.html">Cancelar</a>
       </div>
       <p class="form-text mt-3">¿No tenés cuenta? <a href="alta-usuario.html">Registrate</a>.</p>
-      <div class="alert alert-secondary mt-4">
+      <div role="alert" class="alert alert-secondary mt-4">
         <strong>Usuarios de prueba (Parte 1)</strong>
         <ul class="mb-0 mt-2">
           <li>Asistente con institución: <code>vale23</code> / <code>Vale2026!</code></li>
