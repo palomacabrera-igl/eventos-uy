@@ -85,6 +85,9 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 /* ---------- Listas de usuarios ---------- */
 .ev-user { display: flex; align-items: center; gap: 14px; padding: 16px 2px; border-bottom: 1px solid var(--ev-border); cursor: pointer; text-decoration: none; color: inherit; }
 .ev-user:hover .ev-uname { color: var(--ev-accent); }
+/* El avatar es un cuadrado oscuro cuando muestra la inicial. Si adentro va
+   una imagen, ese fondo asomaria por las zonas transparentes del PNG. */
+img.ev-ava { object-fit: cover; background: transparent; }
 .ev-ava { width: 42px; height: 42px; border-radius: 4px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--ev-poster-ink-bg); color: var(--ev-poster-ink-fg); }
 .ev-uname { font-weight: 600; }
 .ev-uhandle { font-family: var(--ev-mono); font-size: .7rem; color: var(--ev-muted); }

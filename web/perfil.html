@@ -13,7 +13,7 @@
 
   <main class="container">
     <section class="ev-pagehead">
-      <a class="ev-back" href="index.html">&larr; Volver a la cartelera</a>
+      <a class="ev-back" id="volver" href="index.html">&larr; Volver a la cartelera</a>
     </section>
 
     <div id="sin-usuario" class="alert alert-warning d-none">
@@ -302,6 +302,22 @@
     // ---------- De quien es el perfil que hay que mostrar ----------
     const params = new URLSearchParams(location.search);
     const pedido = params.get("nickname") || yo;
+
+    // El "volver" tiene que devolver a donde se vino, no a un lugar cualquiera.
+    const volver = document.getElementById("volver");
+    const destino = params.get("volver");
+    if (destino) {
+      volver.href = destino;
+      // Si se vino de una edicion, el enlace dice su nombre.
+      const esEdicion = destino.match(/^edicion\.html\?id=(\w+)$/);
+      const edicion = esEdicion
+        ? datos.ediciones.find(function (e) { return e.id === esEdicion[1]; })
+        : null;
+      volver.textContent = edicion ? "\u2190 Volver a " + edicion.nombre : "\u2190 Volver";
+    } else if (params.get("nickname")) {
+      volver.textContent = "\u2190 Volver al listado de usuarios";
+      volver.href = "index.html#usuarios";
+    }
     const usuario = pedido
       ? datos.usuarios.find(function (u) { return u.nickname === pedido; })
       : null;

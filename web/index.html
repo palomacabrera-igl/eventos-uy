@@ -87,8 +87,13 @@
     function renderUsers() {
       usersPanel.innerHTML = datos.usuarios.map((u) => {
         const nombre = u.nombre + (u.apellido ? " " + u.apellido : "");
+        // La letra pide mostrar la imagen "si tiene". Quien no tiene conserva
+        // el circulo con su inicial.
+        const avatar = u.imagen
+          ? `<img class="ev-ava" src="${u.imagen}" alt="Imagen de ${nombre}">`
+          : `<div class="ev-ava">${ini(u.nombre)}</div>`;
         return `<a class="ev-user" href="perfil.html?nickname=${u.nickname}">
-          <div class="ev-ava">${ini(u.nombre)}</div>
+          ${avatar}
           <div><div class="ev-uname">${nombre}</div><div class="ev-uhandle">@${u.nickname}</div></div>
           <span class="ev-utag">${cap(u.rol)}</span>
         </a>`;
@@ -101,8 +106,18 @@
       document.getElementById("tab-usuarios").classList.toggle("active", !ev);
       board.hidden = !ev; fnote.hidden = !ev || !catOn; usersPanel.hidden = ev;
     }
-    document.getElementById("tab-eventos").addEventListener("click", () => verTab("eventos"));
-    document.getElementById("tab-usuarios").addEventListener("click", () => verTab("usuarios"));
+    // La pestana elegida queda escrita en la direccion (index.html#usuarios), asi
+    // otras paginas pueden volver a ella y el boton atras del navegador funciona.
+    document.getElementById("tab-eventos").addEventListener("click", () => {
+      verTab("eventos");
+      history.replaceState(null, "", location.pathname + location.search);
+    });
+    document.getElementById("tab-usuarios").addEventListener("click", () => {
+      verTab("usuarios");
+      history.replaceState(null, "", location.pathname + location.search + "#usuarios");
+    });
+
+    if (location.hash === "#usuarios") { verTab("usuarios"); }
 
     renderBoard(); renderUsers();
   </script>

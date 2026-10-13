@@ -15,7 +15,10 @@
     <section class="ev-pagehead">
       <a class="ev-back" id="volver" href="index.html">&larr; Volver</a>
       <p class="ev-kicker mt-2">Patrocinio</p>
-      <h1 class="ev-pagetitle" id="titulo">Patrocinio</h1>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div id="logo"></div>
+        <h1 class="ev-pagetitle mb-0" id="titulo">Patrocinio</h1>
+      </div>
     </section>
 
     <div id="no-encontrado" class="alert alert-warning d-none">
@@ -69,6 +72,14 @@
       } else {
         document.title = "eventos.uy — Patrocinio de " + institucion.nombre;
         document.getElementById("titulo").textContent = institucion.nombre;
+
+        // La letra incluye a la institucion entre las entidades con imagen.
+        const logo = document.getElementById("logo");
+        if (institucion.imagen) {
+          logo.innerHTML = '<img src="' + institucion.imagen +
+                           '" alt="Imagen de ' + institucion.nombre +
+                           '" style="width:56px;height:56px;border-radius:4px;object-fit:cover;">';
+        }
 
         const volver = document.getElementById("volver");
         volver.textContent = "← " + edicion.nombre;
