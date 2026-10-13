@@ -125,7 +125,8 @@ const datos = {
       sigla: "MARATON",
       descripcion: "Competencia deportiva anual en la capital.",
       fechaAlta: "2024-03-12",
-      categoriaIds: ["dep"]
+      categoriaIds: ["dep"],
+      imagen: "public/images/eventos/MaratonDeMontevideo/maraton.png"
     },
     {
       id: "4",
@@ -133,7 +134,8 @@ const datos = {
       sigla: "MVDROCK",
       descripcion: "Festival con artistas nacionales e internacionales.",
       fechaAlta: "2023-08-20",
-      categoriaIds: ["mus"]
+      categoriaIds: ["mus"],
+      imagen: "public/images/eventos/MontevideoRock/rock.png"
     },
     {
       id: "5",
@@ -141,7 +143,8 @@ const datos = {
       sigla: "EXPONEG",
       descripcion: "Encuentro de empresas y emprendedores del país.",
       fechaAlta: "2025-02-05",
-      categoriaIds: ["neg", "tec"]
+      categoriaIds: ["neg", "tec"],
+      imagen: "public/images/eventos/ExpoNegociosUY/negocios.png"
     },
     {
       id: "6",
@@ -149,7 +152,8 @@ const datos = {
       sigla: "MVDCOM",
       descripcion: "Convención de historietas, cine y cultura geek.",
       fechaAlta: "2022-06-30",
-      categoriaIds: ["cul"]
+      categoriaIds: ["cul"],
+      imagen: "public/images/eventos/MontevideoComics/eventoComic.png"
     }
   ],
 
@@ -221,7 +225,8 @@ const datos = {
       fechaFin: "2026-11-15",
       fechaAlta: "2026-03-01",
       estado: "aceptada",
-      organizadorNickname: "imm"
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png"
     },
     {
       id: "6",
@@ -234,7 +239,8 @@ const datos = {
       fechaFin: "2025-11-16",
       fechaAlta: "2025-02-20",
       estado: "aceptada",
-      organizadorNickname: "imm"
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png"
     },
     {
       id: "7",
@@ -247,7 +253,8 @@ const datos = {
       fechaFin: "2026-12-06",
       fechaAlta: "2026-04-18",
       estado: "aceptada",
-      organizadorNickname: "antel"
+      organizadorNickname: "antel",
+      imagen: "public/images/eventos/MontevideoRock/ediciones/rock2026.webp"
     },
     {
       id: "8",
@@ -260,7 +267,8 @@ const datos = {
       fechaFin: "2026-09-20",
       fechaAlta: "2026-05-30",
       estado: "ingresada",
-      organizadorNickname: "antel"
+      organizadorNickname: "antel",
+      imagen: "public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png"
     },
     {
       id: "9",
@@ -273,7 +281,8 @@ const datos = {
       fechaFin: "2026-10-04",
       fechaAlta: "2026-01-22",
       estado: "aceptada",
-      organizadorNickname: "imm"
+      organizadorNickname: "imm",
+      imagen: "public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
     }
   ],
 
