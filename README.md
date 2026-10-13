@@ -1,13 +1,60 @@
 # eventos.uy
 
-Plataforma de gestión de eventos. Trabajo del **Laboratorio 1** de Programación de Aplicaciones — Tecnólogo en Informática, UTEC.
+Plataforma de gestión de eventos. Trabajo de Programación de Aplicaciones — Tecnólogo en Informática, UTEC.
 
-En esta etapa se desarrollan dos componentes:
+El sistema tiene tres componentes:
 
-- **Servidor Central** — lógica de negocio y persistencia con JPA sobre PostgreSQL.
-- **Estación de Trabajo** — interfaz gráfica de administración en Swing.
+- **Sitio web** — lo que usan visitantes, asistentes y organizadores desde el navegador. Es la **Parte 1 del Laboratorio 2**: front-end con HTML, CSS y JavaScript sobre Bootstrap 5, con datos fijos.
+- **Servidor Central** — lógica de negocio y persistencia con JPA sobre PostgreSQL. Laboratorio 1.
+- **Estación de Trabajo** — interfaz gráfica de administración en Swing. Laboratorio 1.
+
+> Para ver el sitio web alcanza con abrir **`web/index.html`** en el navegador. No hace falta instalar nada, ni base de datos, ni servidor, ni conexión a internet.
+
+## El sitio web — Laboratorio 2, Parte 1
+
+Abrí `web/index.html` con doble clic, o desde IntelliJ con el botón del navegador que aparece arriba a la derecha del editor.
+
+Bootstrap y las tipografías están incluidos en `web/assets/`, así que el sitio se ve igual con la computadora desconectada.
+
+### Qué incluye
+
+Los **16 casos de uso de la Sección 6.2** de la letra, navegables desde la página principal y distinguidos por rol. Los datos son fijos y viven en un solo archivo: `web/js/datos.js`.
+
+### Usuarios de prueba
+
+La sesión se simula en el navegador. Para iniciarla, **Iniciar sesión** en el cabezal. Estos mismos usuarios están listados debajo del formulario de login, para no tener que volver acá.
+
+| Usuario | Contraseña | Rol | Para qué sirve |
+| --- | --- | --- | --- |
+| `vale23` | `Vale2026!` | Asistente | De UTEC. Registrada en JIAP 2026 con código de patrocinio, y en Montevideo Rock 2026 |
+| `lgomez` | `Lucia2026!` | Asistente | De UTEC, sin ningún registro |
+| `jperez` | `Juan2026!` | Asistente | **Sin institución**: solo puede registrarse de forma general |
+| `imm` | `Imm2026!` | Organizador | Seis ediciones, una en cada estado |
+| `antel` | `Antel2026!` | Organizador | Para comprobar que un organizador no ve las ediciones de otro |
+
+La sesión vive en el navegador y no en la pestaña: si se inicia sesión en una pestaña, cambia en todas. Para comparar dos usuarios a la vez conviene usar una ventana de incógnito.
+
+### Qué todavía no hace
+
+En esta parte el sitio **no se integra con la lógica ni se despliega en Tomcat**, como indica la letra. Los formularios validan en el navegador y muestran el mensaje de resultado, pero no guardan nada: al recargar la página, los datos vuelven a ser los de `datos.js`. La integración con el Servidor Central es la Parte 2.
+
+### Estructura de la carpeta
+
+```
+web/index.html                   Cartelera: eventos y usuarios
+web/*.html                       Una página por caso de uso (15 en total)
+web/js/datos.js                  Único archivo de datos fijos del sitio
+web/assets/js/cabezal.js         Cabezal, categorías y pie, compartidos por las 15 páginas
+web/assets/css/custom.css        Estilos propios
+web/assets/css/fuentes.css       Declaración de las tipografías locales
+web/assets/vendor/bootstrap/     Bootstrap 5.3.3
+web/assets/fonts/                Tipografías Archivo y JetBrains Mono
+web/public/images/               Imágenes de eventos, ediciones, usuarios e instituciones
+```
 
 ## Requisitos
+
+Lo que sigue es para el **Servidor Central y la Estación de Trabajo**. El sitio web no necesita nada de esto.
 
 | Herramienta   | Versión                                                |
 | ------------- | ------------------------------------------------------ |
@@ -97,6 +144,7 @@ src/main/java/persistencia/    Acceso a JPA (Persistencia) y carga de datos
 src/main/java/presentacion/    Interfaz gráfica Swing (paneles .form + ventanas)
 src/main/resources/META-INF/   persistence.xml (configuración de JPA)
 scripts/crear-base.sql         Creación del rol y la base en PostgreSQL
+web/                           Sitio web del Laboratorio 2 (Parte 1)
 docs/                          Documentación de análisis y diseño, y registro de horas
 pom.xml                        Proyecto Maven (Java 25)
 ```

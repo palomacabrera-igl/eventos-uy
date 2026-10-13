@@ -4,10 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eventos.uy — Perfil</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/fuentes.css" rel="stylesheet">
   <link href="assets/css/custom.css" rel="stylesheet">
 </head>
 <body>
@@ -15,64 +13,329 @@
 
   <main class="container">
     <section class="ev-pagehead">
-      <a class="ev-back" href="index.html">&larr; Volver</a>
-      <div class="d-flex align-items-center gap-3 flex-wrap mt-2">
-        <div class="ev-ava" style="width:64px;height:64px;font-size:1.6rem;">I</div>
-        <div>
-          <h1 class="ev-pagetitle">Intendencia de Montevideo</h1>
-          <div class="ev-meta">@imm &middot; Organizador</div>
-        </div>
-        <button class="btn btn-outline-secondary btn-sm ms-auto" id="btnEditar" type="button">Editar perfil</button>
-      </div>
+      <a class="ev-back" id="volver" href="index.html">&larr; Volver a la cartelera</a>
     </section>
 
-    <!-- Consulta de Usuario: datos del perfil -->
-    <div class="ev-section">Datos</div>
-    <dl class="ev-detail">
-      <dt>Nombre</dt><dd>Intendencia de Montevideo</dd>
-      <dt>Correo</dt><dd>contacto@imm.gub.uy</dd>
-      <dt>Descripción</dt><dd>Gobierno departamental de Montevideo.</dd>
-      <dt>Sitio web</dt><dd><a href="#">montevideo.gub.uy</a></dd>
-    </dl>
+    <div id="sin-usuario" class="alert alert-warning d-none">
+      Iniciá sesión para ver tu perfil, o elegí un usuario en la pestaña
+      <a href="index.html">Usuarios</a> de la cartelera.
+    </div>
 
-    <!-- Modificar Datos de Usuario (se muestra con "Editar perfil") -->
-    <form class="ev-form" id="formEditar" hidden onsubmit="return false">
-      <div class="ev-section">Editar perfil</div>
-      <p class="form-text mb-3">El nickname y el correo no se pueden modificar.</p>
-      <div class="mb-3"><label class="form-label" for="eNombre">Nombre</label><input class="form-control" id="eNombre" value="Intendencia de Montevideo"></div>
-      <div class="mb-3"><label class="form-label" for="eDesc">Descripción</label><textarea class="form-control" id="eDesc" rows="2">Gobierno departamental de Montevideo.</textarea></div>
-      <div class="mb-3"><label class="form-label" for="eWeb">Sitio web</label><input class="form-control" id="eWeb" value="https://montevideo.gub.uy"></div>
-      <div class="row g-3">
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ePass">Nueva contraseña</label><input class="form-control" id="ePass" type="password"></div>
-        <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ePass2">Confirmar</label><input class="form-control" id="ePass2" type="password"></div>
+    <div id="no-encontrado" class="alert alert-warning d-none">
+      No encontramos ese usuario. Volvé a la <a href="index.html">página principal</a>.
+    </div>
+
+    <div id="contenido">
+      <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+        <div id="avatar"></div>
+        <div>
+          <h1 class="ev-pagetitle" id="titulo"></h1>
+          <div class="ev-meta" id="subtitulo"></div>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm ms-auto" id="btnEditar" type="button" hidden>Editar perfil</button>
       </div>
-      <div class="mb-3"><label class="form-label" for="eImg">Cambiar imagen</label><input class="form-control" id="eImg" type="file" accept="image/*"></div>
-      <div class="d-flex gap-2"><button class="btn btn-accent" type="submit">Guardar cambios</button><button class="btn btn-outline-secondary" type="button" id="btnCancelar">Cancelar</button></div>
-    </form>
 
-    <!-- Ediciones del organizador, en los 3 estados (solo el dueño ve Ingresada y Rechazada) -->
-    <div class="ev-section">Mis ediciones</div>
-    <a class="ev-row" href="edicion.html">
-      <span><span class="ev-rowname">Maratón 2026</span><br><span class="ev-rowmeta">Montevideo</span></span>
-      <span class="ev-estado ev-estado--ingresada">Ingresada</span>
-    </a>
-    <a class="ev-row" href="edicion.html">
-      <span><span class="ev-rowname">Maratón 2025</span><br><span class="ev-rowmeta">Montevideo</span></span>
-      <span class="ev-estado ev-estado--aceptada">Aceptada</span>
-    </a>
-    <a class="ev-row" href="edicion.html">
-      <span><span class="ev-rowname">Maratón 2024</span><br><span class="ev-rowmeta">Montevideo</span></span>
-      <span class="ev-estado ev-estado--rechazada">Rechazada</span>
-    </a>
+      <!-- Caso de uso 4: Consulta de Usuario. La contrasena nunca se muestra. -->
+      <div class="ev-section">Datos</div>
+      <dl class="ev-detail" id="datos"></dl>
+
+      <!-- Caso de uso 5: Modificar Datos de Usuario. Solo en el perfil propio. -->
+      <form class="ev-form" id="formEditar" hidden>
+        <div class="ev-section">Editar perfil</div>
+        <p class="form-text mb-3">El nickname y el correo electrónico no se pueden modificar.</p>
+
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="eNick">Nickname</label><input class="form-control" id="eNick" type="text" readonly></div>
+          <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="eCorreo">Correo electrónico</label><input class="form-control" id="eCorreo" type="email" readonly></div>
+        </div>
+
+        <div class="mb-3"><label class="form-label" for="eNombre">Nombre</label><input class="form-control" id="eNombre" name="nombre" type="text" required></div>
+
+        <fieldset id="campos-asistente" hidden disabled>
+          <div class="mb-3"><label class="form-label" for="eApellido">Apellido</label><input class="form-control" id="eApellido" name="apellido" type="text" required></div>
+          <div class="mb-3"><label class="form-label" for="eNac">Fecha de nacimiento</label><input class="form-control" id="eNac" name="fechaNacimiento" type="date" required></div>
+          <div class="mb-3"><label class="form-label" for="eInst">Institución (opcional)</label>
+            <select class="form-select" id="eInst" name="institucionId">
+              <option value="">Sin institución</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset id="campos-organizador" hidden disabled>
+          <div class="mb-3"><label class="form-label" for="eDesc">Descripción</label><textarea class="form-control" id="eDesc" name="descripcion" rows="2" required></textarea></div>
+          <div class="mb-3"><label class="form-label" for="eWeb">Sitio web (puede quedar vacío)</label><input class="form-control" id="eWeb" name="sitioWeb" type="url" placeholder="https://"></div>
+        </fieldset>
+
+        <div class="ev-section">Cambiar la contraseña</div>
+        <p class="form-text mb-3">Dejá los dos campos vacíos si no querés cambiarla.</p>
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ePass">Nueva contraseña</label><input class="form-control" id="ePass" name="pass" type="password" autocomplete="new-password"></div>
+          <div class="col-12 col-sm-6 mb-3"><label class="form-label" for="ePass2">Confirmar contraseña</label><input class="form-control" id="ePass2" name="pass2" type="password" autocomplete="new-password"></div>
+        </div>
+
+        <div class="mb-3"><label class="form-label" for="eImg">Cambiar la imagen (opcional)</label><input class="form-control" id="eImg" name="imagen" type="file" accept="image/*"></div>
+
+        <div role="alert" class="alert alert-danger d-none" id="error-perfil"></div>
+        <div role="alert" class="alert alert-success d-none" id="exito-perfil"></div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-accent" type="submit">Guardar cambios</button>
+          <button class="btn btn-outline-secondary" type="button" id="btnCancelar">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- Ediciones (si el perfil es de un organizador) -->
+      <div id="bloque-ediciones" hidden>
+        <div class="ev-section" id="titulo-ediciones">Ediciones</div>
+        <div id="lista-ediciones"></div>
+      </div>
+
+      <!-- Registros (solo en el perfil propio de un asistente) -->
+      <div id="bloque-registros" hidden>
+        <div class="ev-section">Mis registros</div>
+        <div id="lista-registros"></div>
+      </div>
+    </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
   <script src="js/datos.js"></script>
   <script src="assets/js/cabezal.js"></script>
   <script>
-    const f = document.getElementById("formEditar");
-    document.getElementById("btnEditar").addEventListener("click", () => { f.hidden = false; f.scrollIntoView({ behavior: "smooth" }); });
-    document.getElementById("btnCancelar").addEventListener("click", () => { f.hidden = true; });
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
+    const yo = leer("demoNick");
+
+    function fecha(iso) {
+      const partes = iso.split("-");
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    function nombreCompleto(u) {
+      return u.nombre + (u.apellido ? " " + u.apellido : "");
+    }
+
+    function fila(etiqueta, valor) {
+      return "<dt>" + etiqueta + "</dt><dd>" + valor + "</dd>";
+    }
+
+    // ---------- Caso de uso 4: los datos del perfil ----------
+    function pintarCabecera(u) {
+      document.title = "eventos.uy — " + nombreCompleto(u);
+      document.getElementById("titulo").textContent = nombreCompleto(u);
+      document.getElementById("subtitulo").textContent =
+        "@" + u.nickname + " · " + (u.rol === "asistente" ? "Asistente" : "Organizador");
+
+      // La letra: "la imagen, si tiene". Si no tiene, se dibuja la inicial.
+      const avatar = document.getElementById("avatar");
+      if (u.imagen) {
+        avatar.innerHTML = '<img src="' + u.imagen + '" alt="Imagen de ' + nombreCompleto(u) +
+                           '" style="width:64px;height:64px;border-radius:4px;object-fit:cover;">';
+      } else {
+        avatar.innerHTML = '<div class="ev-ava" style="width:64px;height:64px;font-size:1.6rem;">' +
+                           u.nombre.trim().charAt(0).toUpperCase() + '</div>';
+      }
+    }
+
+    function pintarDatos(u) {
+      // La contrasena NO se muestra nunca, ni en el perfil propio.
+      let html = fila("Nombre", nombreCompleto(u)) +
+                 fila("Nickname", u.nickname) +
+                 fila("Correo", u.correo) +
+                 fila("Alta", fecha(u.fechaAlta));
+
+      if (u.rol === "asistente") {
+        html += fila("Fecha de nacimiento", fecha(u.fechaNacimiento));
+        const institucion = datos.instituciones.find(function (i) { return i.id === u.institucionId; });
+        html += fila("Institución", institucion ? institucion.nombre : "Sin institución");
+      } else {
+        html += fila("Descripción", u.descripcion);
+        // La letra: el sitio web del organizador puede quedar vacio.
+        html += fila("Sitio web", u.sitioWeb
+          ? '<a href="' + u.sitioWeb + '" target="_blank" rel="noopener">' + u.sitioWeb + "</a>"
+          : "(no definido)");
+      }
+
+      document.getElementById("datos").innerHTML = html;
+    }
+
+    // ---------- Ediciones del organizador ----------
+    function pintarEdiciones(u, esMiPerfil) {
+      if (u.rol !== "organizador") { return; }
+
+      // La letra: de un organizador se listan sus ediciones Aceptada. El dueno
+      // ve ademas las Ingresada y las Rechazada.
+      const suyas = datos.ediciones.filter(function (e) {
+        if (e.organizadorNickname !== u.nickname) { return false; }
+        return esMiPerfil || e.estado === "aceptada";
+      });
+
+      document.getElementById("bloque-ediciones").hidden = false;
+      document.getElementById("titulo-ediciones").textContent =
+        esMiPerfil ? "Mis ediciones" : "Ediciones";
+
+      const caja = document.getElementById("lista-ediciones");
+      if (suyas.length === 0) {
+        caja.innerHTML = '<p class="text-secondary">' +
+          (esMiPerfil ? "Todavía no creaste ninguna edición."
+                      : "Este organizador todavía no tiene ediciones publicadas.") + "</p>";
+        return;
+      }
+
+      caja.innerHTML = suyas.map(function (e) {
+        const aviso = e.estado === "aceptada" ? "Pública en el sitio"
+                                              : "Visible solo para el organizador";
+        return '<a class="ev-row" href="edicion.html?id=' + e.id + '">' +
+                 '<span>' +
+                   '<span class="ev-rowname">' + e.nombre + '</span><br>' +
+                   '<span class="ev-rowmeta">' + e.ciudad + ' · ' + aviso + '</span>' +
+                 '</span>' +
+                 '<span class="ev-estado ev-estado--' + e.estado + '">' + e.estado + '</span>' +
+               '</a>';
+      }).join("");
+    }
+
+    // ---------- Registros del asistente (solo en su propio perfil) ----------
+    function pintarRegistros(u, esMiPerfil) {
+      // La letra: esos registros no se muestran cuando el perfil lo consulta otra persona.
+      if (u.rol !== "asistente" || !esMiPerfil) { return; }
+
+      document.getElementById("bloque-registros").hidden = false;
+      const mios = datos.registros.filter(function (r) {
+        return r.asistenteNickname === u.nickname;
+      });
+
+      const caja = document.getElementById("lista-registros");
+      if (mios.length === 0) {
+        caja.innerHTML = '<p class="text-secondary">Todavía no te registraste a ninguna edición.</p>';
+        return;
+      }
+
+      caja.innerHTML = mios.map(function (r) {
+        const edicion = datos.ediciones.find(function (e) { return e.id === r.edicionId; });
+        const tipo = datos.tiposRegistro.find(function (t) { return t.id === r.tipoRegistroId; });
+        const costo = r.costo === 0 ? "sin cargo" : "$ " + r.costo;
+        return '<a class="ev-row" href="consulta-registro.html?id=' + r.id + '">' +
+                 '<span>' +
+                   '<span class="ev-rowname">' + edicion.nombre + '</span><br>' +
+                   '<span class="ev-rowmeta">' + tipo.nombre + ' · ' + costo +
+                     ' · ' + fecha(r.fechaRegistro) + '</span>' +
+                 '</span>' +
+               '</a>';
+      }).join("");
+    }
+
+    // ---------- Caso de uso 5: el formulario de edicion ----------
+    function prepararEdicion(u) {
+      const form = document.getElementById("formEditar");
+      const esAsistente = u.rol === "asistente";
+      const fa = document.getElementById("campos-asistente");
+      const fo = document.getElementById("campos-organizador");
+
+      document.getElementById("eNick").value = u.nickname;
+      document.getElementById("eCorreo").value = u.correo;
+      document.getElementById("eNombre").value = u.nombre;
+      document.getElementById("eNac").max = new Date().toISOString().slice(0, 10);
+
+      fa.hidden = !esAsistente;  fa.disabled = !esAsistente;
+      fo.hidden = esAsistente;   fo.disabled = esAsistente;
+
+      if (esAsistente) {
+        document.getElementById("eApellido").value = u.apellido || "";
+        document.getElementById("eNac").value = u.fechaNacimiento || "";
+        const combo = document.getElementById("eInst");
+        combo.innerHTML = '<option value="">Sin institución</option>' +
+          datos.instituciones.map(function (i) {
+            return '<option value="' + i.id + '">' + i.nombre + "</option>";
+          }).join("");
+        combo.value = u.institucionId || "";
+      } else {
+        document.getElementById("eDesc").value = u.descripcion || "";
+        document.getElementById("eWeb").value = u.sitioWeb || "";
+      }
+
+      const btnEditar = document.getElementById("btnEditar");
+      btnEditar.hidden = false;
+      btnEditar.addEventListener("click", function () {
+        form.hidden = false;
+        btnEditar.hidden = true;
+        form.scrollIntoView({ behavior: "smooth" });
+      });
+      document.getElementById("btnCancelar").addEventListener("click", function () {
+        form.hidden = true;
+        btnEditar.hidden = false;
+      });
+
+      const error = document.getElementById("error-perfil");
+      const exito = document.getElementById("exito-perfil");
+
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        error.classList.add("d-none");
+        exito.classList.add("d-none");
+
+        const pass = document.getElementById("ePass").value;
+        const pass2 = document.getElementById("ePass2").value;
+
+        // La contrasena es opcional: o los dos campos vacios, o los dos iguales.
+        if (pass || pass2) {
+          if (!pass || !pass2) {
+            error.textContent = "Para cambiar la contraseña tenés que completar los dos campos.";
+            error.classList.remove("d-none");
+            return;
+          }
+          if (pass !== pass2) {
+            error.textContent = "La contraseña y su confirmación no coinciden.";
+            error.classList.remove("d-none");
+            return;
+          }
+        }
+
+        const hoy = new Date().toLocaleDateString("es-UY");
+        exito.textContent = "Datos actualizados el " + hoy +
+                            (pass ? ", incluida la contraseña." : ".");
+        exito.classList.remove("d-none");
+      });
+    }
+
+    // ---------- De quien es el perfil que hay que mostrar ----------
+    const params = new URLSearchParams(location.search);
+    const pedido = params.get("nickname") || yo;
+
+    // El "volver" tiene que devolver a donde se vino, no a un lugar cualquiera.
+    const volver = document.getElementById("volver");
+    const destino = params.get("volver");
+    if (destino) {
+      volver.href = destino;
+      // Si se vino de una edicion, el enlace dice su nombre.
+      const esEdicion = destino.match(/^edicion\.html\?id=(\w+)$/);
+      const edicion = esEdicion
+        ? datos.ediciones.find(function (e) { return e.id === esEdicion[1]; })
+        : null;
+      volver.textContent = edicion ? "\u2190 Volver a " + edicion.nombre : "\u2190 Volver";
+    } else if (params.get("nickname")) {
+      volver.textContent = "\u2190 Volver al listado de usuarios";
+      volver.href = "index.html#usuarios";
+    }
+    const usuario = pedido
+      ? datos.usuarios.find(function (u) { return u.nickname === pedido; })
+      : null;
+
+    if (!pedido) {
+      document.getElementById("contenido").hidden = true;
+      document.getElementById("sin-usuario").classList.remove("d-none");
+    } else if (!usuario) {
+      document.getElementById("contenido").hidden = true;
+      document.getElementById("no-encontrado").classList.remove("d-none");
+    } else {
+      const esMiPerfil = usuario.nickname === yo;
+      pintarCabecera(usuario);
+      pintarDatos(usuario);
+      pintarEdiciones(usuario, esMiPerfil);
+      pintarRegistros(usuario, esMiPerfil);
+      if (esMiPerfil) { prepararEdicion(usuario); }
+    }
   </script>
 </body>
 </html>

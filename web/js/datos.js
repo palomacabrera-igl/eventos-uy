@@ -359,7 +359,7 @@ const datos = {
       tipoRegistroId: "1",
       fechaRegistro: "2026-09-01",
       costo: 0,
-      patrocinioId: 1
+      patrocinioId: "1"
     },
     {
       id: "2",

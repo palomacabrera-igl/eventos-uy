@@ -4,10 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eventos.uy — Tipo de registro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/fuentes.css" rel="stylesheet">
   <link href="assets/css/custom.css" rel="stylesheet">
 </head>
 <body>
@@ -15,20 +13,70 @@
 
   <main class="container">
     <section class="ev-pagehead">
-      <a class="ev-back" href="edicion.html">&larr; Maratón de Montevideo 2022</a>
+      <a class="ev-back" id="volver" href="index.html">&larr; Volver</a>
       <p class="ev-kicker mt-2">Tipo de registro</p>
-      <h1 class="ev-pagetitle">Corredor 10K</h1>
+      <h1 class="ev-pagetitle" id="titulo">Tipo de registro</h1>
     </section>
 
-    <dl class="ev-detail">
-      <dt>Descripción</dt><dd>Inscripción para la distancia de 10 kilómetros.</dd>
-      <dt>Costo</dt><dd>$ 1.200</dd>
-      <dt>Cupo</dt><dd>500 lugares</dd>
-    </dl>
+    <div id="no-encontrado" class="alert alert-warning d-none">
+      No encontramos ese tipo de registro. Volvé a la <a href="index.html">página principal</a>.
+    </div>
+
+    <div id="no-disponible" class="alert alert-warning d-none">
+      Esta edición todavía no está publicada. Solo puede verla su organizador.
+    </div>
+
+    <dl class="ev-detail" id="datos"></dl>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
   <script src="js/datos.js"></script>
   <script src="assets/js/cabezal.js"></script>
+  <script>
+    function leer(clave) {
+      try { return localStorage.getItem(clave); } catch (e) { return null; }
+    }
+    const rol = leer("demoRol") || "visitante";
+    const yo = leer("demoNick");
+
+    function fila(etiqueta, valor) {
+      return "<dt>" + etiqueta + "</dt><dd>" + valor + "</dd>";
+    }
+
+    function avisar(id) {
+      document.getElementById("datos").hidden = true;
+      document.getElementById(id).classList.remove("d-none");
+    }
+
+    const params = new URLSearchParams(location.search);
+    const tipo = datos.tiposRegistro.find(function (t) { return t.id === params.get("id"); });
+
+    if (!tipo) {
+      avisar("no-encontrado");
+    } else {
+      const edicion = datos.ediciones.find(function (e) { return e.id === tipo.edicionId; });
+      const esMiEdicion = rol === "organizador" && edicion.organizadorNickname === yo;
+
+      // Mismo criterio que edicion.html: una edicion no publicada solo la ve su organizador.
+      if (edicion.estado !== "aceptada" && !esMiEdicion) {
+        avisar("no-disponible");
+      } else {
+        document.title = "eventos.uy — " + tipo.nombre;
+        document.getElementById("titulo").textContent = tipo.nombre;
+
+        const volver = document.getElementById("volver");
+        volver.textContent = "← " + edicion.nombre;
+        volver.href = "edicion.html?id=" + edicion.id;
+
+        const libres = tipo.cupo - tipo.cuposOcupados;
+        document.getElementById("datos").innerHTML =
+          fila("Edición", '<a href="edicion.html?id=' + edicion.id + '">' + edicion.nombre + "</a>") +
+          fila("Descripción", tipo.descripcion) +
+          fila("Costo", "$ " + tipo.costo) +
+          fila("Cupo", tipo.cupo + " lugares") +
+          fila("Cupos libres", libres === 0 ? "sin cupos disponibles" : libres + " de " + tipo.cupo);
+      }
+    }
+  </script>
 </body>
 </html>

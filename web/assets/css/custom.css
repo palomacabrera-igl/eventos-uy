@@ -13,6 +13,11 @@
 }
 body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-sans); }
 
+/* Campo de solo lectura: se puede leer y copiar, pero no editar. Bootstrap pinta
+   los disabled y no los readonly, asi que la diferencia la marcamos nosotros. */
+.form-control[readonly] { background: var(--ev-poster-paper-bg); color: var(--ev-muted);
+  cursor: not-allowed; }
+
 /* ---------- Cabezal ---------- */
 .ev-header { position: sticky; top: 0; z-index: 1020; background: var(--ev-bg); border-bottom: 1px solid var(--ev-border); }
 .ev-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -.03em; color: var(--ev-ink); text-decoration: none; }
@@ -29,6 +34,11 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-catbar > .container::-webkit-scrollbar-thumb { background: var(--ev-border); border-radius: 999px; }
 .ev-chip { font-family: var(--ev-mono); font-size: .76rem; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ev-border); background: transparent; color: var(--ev-ink); text-decoration: none; display: inline-block; transition: border-color .15s, background .15s, color .15s; }
 .ev-chip:hover { border-color: var(--ev-ink); }
+/* Quien navega con el teclado tiene que ver donde esta parado. */
+.ev-chip:focus-visible, .ev-row:focus-visible, .ev-user:focus-visible,
+.ev-back:focus-visible, .ev-brand:focus-visible {
+  outline: 2px solid var(--ev-accent); outline-offset: 2px; border-radius: 3px;
+}
 .ev-chip.active { background: var(--ev-accent); border-color: var(--ev-accent); color: var(--ev-accent-ink); }
 
 /* ---------- Encabezado de página ---------- */
@@ -58,6 +68,13 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 .ev-poster { aspect-ratio: 5/4; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
 .ev-poster--ink    { background: var(--ev-poster-ink-bg);   color: var(--ev-poster-ink-fg); }
 .ev-poster--paper  { background: var(--ev-poster-paper-bg); color: var(--ev-poster-paper-fg); }
+/* Tarjeta con foto: la imagen va detras y el texto encima, con un velo oscuro
+   abajo para que el nombre del evento se lea sobre cualquier foto. */
+.ev-poster--foto { position: relative; color: #fff; }
+.ev-poster-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ev-poster--foto::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.10)); }
+.ev-poster--foto .ev-poster-top, .ev-poster--foto .ev-poster-title { position: relative; z-index: 1; }
 .ev-poster-top { display: flex; justify-content: space-between; font-family: var(--ev-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
 .ev-poster-title { font-weight: 800; letter-spacing: -.03em; line-height: .98; text-transform: uppercase; font-size: 1.9rem; }
 .ev-cardbody { padding: 14px 16px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
@@ -68,6 +85,9 @@ body { background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-san
 /* ---------- Listas de usuarios ---------- */
 .ev-user { display: flex; align-items: center; gap: 14px; padding: 16px 2px; border-bottom: 1px solid var(--ev-border); cursor: pointer; text-decoration: none; color: inherit; }
 .ev-user:hover .ev-uname { color: var(--ev-accent); }
+/* El avatar es un cuadrado oscuro cuando muestra la inicial. Si adentro va
+   una imagen, ese fondo asomaria por las zonas transparentes del PNG. */
+img.ev-ava { object-fit: cover; background: transparent; }
 .ev-ava { width: 42px; height: 42px; border-radius: 4px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--ev-poster-ink-bg); color: var(--ev-poster-ink-fg); }
 .ev-uname { font-weight: 600; }
 .ev-uhandle { font-family: var(--ev-mono); font-size: .7rem; color: var(--ev-muted); }
