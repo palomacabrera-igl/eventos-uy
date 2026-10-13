@@ -167,7 +167,7 @@
 
       if (registro.patrocinioId) {
         const patrocinio = datos.patrocinios.find(function (p) {
-          return p.id === String(registro.patrocinioId);
+          return p.id === registro.patrocinioId;
         });
         const institucion = datos.instituciones.find(function (i) { return i.id === patrocinio.institucionId; });
         html += fila("Código de patrocinio",
