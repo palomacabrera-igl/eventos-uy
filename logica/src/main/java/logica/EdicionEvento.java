@@ -8,6 +8,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +37,17 @@ public class EdicionEvento extends EntidadBase {
 
     @Column(length = 100)
     private String pais;
+
+    /**
+     * @Enumerated(STRING) guarda el nombre ('INGRESADA'), no el numero de
+     * orden.
+     *
+     * El valor inicial va aqui y no en el constructor: asi toda edicion nace
+     * INGRESADA sin tocar ninguna firma.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "evento_id",
@@ -79,6 +92,7 @@ public class EdicionEvento extends EntidadBase {
     public LocalDate getfechaAlta() {return fechaAlta;}
     public String getCiudad() {return ciudad;}
     public String getPais() {return pais;}
+    public EstadoEdicion getEstado() {return estado;}
     public Organizador getOrganizador() {return organizador;}
     public Evento getEvento() {return evento;}
 
@@ -91,6 +105,32 @@ public class EdicionEvento extends EntidadBase {
     public void setfechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
     public void setCiudad(String ciudad) {this.ciudad = ciudad;}
     public void setPais(String pais) {this.pais = pais;}
+
+    // ===== Estados de la edicion (letra, Tabla 1) =====
+
+    /** true si la edicion se puede listar al publico (letra, seccion 4). */
+    public boolean estaAceptada() {return estado == EstadoEdicion.ACEPTADA;}
+
+    public void aceptar() throws ReglaNegocioException {
+        cambiarEstado(EstadoEdicion.ACEPTADA);
+    }
+
+    public void rechazar() throws ReglaNegocioException {
+        cambiarEstado(EstadoEdicion.RECHAZADA);
+    }
+
+    /**
+     * Las transiciones validas son solo las de la Tabla 1: desde INGRESADA se
+     * puede pasar a ACEPTADA o a RECHAZADA, y de ahi no se vuelve. No hay un
+     * setEstado() a proposito: estas dos son las unicas puertas.
+     */
+    private void cambiarEstado(EstadoEdicion nuevo) throws ReglaNegocioException {
+        if (estado != EstadoEdicion.INGRESADA) {
+            throw new ReglaNegocioException("La edicion '" + nombre + "' ya esta "
+                    + estado.name().toLowerCase() + ": su estado no se puede cambiar.");
+        }
+        estado = nuevo;
+    }
 
 
     void agregarPatrocinio(Patrocinio patrocinio) {

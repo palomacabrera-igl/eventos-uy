@@ -57,6 +57,13 @@ public class Asistente extends Usuario {
         this.fechaNacimiento = fechaNacimiento;
     }
 
+    public Asistente(String nickname, String nombre, String correoElectronico,
+                     String apellido, LocalDate fechaNacimiento, String password) {
+        super(nickname, nombre, correoElectronico, password);
+        this.apellido = apellido;
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
     public String getApellido() {
         return apellido;
     }

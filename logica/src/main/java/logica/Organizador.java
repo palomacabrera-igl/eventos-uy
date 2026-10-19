@@ -38,6 +38,13 @@ public class Organizador extends Usuario {
         this.sitioWeb = normalizarOpcional(sitioWeb);
     }
 
+    public Organizador(String nickname, String nombre, String correoElectronico,
+                       String descripcion, String sitioWeb, String password) {
+        super(nickname, nombre, correoElectronico, password);
+        this.descripcion = descripcion;
+        this.sitioWeb = normalizarOpcional(sitioWeb);
+    }
+
     public String getDescripcion() {
         return descripcion;
     }

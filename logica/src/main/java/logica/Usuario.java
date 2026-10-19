@@ -48,12 +48,20 @@ public abstract class Usuario extends EntidadBase {
     @Column(nullable = false, length = 150)
     private String correoElectronico;
 
+    @Column(length = 100)
+    private String password;
+
     protected Usuario() {}
 
     protected Usuario(String nickname, String nombre, String correoElectronico) {
         this.nickname = nickname;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
+    }
+
+    protected Usuario(String nickname, String nombre, String correoElectronico, String password) {
+        this(nickname, nombre, correoElectronico);
+        this.password = password;
     }
 
     public String getNickname() {
@@ -92,5 +100,17 @@ public abstract class Usuario extends EntidadBase {
      */
     public void modificarDatos(DTUsuario dt) {
         this.nombre = dt.getNombre();
+    }
+
+    /**
+     * Unico lugar donde se compara la contrasena. Si el equipo decide
+     * guardarla con hash (decision D7), solo cambian estos dos metodos.
+     */
+    public boolean verificarPassword(String intento) {
+        return password != null && password.equals(intento);
+    }
+
+    public void cambiarPassword(String nueva) {
+        this.password = nueva;
     }
 }
