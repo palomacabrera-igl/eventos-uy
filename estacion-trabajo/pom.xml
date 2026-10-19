@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>uy.edu.eventos</groupId>
+        <artifactId>eventos-uy</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>estacion-trabajo</artifactId>
+    <packaging>jar</packaging>
+    <name>EventosUY - Estacion de Trabajo</name>
+
+    <properties>
+        <!-- Clase que corre "mvnw -pl estacion-trabajo exec:java". Se cambia con -Dexec.mainClass=... -->
+        <exec.mainClass>presentacion.VentanaPrincipal</exec.mainClass>
+    </properties>
+
+    <dependencies>
+        <!-- La logica y la persistencia -->
+        <dependency>
+            <groupId>uy.edu.eventos</groupId>
+            <artifactId>logica</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Soporte en tiempo de ejecucion del Swing UI Designer de IntelliJ -->
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
+
+        <!-- FlatLaf: look and feel moderno para Swing -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.7.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>presentacion.VentanaPrincipal</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

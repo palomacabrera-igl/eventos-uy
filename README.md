@@ -93,23 +93,27 @@ Pide la contraseña del usuario `postgres`, la que cada uno definió al instalar
 **Windows**
 
 ```powershell
-.\mvnw.cmd package
+.\mvnw.cmd install -DskipTests
 ```
 
 **macOS / Linux**
 
 ```bash
-./mvnw package
+./mvnw install -DskipTests
 ```
 
-Genera `target/eventos-uy-1.0-SNAPSHOT.jar`.
+Compila los tres módulos y los deja en tu repositorio local de Maven (necesario para poder ejecutar la Estación de Trabajo). Genera:
+
+- `logica/target/logica-1.0-SNAPSHOT.jar`
+- `estacion-trabajo/target/estacion-trabajo-1.0-SNAPSHOT.jar`
+- `servidor-web/target/eventos-uy.war`
 
 ### 3. Cargar los datos de prueba
 
 Deja en la base un conjunto inicial de usuarios, eventos, ediciones, tipos de registro y patrocinios para poder recorrer los casos de uso:
 
 ```powershell
-.\mvnw.cmd exec:java "-Dexec.mainClass=persistencia.CargarDatos"
+.\mvnw.cmd -pl logica exec:java
 ```
 
 Es idempotente: si los datos ya están, avisa y no hace nada. También se puede ejecutar la clase `persistencia.CargarDatos` desde IntelliJ.
@@ -117,14 +121,14 @@ Es idempotente: si los datos ya están, avisa y no hace nada. También se puede 
 ### 4. Ejecutar la aplicación
 
 ```powershell
-.\mvnw.cmd exec:java
+.\mvnw.cmd -pl estacion-trabajo exec:java
 ```
 
 O desde IntelliJ, ejecutando la clase `presentacion.VentanaPrincipal`.
 
 ## Conexión a la base
 
-Credenciales que usa el sistema, definidas en `src/main/resources/META-INF/persistence.xml`:
+Credenciales que usa el sistema, definidas en `logica/src/main/resources/META-INF/persistence.xml`:
 
 | Parámetro  | Valor       |
 | ---------- | ----------- |
@@ -139,14 +143,16 @@ Sirven igual para conectarse desde pgAdmin o DBeaver.
 ## Estructura
 
 ```
-src/main/java/logica/          Dominio, controlador (Sistema), manejadores y DTs
-src/main/java/persistencia/    Acceso a JPA (Persistencia) y carga de datos
-src/main/java/presentacion/    Interfaz gráfica Swing (paneles .form + ventanas)
-src/main/resources/META-INF/   persistence.xml (configuración de JPA)
+logica/                        JAR: dominio, controlador (Sistema), manejadores, DTs y persistencia (JPA)
+  src/main/java/logica/        Dominio, controlador (Sistema), manejadores y DTs
+  src/main/java/persistencia/  Acceso a JPA (Persistencia) y carga de datos
+  src/main/resources/META-INF/ persistence.xml (configuración de JPA)
+estacion-trabajo/              JAR: interfaz gráfica Swing (paneles .form + ventanas)
+servidor-web/                  WAR: sitio web con servlets y JSP (lleva logica adentro)
 scripts/crear-base.sql         Creación del rol y la base en PostgreSQL
 web/                           Sitio web del Laboratorio 2 (Parte 1)
 docs/                          Documentación de análisis y diseño, y registro de horas
-pom.xml                        Proyecto Maven (Java 25)
+pom.xml                        POM padre: lista los tres módulos (Java 25)
 ```
 
 ## Arquitectura
