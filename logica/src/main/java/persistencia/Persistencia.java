@@ -85,6 +85,34 @@ public final class Persistencia {
         }
     }
 
+    /**
+     * Vuelve a leer de la base en lugar de usar lo que el EntityManager tiene
+     * guardado en memoria.
+     *
+     * Un EntityManager recuerda todo lo que leyo mientras vive. Como el sitio
+     * web y la Estacion de Trabajo son dos procesos distintos sobre la misma
+     * base, cada uno con el suyo, sin esto una edicion aceptada desde la
+     * Estacion de Trabajo se seguiria viendo Ingresada en el sitio hasta
+     * reiniciar Tomcat. La letra (seccion 3) pide lo contrario: un cambio
+     * hecho en una aplicacion tiene que estar disponible en la otra.
+     *
+     * clear() desconecta todo lo que tenia cargado, asi que la proxima
+     * consulta va a la base de verdad.
+     *
+     * Quien la llama:
+     *   - la Estacion de Trabajo, desde el boton "Actualizar datos";
+     *   - el sitio, al empezar cada pagina, desde el filtro del modulo web.
+     *
+     * No llamarla en medio de una operacion: desconecta las entidades que se
+     * esten usando en ese momento.
+     */
+    public static void refrescar() {
+        EntityManager em = getEntityManager();
+        if (em.isOpen()) {
+            em.clear();
+        }
+    }
+
     /** Cierra todo. Se llama una sola vez, al terminar la aplicacion. */
     public static void cerrar() {
         if (em != null && em.isOpen()) {
