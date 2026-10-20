@@ -49,6 +49,12 @@ public abstract class Usuario extends EntidadBase {
     @Column(nullable = false, length = 150)
     private String correoElectronico;
 
+    /**
+     * Aca NO va la contrasena, va su huella con sal, en el formato que arma
+     * la clase Contrasena. Son 76 caracteres. Sin nullable = false: las bases
+     * que ya tienen filas no pueden recibir una columna NOT NULL sin valor
+     * por defecto.
+     */
     @Column(length = 100)
     private String password;
 
@@ -66,7 +72,7 @@ public abstract class Usuario extends EntidadBase {
 
     protected Usuario(String nickname, String nombre, String correoElectronico, String password) {
         this(nickname, nombre, correoElectronico);
-        this.password = password;
+        cambiarPassword(password);
     }
 
     public String getNickname() {
@@ -124,14 +130,20 @@ public abstract class Usuario extends EntidadBase {
     }
 
     /**
-     * Unico lugar donde se compara la contrasena. Si el equipo decide
-     * guardarla con hash (decision D7), solo cambian estos dos metodos.
+     * Unico lugar donde se verifica la contrasena. Como lo guardado es una
+     * huella y no un texto, comparar textos no alcanza: hay que recalcular la
+     * huella de lo que se intento y comparar las dos.
      */
     public boolean verificarPassword(String intento) {
-        return password != null && password.equals(intento);
+        return Contrasena.coincide(intento, password);
     }
 
+    /**
+     * Guarda la huella, nunca el texto. Al estar el calculo aca adentro, y al
+     * no haber setter ni getter del campo, no hay forma de que alguien guarde
+     * una contrasena sin hashear ni de leerla despues.
+     */
     public void cambiarPassword(String nueva) {
-        this.password = nueva;
+        this.password = (nueva == null) ? null : Contrasena.hashear(nueva);
     }
 }
