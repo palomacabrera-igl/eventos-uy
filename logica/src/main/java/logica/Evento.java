@@ -2,6 +2,7 @@ package logica;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -30,6 +31,10 @@ public class Evento extends EntidadBase {
     private String descripcion;
 
     private LocalDate fechaAlta;
+
+    /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
+    @Embedded
+    private Imagen imagen;
 
     /** Lado INVERSO: la FK evento_id vive en la tabla edicion_evento. */
     @OneToMany(mappedBy = "evento", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -65,6 +70,15 @@ public class Evento extends EntidadBase {
     public void setSigla(String sigla) {this.sigla = sigla;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
+
+    public Imagen getImagen() {return imagen;}
+
+    public boolean tieneImagen() {
+        return imagen != null && imagen.getContenido() != null;
+    }
+
+    /** La imagen se agrega o se reemplaza despues del alta, no en el constructor. */
+    public void asignarImagen(Imagen imagen) {this.imagen = imagen;}
 
     void agregarEdicion(EdicionEvento edicion) {
         ediciones.add(edicion);

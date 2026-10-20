@@ -1,6 +1,7 @@
 package logica;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -26,6 +27,10 @@ public class Institucion extends EntidadBase {
     @Column(name = "sitio_web", nullable = false, length = 255)
     private String sitioWeb;
 
+    /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
+    @Embedded
+    private Imagen imagen;
+
     protected Institucion() {}
 
     public Institucion(String nombre, String descripcion, String sitioWeb) {
@@ -41,4 +46,13 @@ public class Institucion extends EntidadBase {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public void setSitioWeb(String sitioWeb) { this.sitioWeb = sitioWeb; }
+
+    public Imagen getImagen() { return imagen; }
+
+    public boolean tieneImagen() {
+        return imagen != null && imagen.getContenido() != null;
+    }
+
+    /** La imagen se agrega o se reemplaza despues del alta, no en el constructor. */
+    public void asignarImagen(Imagen imagen) { this.imagen = imagen; }
 }

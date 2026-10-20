@@ -2,6 +2,7 @@ package logica;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
@@ -48,6 +49,10 @@ public class EdicionEvento extends EntidadBase {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
+
+    /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
+    @Embedded
+    private Imagen imagen;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "evento_id",
@@ -105,6 +110,15 @@ public class EdicionEvento extends EntidadBase {
     public void setfechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
     public void setCiudad(String ciudad) {this.ciudad = ciudad;}
     public void setPais(String pais) {this.pais = pais;}
+
+    public Imagen getImagen() {return imagen;}
+
+    public boolean tieneImagen() {
+        return imagen != null && imagen.getContenido() != null;
+    }
+
+    /** La imagen se agrega o se reemplaza despues del alta, no en el constructor. */
+    public void asignarImagen(Imagen imagen) {this.imagen = imagen;}
 
     // ===== Estados de la edicion (letra, Tabla 1) =====
 

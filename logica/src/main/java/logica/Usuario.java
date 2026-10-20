@@ -3,6 +3,7 @@ package logica;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -51,6 +52,10 @@ public abstract class Usuario extends EntidadBase {
     @Column(length = 100)
     private String password;
 
+    /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
+    @Embedded
+    private Imagen imagen;
+
     protected Usuario() {}
 
     protected Usuario(String nickname, String nombre, String correoElectronico) {
@@ -78,6 +83,22 @@ public abstract class Usuario extends EntidadBase {
 
     public String getCorreoElectronico() {
         return correoElectronico;
+    }
+
+    public Imagen getImagen() {
+        return imagen;
+    }
+
+    public boolean tieneImagen() {
+        return imagen != null && imagen.getContenido() != null;
+    }
+
+    /**
+     * La imagen se agrega o se reemplaza despues del alta, no en el
+     * constructor: en los altas es opcional y en Modificar Perfil se cambia.
+     */
+    public void asignarImagen(Imagen imagen) {
+        this.imagen = imagen;
     }
 
     /**
