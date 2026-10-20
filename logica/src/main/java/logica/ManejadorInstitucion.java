@@ -40,4 +40,12 @@ public class ManejadorInstitucion {
                 .createQuery("SELECT i FROM Institucion i ORDER BY i.nombre", Institucion.class)
                 .getResultList();
     }
+
+    public void actualizar(Institucion institucion) {
+        Persistencia.enTransaccion(em -> {
+            if (!em.contains(institucion)) {
+                em.merge(institucion);
+            }
+        });
+    }
 }
