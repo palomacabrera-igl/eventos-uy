@@ -32,6 +32,10 @@ La sesión se simula en el navegador. Para iniciarla, **Iniciar sesión** en el 
 | `imm` | `Imm2026!` | Organizador | Seis ediciones, una en cada estado |
 | `antel` | `Antel2026!` | Organizador | Para comprobar que un organizador no ve las ediciones de otro |
 
+> Las contraseñas se proporcionan en texto plano únicamente al crear los datos
+> de prueba. La aplicación las almacena usando hash PBKDF2, por lo que no se
+> pueden recuperar desde la base de datos.
+
 La sesión vive en el navegador y no en la pestaña: si se inicia sesión en una pestaña, cambia en todas. Para comparar dos usuarios a la vez conviene usar una ventana de incógnito.
 
 ### Qué todavía no hace
