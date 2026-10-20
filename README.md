@@ -126,6 +126,40 @@ Es idempotente: si los datos ya están, avisa y no hace nada. También se puede 
 
 O desde IntelliJ, ejecutando la clase `presentacion.VentanaPrincipal`.
 
+## Cuando cambia el esquema de la base
+
+Cada vez que alguien agrega o modifica un campo de una entidad, cambia el esquema de la base. Hibernate arranca con `hibernate.hbm2ddl.auto=update`, que **agrega** lo que falta pero **no rehace** lo que ya existe:
+
+| El cambio | ¿Hay que hacer algo? |
+| --- | --- |
+| Una columna **nullable** nueva | **No.** Hibernate la agrega sola en el próximo arranque. |
+| Una columna **`NOT NULL`** nueva, en una tabla que ya tiene filas | **Sí.** PostgreSQL no tiene con qué llenarla en las filas que ya están, así que la columna no se crea y después fallan las inserciones. |
+| Cambiar el tipo o el largo de una columna, o borrar una | **Sí.** `update` no modifica ni borra lo que ya existe. |
+
+Cuando hace falta, se recrea la base. Son tres comandos, desde la carpeta del repositorio. Se pierden los datos locales, y no importa: los vuelve a dejar `CargarDatos`.
+
+**Windows**
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "DROP DATABASE IF EXISTS eventosuy;"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts\crear-base.sql
+.\mvnw.cmd -pl logica exec:java
+```
+
+**macOS / Linux**
+
+```bash
+psql -U postgres -c "DROP DATABASE IF EXISTS eventosuy;"
+psql -U postgres -f scripts/crear-base.sql
+./mvnw -pl logica exec:java
+```
+
+Los dos primeros piden la contraseña de `postgres`. El script avisa que el rol `eventosuy` **ya existe** y sigue adelante: `DROP DATABASE` borra la base, no el rol. No es un error.
+
+> Quien cambia el esquema lo aclara en el mensaje de su commit y avisa en el grupo, así los demás recrean su base antes de seguir. Si no, el síntoma típico es un error de Hibernate al guardar, en una tabla que al resto le funciona bien.
+
+**Ahora mismo:** el cambio que exige recrear es el `estado` de la edición de evento, que es `NOT NULL`. Las columnas de imagen y el hash de la contraseña no lo exigen, porque son columnas nullable y la del hash es la que ya existía.
+
 ## Conexión a la base
 
 Credenciales que usa el sistema, definidas en `logica/src/main/resources/META-INF/persistence.xml`:
