@@ -727,4 +727,142 @@ public class Sistema implements IControladorSistema {
     public DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException {
         throw new UnsupportedOperationException("Imagen de usuario: todavia no implementado.");
     }
+
+    // ----- Eventos y ediciones (CU 6 a 9) -----
+
+    @Override
+    public Set<DTEvento> listarEventos(String nombreCategoria) {
+        throw new UnsupportedOperationException("Eventos por categoria: todavia no implementado.");
+    }
+
+    @Override
+    public DTEvento consultarEvento(String nombre) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Evento: todavia no implementado.");
+    }
+
+    @Override
+    public Set<DTEdicionEvento> listarEdicionesAceptadas(String nombreEvento)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Ediciones aceptadas: todavia no implementado.");
+    }
+
+    @Override
+    public void altaEvento(String solicitante, String nombre, String descripcion, String sigla,
+                           List<String> nombresCategorias, DTImagen imagen)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Evento: todavia no implementado.");
+    }
+
+    @Override
+    public void altaEdicion(String solicitante, String nombreEvento, DTEdicionEvento datos,
+                            DTImagen imagen)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Edicion: todavia no implementado.");
+    }
+
+    @Override
+    public DTEdicionCompleto consultarEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Edicion: todavia no implementado.");
+    }
+
+    @Override
+    public DTImagen obtenerImagenEvento(String nombreEvento) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Imagen de evento: todavia no implementado.");
+    }
+
+    @Override
+    public DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Imagen de edicion: todavia no implementado.");
+    }
+
+    // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
+
+    @Override
+    public void altaTipoRegistro(String solicitante, String nombreEdicion, String nombre,
+                                 String descripcion, double costo, int cupo)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Tipo de Registro: todavia no implementado.");
+    }
+
+    @Override
+    public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Tipo de Registro: todavia no implementado.");
+    }
+
+    @Override
+    public void altaInstitucion(String solicitante, String nombre, String descripcion,
+                                String sitioWeb, DTImagen imagen)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Institucion: todavia no implementado.");
+    }
+
+    @Override
+    public Set<DTInstitucion> listarInstituciones() {
+        throw new UnsupportedOperationException("Listar instituciones: todavia no implementado.");
+    }
+
+    @Override
+    public DTInstitucion consultarInstitucion(String nombre) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Institucion: todavia no implementado.");
+    }
+
+    @Override
+    public DTImagen obtenerImagenInstitucion(String nombre) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Imagen de institucion: todavia no implementado.");
+    }
+
+    // ----- Consulta de Registro (CU 13) -----
+
+    @Override
+    public Set<DTRegistro> listarRegistrosDeEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Registros de una edicion: todavia no implementado.");
+    }
+
+    @Override
+    public DTRegistro consultarRegistro(String nombreEdicion, String nickname, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Registro: todavia no implementado.");
+    }
+
+    // ----- Patrocinios (CU 15 y 16) -----
+
+    @Override
+    public void altaPatrocinio(String solicitante, String nombreEdicion, DTPatrocinio datos)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Patrocinio sin estado: todavia no implementado.");
+    }
+
+    @Override
+    public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Patrocinios de una edicion: todavia no implementado.");
+    }
+
+    @Override
+    public DTPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion,
+                                            String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Patrocinio: todavia no implementado.");
+    }
+
+    // ----- Aceptar/Rechazar Edicion de Evento (Estacion de Trabajo) -----
+
+    @Override
+    public Set<DTEdicionEvento> listarEdicionesIngresadas(String nombreEvento)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Ediciones ingresadas: todavia no implementado.");
+    }
+
+    @Override
+    public void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Aceptar Edicion: todavia no implementado.");
+    }
+
+    @Override
+    public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Rechazar Edicion: todavia no implementado.");
+    }
 }

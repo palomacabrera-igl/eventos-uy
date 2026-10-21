@@ -326,4 +326,152 @@ public interface IControladorSistema {
      * Devuelve null si no tiene.
      */
     DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException;
+
+    // ----- Eventos y ediciones (CU 6 a 9) -----
+
+    /**
+     * Los eventos de una categoria (CU 7). Con null o vacio devuelve todos,
+     * asi el servlet llama siempre a la misma operacion: el cabezal manda la
+     * categoria elegida, o nada cuando se entra a la cartelera.
+     */
+    Set<DTEvento> listarEventos(String nombreCategoria);
+
+    /** Consulta de Evento (CU 7): los datos del evento, sin sus ediciones. */
+    DTEvento consultarEvento(String nombre) throws ReglaNegocioException;
+
+    /**
+     * Las ediciones publicas de un evento (CU 7 y 9): SOLO las Aceptada.
+     * Las Ingresada y Rechazada se piden por listarEdicionesDeOrganizador,
+     * que decide segun quien pregunta.
+     */
+    Set<DTEdicionEvento> listarEdicionesAceptadas(String nombreEvento)
+            throws ReglaNegocioException;
+
+    /**
+     * Alta de Evento (CU 6). La fecha de alta la pone el sistema, no el
+     * formulario. La imagen puede ser null. Solo un organizador puede.
+     */
+    void altaEvento(String solicitante, String nombre, String descripcion, String sigla,
+                    List<String> nombresCategorias, DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /**
+     * Alta de Edicion de Evento (CU 8). La edicion nace INGRESADA y queda
+     * asociada al organizador que inicio sesion; la fecha de alta la pone el
+     * sistema. Del DT se ignoran el estado y la fecha de alta si vinieran.
+     */
+    void altaEdicion(String solicitante, String nombreEvento, DTEdicionEvento datos,
+                     DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /**
+     * Consulta de Edicion de Evento (CU 9), con sus tipos de registro,
+     * patrocinios y registros.
+     *
+     * Quien pregunta cambia lo que recibe: una edicion que no esta Aceptada
+     * solo la ve su organizador; el listado de registros, solo su
+     * organizador; el codigo de patrocinio, solo su organizador.
+     */
+    DTEdicionCompleto consultarEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException;
+
+    /** Los bytes de la imagen de un evento, o null si no tiene. */
+    DTImagen obtenerImagenEvento(String nombreEvento) throws ReglaNegocioException;
+
+    /** Los bytes de la imagen de una edicion, o null si no tiene. */
+    DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException;
+
+    // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
+
+    /**
+     * Alta de Tipo de Registro (CU 10). La edicion puede estar en cualquier
+     * estado, pero tiene que ser del organizador que pide.
+     */
+    void altaTipoRegistro(String solicitante, String nombreEdicion, String nombre,
+                          String descripcion, double costo, int cupo)
+            throws ReglaNegocioException;
+
+    /** Consulta de Tipo de Registro (CU 11). */
+    DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+            throws ReglaNegocioException;
+
+    /** Alta de Institucion (CU 14). Solo un organizador puede; la imagen es opcional. */
+    void altaInstitucion(String solicitante, String nombre, String descripcion,
+                         String sitioWeb, DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /**
+     * Las instituciones con todos sus datos. La que ya existia,
+     * listarNombresInstituciones(), sigue sirviendo para los combos.
+     */
+    Set<DTInstitucion> listarInstituciones();
+
+    /** Los datos de una institucion, para la ficha de patrocinio. */
+    DTInstitucion consultarInstitucion(String nombre) throws ReglaNegocioException;
+
+    /** Los bytes de la imagen de una institucion, o null si no tiene. */
+    DTImagen obtenerImagenInstitucion(String nombre) throws ReglaNegocioException;
+
+    // ----- Registro a Edicion de Evento (CU 12) -----
+    //
+    //  No lleva operaciones nuevas: altaRegistro(nickname, edicion, tipo,
+    //  codigo) ya recibe todo de una vez y valida cupo, registro duplicado y
+    //  codigo de patrocinio. Lo que falta es dentro: exigir que la edicion
+    //  este ACEPTADA y que el asistente sea quien tiene la sesion.
+
+    // ----- Consulta de Registro (CU 13) -----
+
+    /**
+     * Los registros de una edicion, para su organizador (CU 13). Si quien
+     * pregunta no es el organizador de esa edicion, es un error.
+     */
+    Set<DTRegistro> listarRegistrosDeEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException;
+
+    /**
+     * El detalle de un registro (CU 13). Lo pueden ver el asistente duenio del
+     * registro y el organizador de la edicion, nadie mas.
+     */
+    DTRegistro consultarRegistro(String nombreEdicion, String nickname, String solicitante)
+            throws ReglaNegocioException;
+
+    // ----- Patrocinios (CU 15 y 16) -----
+
+    /**
+     * Alta de Patrocinio (CU 15), sin depender de una edicion seleccionada
+     * antes. Ademas de las reglas que ya estaban (una institucion no patrocina
+     * dos veces la misma edicion, y los registros gratuitos no superan el 20%
+     * del aporte), tiene que rechazar un codigo que ya exista en la
+     * plataforma: hoy eso solo lo frena la base de datos.
+     */
+    void altaPatrocinio(String solicitante, String nombreEdicion, DTPatrocinio datos)
+            throws ReglaNegocioException;
+
+    /**
+     * Los patrocinios de una edicion (CU 16). El codigo de patrocinio viene
+     * SOLO si quien pregunta es el organizador de esa edicion; para el resto
+     * viaja vacio, porque la letra no lo publica.
+     */
+    Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException;
+
+    /** Un patrocinio concreto (CU 16), con la misma regla del codigo. */
+    DTPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion,
+                                     String solicitante)
+            throws ReglaNegocioException;
+
+    // ----- Aceptar/Rechazar Edicion de Evento (Estacion de Trabajo) -----
+
+    /** Las ediciones de un evento que estan INGRESADA, para que el administrador elija. */
+    Set<DTEdicionEvento> listarEdicionesIngresadas(String nombreEvento)
+            throws ReglaNegocioException;
+
+    /**
+     * Acepta una edicion: pasa a ACEPTADA y desde ese momento se lista al
+     * publico. Solo se puede desde INGRESADA.
+     */
+    void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException;
+
+    /** Rechaza una edicion. Solo se puede desde INGRESADA. */
+    void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException;
 }
