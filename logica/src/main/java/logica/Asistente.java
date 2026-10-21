@@ -92,7 +92,8 @@ public class Asistente extends Usuario {
     public DTUsuario obtenerDT() {
         return new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
                 apellido, DTFecha.desde(fechaNacimiento),
-                institucion == null ? null : institucion.getNombre());
+                institucion == null ? null : institucion.getNombre(),
+                tieneImagen());
     }
 
     @Override

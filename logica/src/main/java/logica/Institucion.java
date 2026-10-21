@@ -55,4 +55,13 @@ public class Institucion extends EntidadBase {
 
     /** La imagen se agrega o se reemplaza despues del alta, no en el constructor. */
     public void asignarImagen(Imagen imagen) { this.imagen = imagen; }
+
+    /**
+     * Convierte la institucion en su cajita de datos, para que la entidad no
+     * salga de la logica. Es el mismo obtenerDT() que tienen Evento, Registro
+     * y las demas entidades.
+     */
+    public DTInstitucion obtenerDT() {
+        return new DTInstitucion(nombre, descripcion, sitioWeb, tieneImagen());
+    }
 }

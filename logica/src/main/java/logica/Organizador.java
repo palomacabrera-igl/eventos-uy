@@ -73,7 +73,7 @@ public class Organizador extends Usuario {
     @Override
     public DTOrganizador obtenerDT() {
         return new DTOrganizador(getNickname(), getNombre(), getCorreoElectronico(),
-                descripcion, sitioWeb);
+                descripcion, sitioWeb, tieneImagen());
     }
 
     @Override

@@ -14,9 +14,23 @@ public class DTAsistente extends DTUsuario {
      */
     private String institucion;
 
+    /**
+     * El tipo no es un parametro: un DTAsistente no puede ser otra cosa que
+     * un asistente, asi que se lo declara el solo. La firma no cambia.
+     */
     public DTAsistente(String nickname, String nombre, String correo,
                        String apellido, DTFecha fechaNacimiento, String institucion) {
-        super(nickname, nombre, correo);
+        super(nickname, nombre, correo, TipoUsuario.ASISTENTE, false);
+        this.apellido = apellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.institucion = institucion;
+    }
+
+    /** Para un asistente que ya existe y del que se sabe si tiene imagen. */
+    public DTAsistente(String nickname, String nombre, String correo,
+                       String apellido, DTFecha fechaNacimiento, String institucion,
+                       boolean tieneImagen) {
+        super(nickname, nombre, correo, TipoUsuario.ASISTENTE, tieneImagen);
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
         this.institucion = institucion;

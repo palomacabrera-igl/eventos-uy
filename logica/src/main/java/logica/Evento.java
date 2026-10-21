@@ -99,7 +99,8 @@ public class Evento extends EntidadBase {
         for (Categoria c : categorias) {
             nombresCategorias.add(c.getNombre());
         }
-        return new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta), nombresCategorias);
+        return new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta),
+                nombresCategorias, tieneImagen());
     }
 
     public Set<DTEdicionEvento> obtenerEdiciones() {

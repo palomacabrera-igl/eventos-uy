@@ -16,10 +16,17 @@ public class DTEdicionCompleto {
     private Set<DTRegistro> registros;
     private Set<DTPatrocinio> patrocinios;
 
+    /** Ingresada, Aceptada o Rechazada: la pagina decide con esto quien puede verla. */
+    private EstadoEdicion estado;
+
+    /** Si hay que dibujar un <img> o el poster de color. Los bytes no viajan aca. */
+    private boolean tieneImagen;
+
     public DTEdicionCompleto(String nombre, String sigla, LocalDate fechaAlta,
                              LocalDate fechaIni, LocalDate fechaFin, String pais, String ciudad,
                              DTOrganizador organizador, Set<DTTipoRegistro> tiposRegistro,
-                             Set<DTRegistro> registros, Set<DTPatrocinio> patrocinios) {
+                             Set<DTRegistro> registros, Set<DTPatrocinio> patrocinios,
+                             EstadoEdicion estado, boolean tieneImagen) {
         this.nombre = nombre;
         this.sigla = sigla;
         this.fechaAlta = fechaAlta;
@@ -31,6 +38,8 @@ public class DTEdicionCompleto {
         this.tiposRegistro = tiposRegistro;
         this.registros = registros;
         this.patrocinios = patrocinios;
+        this.estado = estado;
+        this.tieneImagen = tieneImagen;
     }
 
     // Getters
@@ -76,5 +85,13 @@ public class DTEdicionCompleto {
 
     public Set<DTPatrocinio> getPatrocinios() {
         return patrocinios;
+    }
+
+    public EstadoEdicion getEstado() {
+        return estado;
+    }
+
+    public boolean getTieneImagen() {
+        return tieneImagen;
     }
 }

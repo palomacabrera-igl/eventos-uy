@@ -79,6 +79,7 @@ public class Registro extends EntidadBase {
     public void setFechaRegistro(LocalDate fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
     public DTRegistro obtenerDT() {
-        return new DTRegistro(asistente.getNickname(), edicion.getNombre(), tipoRegistro.getNombre(), costo, fechaRegistro);
+        return new DTRegistro(asistente.getNickname(), edicion.getNombre(),
+                tipoRegistro.getNombre(), costo, fechaRegistro, patrocinio != null);
     }
 }

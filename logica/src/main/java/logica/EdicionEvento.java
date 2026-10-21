@@ -160,7 +160,8 @@ public class EdicionEvento extends EntidadBase {
 
     public DTEdicionEvento obtenerDT() {
         return new DTEdicionEvento(nombre, sigla, ciudad, pais,
-                DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta));
+                DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta),
+                estado, tieneImagen());
     }
 
     public Set<DTPatrocinio> obtenerPatrocinios() {
@@ -299,6 +300,7 @@ public class EdicionEvento extends EntidadBase {
         DTOrganizador dtOrg = organizador.obtenerDT();
 
         return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
-                pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios);
+                pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios,
+                estado, tieneImagen());
     }
 }
