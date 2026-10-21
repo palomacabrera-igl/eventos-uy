@@ -266,7 +266,7 @@ public final class DatosDePrueba {
                 LocalDate.of(2026, 2, 1),
                 20000.0,
                 1,
-                1001,
+                "1001",
                 NivelPatrocinio.ORO,
                 utec,
                 jiapGeneral
@@ -276,7 +276,7 @@ public final class DatosDePrueba {
                 LocalDate.of(2025, 2, 10),
                 25000.0,
                 2,
-                1002,
+                "1002",
                 NivelPatrocinio.PLATA,
                 utec,
                 jiapTaller
@@ -343,7 +343,7 @@ public final class DatosDePrueba {
                 LocalDate.of(2025, 5, 1),
                 8000.0,
                 1,
-                1003,
+                "1003",
                 NivelPatrocinio.BRONCE,
                 utec,
                 libroGeneral
@@ -431,7 +431,7 @@ public final class DatosDePrueba {
                 LocalDate.of(2026, 4, 10),
                 50000.0,
                 8,
-                1004,
+                "1004",
                 NivelPatrocinio.ORO,
                 ancap,
                 corredor10K
@@ -495,7 +495,7 @@ public final class DatosDePrueba {
                 LocalDate.of(2026, 5, 12),
                 30000.0,
                 2,
-                1005,
+                "1005",
                 NivelPatrocinio.PLATA,
                 udelar,
                 entradaRock

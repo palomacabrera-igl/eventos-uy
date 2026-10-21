@@ -155,16 +155,9 @@ public class RegistroEdicionDeEvento {
         }
 
         // El codigo es opcional: vacio significa que el asistente paga.
-        Integer codigoPatrocinio = null;
-        String textoCodigo = codigoPatrocinioTxt.getText().trim();
-        if (!textoCodigo.isEmpty()) {
-            try {
-                codigoPatrocinio = Integer.valueOf(textoCodigo);
-            } catch (NumberFormatException ex) {
-                Mensajes.aviso(mainPanel, TITULO,
-                        "El código de patrocinio tiene que ser un número.");
-                return;
-            }
+        String codigoPatrocinio = codigoPatrocinioTxt.getText().trim();
+        if (codigoPatrocinio.isEmpty()) {
+            codigoPatrocinio = null;
         }
 
         // (b) Llamada a la LOGICA: siempre dentro del try.

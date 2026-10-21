@@ -121,7 +121,7 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public DTPatrocinio mostrarPatrocinio(int codigoPatrocinio)
+    public DTPatrocinio mostrarPatrocinio(String codigoPatrocinio)
             throws ReglaNegocioException {
         if (edicionSeleccionada == null) {
             throw new ReglaNegocioException("Primero hay que seleccionar una edicion.");
@@ -309,7 +309,7 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
-                             Integer codigoPatrocinio) throws ReglaNegocioException {
+                             String codigoPatrocinio) throws ReglaNegocioException {
         // La edicion se resuelve por el nombre que llega como parametro, no por
         // la que quedo retenida de un llamado anterior.
         EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
@@ -356,7 +356,7 @@ public class Sistema implements IControladorSistema {
      * que ser el que el patrocinio regala, y tienen que quedar lugares gratuitos.
      */
     private Patrocinio validarCodigoPatrocinio(EdicionEvento ed, TipoRegistro tr,
-                                               Asistente asistente, int codigo)
+                                               Asistente asistente, String codigo)
             throws ReglaNegocioException {
         Patrocinio p = ed.buscarPatrocinio(codigo);
         if (p == null) {
@@ -672,5 +672,59 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "Primero hay que ingresar los datos comunes del usuario.");
         }
+    }
+
+    // =================================================================
+    //  OPERACIONES PARA EL SITIO WEB
+    // =================================================================
+    //  Todavia sin implementar: estan para que el modulo web y la Estacion
+    //  de Trabajo puedan compilar contra el contrato desde el primer dia.
+    //  Cada una se implementa junto con su caso de uso.
+
+    // ----- Sesion y usuarios (CU 1 a 5) -----
+
+    @Override
+    public DTUsuario iniciarSesion(String identificador, String password)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Inicio de Sesion: todavia no implementado.");
+    }
+
+    @Override
+    public void altaUsuario(DTUsuario datos, TipoUsuario tipo, String password,
+                            String confirmacion, String nombreInstitucion, DTImagen imagen)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Alta de Usuario: todavia no implementado.");
+    }
+
+    @Override
+    public DTUsuario consultarUsuario(String nickname, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Consulta de Usuario: todavia no implementado.");
+    }
+
+    @Override
+    public Set<DTEdicionEvento> listarEdicionesDeOrganizador(String nickname, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException(
+                "Ediciones de un organizador: todavia no implementado.");
+    }
+
+    @Override
+    public Set<DTRegistro> listarRegistrosDeAsistente(String nickname, String solicitante)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException(
+                "Registros de un asistente: todavia no implementado.");
+    }
+
+    @Override
+    public void modificarUsuario(String solicitante, DTUsuario datos, String nuevaPassword,
+                                 String confirmacion, DTImagen imagen)
+            throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Modificar Usuario: todavia no implementado.");
+    }
+
+    @Override
+    public DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException {
+        throw new UnsupportedOperationException("Imagen de usuario: todavia no implementado.");
     }
 }

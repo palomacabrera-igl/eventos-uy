@@ -34,8 +34,8 @@ public class Patrocinio extends EntidadBase {
     private int cantRegistrosGratis;
 
     /** Codigo de patrocinio, unico en la plataforma. */
-    @Column(nullable = false)
-    private int codigo;
+    @Column(nullable = false, length = 50)
+    private String codigo;
 
     /**
      * EnumType.STRING guarda "ORO" / "PLATA" / "BRONCE" como texto.
@@ -67,7 +67,7 @@ public class Patrocinio extends EntidadBase {
     protected Patrocinio() {}
 
     public Patrocinio(LocalDate fechaIni, Double monto, int cantRegistrosGratis,
-                      int codigo, NivelPatrocinio nivelPatro,
+                      String codigo, NivelPatrocinio nivelPatro,
                       Institucion institucion, TipoRegistro tipoRegistro){
         this.fechaIni = fechaIni;
         this.monto = monto;
@@ -81,7 +81,7 @@ public class Patrocinio extends EntidadBase {
     public LocalDate getFechaIni() {return fechaIni;}
     public Double getMonto() {return monto;}
     public int getCantRegistrosGratis() {return cantRegistrosGratis;}
-    public int getCodigo() {return codigo;}
+    public String getCodigo() {return codigo;}
     public NivelPatrocinio getNivelPatro() {return nivelPatro;}
     public Institucion getInstitucion() {return institucion;}
     public TipoRegistro getTipoRegistro() {return tipoRegistro;}
@@ -92,7 +92,7 @@ public class Patrocinio extends EntidadBase {
     public void setFechaIni(LocalDate fechaIni) {this.fechaIni = fechaIni;}
     public void setMonto(Double monto) {this.monto = monto;}
     public void setCantRegistrosGratis(int cantRegistrosGratis) {this.cantRegistrosGratis = cantRegistrosGratis;}
-    public void setCodigo(int codigo) {this.codigo = codigo;}
+    public void setCodigo(String codigo) {this.codigo = codigo;}
     public void setNivelPatro(NivelPatrocinio nivelPatro) {this.nivelPatro = nivelPatro;}
 
     /**

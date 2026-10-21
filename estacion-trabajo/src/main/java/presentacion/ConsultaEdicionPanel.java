@@ -233,7 +233,7 @@ public class ConsultaEdicionPanel {
                     .toArray(DTRegistro[]::new));
 
             PatrociniosList.setListData(ed.getPatrocinios().stream()
-                    .sorted(Comparator.comparingInt(DTPatrocinio::getCodigoPatrocinio))
+                    .sorted(Comparator.comparing(DTPatrocinio::getCodigoPatrocinio))
                     .toArray(DTPatrocinio[]::new));
 
         } catch (Exception ex) {

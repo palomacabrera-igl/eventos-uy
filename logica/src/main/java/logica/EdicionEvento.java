@@ -173,9 +173,11 @@ public class EdicionEvento extends EntidadBase {
         return resultado;
     }
 
-    public Patrocinio buscarPatrocinio(int codigo) {
+    public Patrocinio buscarPatrocinio(String codigo) {
         for (Patrocinio p : patrocinios) {
-            if (p.getCodigo() == codigo) {
+            // equals y no ==: con texto, == compara si son el MISMO objeto
+            // en memoria, no si dicen lo mismo.
+            if (p.getCodigo().equals(codigo)) {
                 return p;
             }
         }

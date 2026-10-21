@@ -232,13 +232,12 @@ public class AltaPatrocinioPanel {
             return;
         }
 
-        int codigo;
-        try {
-            // Validacion de formato del formulario, no un fallo del sistema.
-            codigo = Integer.parseInt(CodigoTxt.getText().trim());
-        } catch (NumberFormatException ex) {
+        // El codigo es texto: ya no hay que convertirlo ni validar que sea
+        // un numero. Solo que no venga vacio.
+        String codigo = CodigoTxt.getText().trim();
+        if (codigo.isEmpty()) {
             Mensajes.aviso(mainPanel, TITULO,
-                    "El codigo de patrocinio tiene que ser un numero entero.");
+                    "El codigo de patrocinio es obligatorio.");
             return;
         }
 

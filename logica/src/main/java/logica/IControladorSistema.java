@@ -43,7 +43,7 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     /** Precondicion: debe existir un Patrocinio con ese codigo (de la edicion seleccionada). */
-    DTPatrocinio mostrarPatrocinio(int codigoPatrocinio)
+    DTPatrocinio mostrarPatrocinio(String codigoPatrocinio)
             throws ReglaNegocioException;
 
     // ===== Alta de Edicion de Evento =====
@@ -144,7 +144,7 @@ public interface IControladorSistema {
      *         o si ya se usaron todos los registros gratuitos.
      */
     void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
-                      Integer codigoPatrocinio) throws ReglaNegocioException;
+                      String codigoPatrocinio) throws ReglaNegocioException;
 
     // ===== Consulta de Usuario =====
 
@@ -246,4 +246,84 @@ public interface IControladorSistema {
     void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
                              String sigla, List<String> nombresCategorias)
             throws ReglaNegocioException;
+
+    // =================================================================
+    //  OPERACIONES PARA EL SITIO WEB
+    // =================================================================
+    //
+    //  Se agregan sin tocar las de arriba, que son las del Laboratorio 1 y
+    //  las sigue usando la Estacion de Trabajo.
+    //
+    //  Dos diferencias con aquellas:
+    //
+    //  1. Reciben TODO lo que necesitan en una sola llamada. No dependen de
+    //     que antes se haya llamado a un seleccionar*, porque en la web cada
+    //     peticion llega sola y no hay forma de saber si la anterior fue del
+    //     mismo usuario.
+    //
+    //  2. Varias reciben "solicitante": el nickname de quien tiene la sesion
+    //     iniciada, o null si es un visitante. Es lo que le permite a la
+    //     LOGICA decidir que datos devuelve. La letra (7.4) no deja que esa
+    //     decision la tome la pagina: si la JSP esconde un dato, el dato
+    //     igual viajo hasta el navegador.
+
+    // ----- Sesion y usuarios (CU 1 a 5) -----
+
+    /**
+     * Inicio de Sesion (CU 1). El identificador puede ser el nickname o el
+     * correo electronico, como pide la letra.
+     *
+     * @throws ReglaNegocioException con un mensaje unico si los datos no
+     *         corresponden a un usuario. A proposito no distingue entre
+     *         usuario inexistente y contrasena incorrecta.
+     */
+    DTUsuario iniciarSesion(String identificador, String password)
+            throws ReglaNegocioException;
+
+    /**
+     * Alta de Usuario (CU 3), en una sola llamada. Hoy el mismo alta son tres
+     * llamadas encadenadas que dependen del estado del controlador.
+     *
+     * La contrasena va en TEXTO PLANO: la entidad la hashea sola.
+     * nombreInstitucion e imagen pueden ser null: los dos son opcionales.
+     */
+    void altaUsuario(DTUsuario datos, TipoUsuario tipo, String password,
+                     String confirmacion, String nombreInstitucion, DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /** Consulta de Usuario (CU 4). El perfil basico, sin la contrasena. */
+    DTUsuario consultarUsuario(String nickname, String solicitante)
+            throws ReglaNegocioException;
+
+    /**
+     * Las ediciones de un organizador (CU 4). Devuelve solo las Aceptada,
+     * salvo que el organizador este consultando su propio perfil: ahi vienen
+     * las tres, como pide la letra.
+     */
+    Set<DTEdicionEvento> listarEdicionesDeOrganizador(String nickname, String solicitante)
+            throws ReglaNegocioException;
+
+    /**
+     * Los registros de un asistente (CU 4). Solo cuando el asistente consulta
+     * su propio perfil; para cualquier otro devuelve la lista vacia.
+     */
+    Set<DTRegistro> listarRegistrosDeAsistente(String nickname, String solicitante)
+            throws ReglaNegocioException;
+
+    /**
+     * Modificar Datos de Usuario (CU 5). El nickname y el correo no se
+     * modifican nunca.
+     *
+     * nuevaPassword y confirmacion pueden venir vacias: significa que no se
+     * cambia la contrasena. Si vienen, tienen que coincidir.
+     */
+    void modificarUsuario(String solicitante, DTUsuario datos, String nuevaPassword,
+                          String confirmacion, DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /**
+     * Los bytes de la imagen de un usuario, para el servlet que las entrega.
+     * Devuelve null si no tiene.
+     */
+    DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException;
 }

@@ -56,7 +56,7 @@ public class PruebaIntegracion {
             System.out.println("\n=== E. Alta de Patrocinio (necesita institucion + tipo de registro) ===");
             c.listarEdicionesDeEvento("JIAP");
             c.listarTiposRegistroDeEdicion("JIAP 2026");
-            DTPatrocinio dtp = new DTPatrocinio(Integer.parseInt(sufijo),
+            DTPatrocinio dtp = new DTPatrocinio(sufijo,
                     DTFecha.desde(LocalDate.now()), 5000.0, "PLATA",
                     10, inst, "General");
             try {
@@ -68,7 +68,7 @@ public class PruebaIntegracion {
 
             System.out.println("\n=== F. La regla del 20% sigue funcionando ===");
             try {
-                c.altaPatrocinio(new DTPatrocinio(Integer.parseInt(sufijo) + 1,
+                c.altaPatrocinio(new DTPatrocinio(sufijo + "-B",
                         DTFecha.desde(LocalDate.now()), 100.0, "BRONCE",
                         50, inst, "General"));
                 System.out.println("  INESPERADO: acepto 50 gratis sobre un aporte de 100.");

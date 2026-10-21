@@ -3,7 +3,7 @@ package logica;
 
 public class DTPatrocinio {
 
-    private int codigoPatrocinio;
+    private String codigoPatrocinio;
     private DTFecha fecha;
     private double monto;
     /** "PLATINO", "ORO", "PLATA" o "BRONCE". */
@@ -12,7 +12,7 @@ public class DTPatrocinio {
     private String institucion;
     private String tipoRegistro;
 
-    public DTPatrocinio(int codigoPatrocinio, DTFecha fecha, double monto, String nivel,
+    public DTPatrocinio(String codigoPatrocinio, DTFecha fecha, double monto, String nivel,
                         int cantRegistrosGratis, String institucion, String tipoRegistro) {
         this.codigoPatrocinio = codigoPatrocinio;
         this.fecha = fecha;
@@ -23,7 +23,7 @@ public class DTPatrocinio {
         this.tipoRegistro = tipoRegistro;
     }
 
-    public int getCodigoPatrocinio() {return codigoPatrocinio;}
+    public String getCodigoPatrocinio() {return codigoPatrocinio;}
     public DTFecha getFecha() {return fecha;}
     public double getMonto() {return monto;}
     public String getNivel() {return nivel;}
