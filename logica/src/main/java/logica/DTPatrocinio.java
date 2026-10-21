@@ -1,0 +1,33 @@
+package logica;
+
+
+public class DTPatrocinio {
+
+    private String codigoPatrocinio;
+    private DTFecha fecha;
+    private double monto;
+    /** "PLATINO", "ORO", "PLATA" o "BRONCE". */
+    private String nivel;
+    private int cantRegistrosGratis;
+    private String institucion;
+    private String tipoRegistro;
+
+    public DTPatrocinio(String codigoPatrocinio, DTFecha fecha, double monto, String nivel,
+                        int cantRegistrosGratis, String institucion, String tipoRegistro) {
+        this.codigoPatrocinio = codigoPatrocinio;
+        this.fecha = fecha;
+        this.monto = monto;
+        this.nivel = nivel;
+        this.cantRegistrosGratis = cantRegistrosGratis;
+        this.institucion = institucion;
+        this.tipoRegistro = tipoRegistro;
+    }
+
+    public String getCodigoPatrocinio() {return codigoPatrocinio;}
+    public DTFecha getFecha() {return fecha;}
+    public double getMonto() {return monto;}
+    public String getNivel() {return nivel;}
+    public int getCantRegistrosGratis() {return cantRegistrosGratis;}
+    public String getInstitucion() {return institucion;}
+    public String getTipoRegistro() {return tipoRegistro;}
+}

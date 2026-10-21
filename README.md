@@ -32,6 +32,10 @@ La sesión se simula en el navegador. Para iniciarla, **Iniciar sesión** en el 
 | `imm` | `Imm2026!` | Organizador | Seis ediciones, una en cada estado |
 | `antel` | `Antel2026!` | Organizador | Para comprobar que un organizador no ve las ediciones de otro |
 
+> Las contraseñas se proporcionan en texto plano únicamente al crear los datos
+> de prueba. La aplicación las almacena usando hash PBKDF2, por lo que no se
+> pueden recuperar desde la base de datos.
+
 La sesión vive en el navegador y no en la pestaña: si se inicia sesión en una pestaña, cambia en todas. Para comparar dos usuarios a la vez conviene usar una ventana de incógnito.
 
 ### Qué todavía no hace
@@ -93,23 +97,27 @@ Pide la contraseña del usuario `postgres`, la que cada uno definió al instalar
 **Windows**
 
 ```powershell
-.\mvnw.cmd package
+.\mvnw.cmd install -DskipTests
 ```
 
 **macOS / Linux**
 
 ```bash
-./mvnw package
+./mvnw install -DskipTests
 ```
 
-Genera `target/eventos-uy-1.0-SNAPSHOT.jar`.
+Compila los tres módulos y los deja en tu repositorio local de Maven (necesario para poder ejecutar la Estación de Trabajo). Genera:
+
+- `logica/target/logica-1.0-SNAPSHOT.jar`
+- `estacion-trabajo/target/estacion-trabajo-1.0-SNAPSHOT.jar`
+- `servidor-web/target/eventos-uy.war`
 
 ### 3. Cargar los datos de prueba
 
 Deja en la base un conjunto inicial de usuarios, eventos, ediciones, tipos de registro y patrocinios para poder recorrer los casos de uso:
 
 ```powershell
-.\mvnw.cmd exec:java "-Dexec.mainClass=persistencia.CargarDatos"
+.\mvnw.cmd -pl logica exec:java
 ```
 
 Es idempotente: si los datos ya están, avisa y no hace nada. También se puede ejecutar la clase `persistencia.CargarDatos` desde IntelliJ.
@@ -117,14 +125,48 @@ Es idempotente: si los datos ya están, avisa y no hace nada. También se puede 
 ### 4. Ejecutar la aplicación
 
 ```powershell
-.\mvnw.cmd exec:java
+.\mvnw.cmd -pl estacion-trabajo exec:java
 ```
 
 O desde IntelliJ, ejecutando la clase `presentacion.VentanaPrincipal`.
 
+## Cuando cambia el esquema de la base
+
+Cada vez que alguien agrega o modifica un campo de una entidad, cambia el esquema de la base. Hibernate arranca con `hibernate.hbm2ddl.auto=update`, que **agrega** lo que falta pero **no rehace** lo que ya existe:
+
+| El cambio | ¿Hay que hacer algo? |
+| --- | --- |
+| Una columna **nullable** nueva | **No.** Hibernate la agrega sola en el próximo arranque. |
+| Una columna **`NOT NULL`** nueva, en una tabla que ya tiene filas | **Sí.** PostgreSQL no tiene con qué llenarla en las filas que ya están, así que la columna no se crea y después fallan las inserciones. |
+| Cambiar el tipo o el largo de una columna, o borrar una | **Sí.** `update` no modifica ni borra lo que ya existe. |
+
+Cuando hace falta, se recrea la base. Son tres comandos, desde la carpeta del repositorio. Se pierden los datos locales, y no importa: los vuelve a dejar `CargarDatos`.
+
+**Windows**
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "DROP DATABASE IF EXISTS eventosuy;"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts\crear-base.sql
+.\mvnw.cmd -pl logica exec:java
+```
+
+**macOS / Linux**
+
+```bash
+psql -U postgres -c "DROP DATABASE IF EXISTS eventosuy;"
+psql -U postgres -f scripts/crear-base.sql
+./mvnw -pl logica exec:java
+```
+
+Los dos primeros piden la contraseña de `postgres`. El script avisa que el rol `eventosuy` **ya existe** y sigue adelante: `DROP DATABASE` borra la base, no el rol. No es un error.
+
+> Quien cambia el esquema lo aclara en el mensaje de su commit y avisa en el grupo, así los demás recrean su base antes de seguir. Si no, el síntoma típico es un error de Hibernate al guardar, en una tabla que al resto le funciona bien.
+
+**Ahora mismo:** el cambio que exige recrear es el `estado` de la edición de evento, que es `NOT NULL`. Las columnas de imagen y el hash de la contraseña no lo exigen, porque son columnas nullable y la del hash es la que ya existía.
+
 ## Conexión a la base
 
-Credenciales que usa el sistema, definidas en `src/main/resources/META-INF/persistence.xml`:
+Credenciales que usa el sistema, definidas en `logica/src/main/resources/META-INF/persistence.xml`:
 
 | Parámetro  | Valor       |
 | ---------- | ----------- |
@@ -139,14 +181,16 @@ Sirven igual para conectarse desde pgAdmin o DBeaver.
 ## Estructura
 
 ```
-src/main/java/logica/          Dominio, controlador (Sistema), manejadores y DTs
-src/main/java/persistencia/    Acceso a JPA (Persistencia) y carga de datos
-src/main/java/presentacion/    Interfaz gráfica Swing (paneles .form + ventanas)
-src/main/resources/META-INF/   persistence.xml (configuración de JPA)
+logica/                        JAR: dominio, controlador (Sistema), manejadores, DTs y persistencia (JPA)
+  src/main/java/logica/        Dominio, controlador (Sistema), manejadores y DTs
+  src/main/java/persistencia/  Acceso a JPA (Persistencia) y carga de datos
+  src/main/resources/META-INF/ persistence.xml (configuración de JPA)
+estacion-trabajo/              JAR: interfaz gráfica Swing (paneles .form + ventanas)
+servidor-web/                  WAR: sitio web con servlets y JSP (lleva logica adentro)
 scripts/crear-base.sql         Creación del rol y la base en PostgreSQL
 web/                           Sitio web del Laboratorio 2 (Parte 1)
 docs/                          Documentación de análisis y diseño, y registro de horas
-pom.xml                        Proyecto Maven (Java 25)
+pom.xml                        POM padre: lista los tres módulos (Java 25)
 ```
 
 ## Arquitectura
