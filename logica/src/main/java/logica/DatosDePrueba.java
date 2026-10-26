@@ -59,7 +59,7 @@ public final class DatosDePrueba {
                 "https://utec.edu.uy"
         );
         utec.asignarImagen(imagenes.get(
-                "web/public/images/instituciones/avatarInstitucion.png"
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
         ));
 
         Institucion udelar = new Institucion(
@@ -68,7 +68,7 @@ public final class DatosDePrueba {
                 "https://udelar.edu.uy"
         );
         udelar.asignarImagen(imagenes.get(
-                "web/public/images/instituciones/avatarInstitucion.png"
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
         ));
 
         Institucion ancap = new Institucion(
@@ -77,7 +77,7 @@ public final class DatosDePrueba {
                 "https://ancap.com.uy"
         );
         ancap.asignarImagen(imagenes.get(
-                "web/public/images/instituciones/avatarInstitucion.png"
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
         ));
 
         manejadorInstitucion.agregar(utec);
@@ -98,7 +98,7 @@ public final class DatosDePrueba {
         );
         vale23.setInstitucion(utec);
         vale23.asignarImagen(imagenes.get(
-                "web/public/images/usuarios/avatarFemenino.png"
+                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png"
         ));
 
         Asistente jperez = new Asistente(
@@ -110,7 +110,7 @@ public final class DatosDePrueba {
                 "Juan2026!"
         );
         jperez.asignarImagen(imagenes.get(
-                "web/public/images/usuarios/avatarMasculino.png"
+                "servidor-web/src/main/webapp/public/images/usuarios/avatarMasculino.png"
         ));
 
         Asistente lgomez = new Asistente(
@@ -123,7 +123,7 @@ public final class DatosDePrueba {
         );
         lgomez.setInstitucion(utec);
         lgomez.asignarImagen(imagenes.get(
-                "web/public/images/usuarios/avatarFemenino.png"
+                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png"
         ));
 
         manejadorUsuario.agregar(vale23);
@@ -143,7 +143,7 @@ public final class DatosDePrueba {
                 "Imm2026!"
         );
         imm.asignarImagen(imagenes.get(
-                "web/public/images/instituciones/avatarInstitucion.png"
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
         ));
 
         Organizador antel = new Organizador(
@@ -155,7 +155,7 @@ public final class DatosDePrueba {
                 "Antel2026!"
         );
         antel.asignarImagen(imagenes.get(
-                "web/public/images/instituciones/avatarInstitucion.png"
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
         ));
 
         manejadorUsuario.agregar(imm);
@@ -173,7 +173,7 @@ public final class DatosDePrueba {
                 Arrays.asList(tecnologia)
         );
         jiap.asignarImagen(imagenes.get(
-                "web/public/images/eventos/JIAP/eventoIng.png"
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/eventoIng.png"
         ));
 
         EdicionEvento jiap2026 = new EdicionEvento(
@@ -187,7 +187,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2026.png"
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2026.png"
         ));
         try {
             jiap2026.aceptar();
@@ -206,7 +206,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2027.asignarImagen(imagenes.get(
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2027.png"
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2027.png"
         ));
         // Queda INGRESADA, que es el estado inicial.
 
@@ -221,7 +221,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2025.asignarImagen(imagenes.get(
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2025.png"
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2025.png"
         ));
         try {
             jiap2025.rechazar();
@@ -306,7 +306,7 @@ public final class DatosDePrueba {
                 Arrays.asList(cultura)
         );
         feriaLibro.asignarImagen(imagenes.get(
-                "web/public/images/eventos/FeriaDelLibro/eventoLibro.png"
+                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/eventoLibro.png"
         ));
 
         EdicionEvento libro2026 = new EdicionEvento(
@@ -320,7 +320,7 @@ public final class DatosDePrueba {
                 antel
         );
         libro2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
+                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
         ));
         try {
             libro2026.aceptar();
@@ -364,7 +364,7 @@ public final class DatosDePrueba {
                 Arrays.asList(deporte)
         );
         maraton.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MaratonDeMontevideo/maraton.png"
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/maraton.png"
         ));
 
         EdicionEvento maraton2026 = new EdicionEvento(
@@ -378,7 +378,7 @@ public final class DatosDePrueba {
                 imm
         );
         maraton2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png"
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png"
         ));
         try {
             maraton2026.aceptar();
@@ -397,7 +397,7 @@ public final class DatosDePrueba {
                 imm
         );
         maraton2025.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png"
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png"
         ));
         try {
             maraton2025.aceptar();
@@ -458,7 +458,7 @@ public final class DatosDePrueba {
                 Arrays.asList(musica)
         );
         rock.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MontevideoRock/rock.png"
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/rock.png"
         ));
 
         EdicionEvento rock2026 = new EdicionEvento(
@@ -472,7 +472,7 @@ public final class DatosDePrueba {
                 antel
         );
         rock2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MontevideoRock/ediciones/rock2026.webp"
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/ediciones/rock2026.webp"
         ));
         try {
             rock2026.aceptar();
@@ -524,7 +524,7 @@ public final class DatosDePrueba {
                 Arrays.asList(negocios, tecnologia)
         );
         expoNegocios.asignarImagen(imagenes.get(
-                "web/public/images/eventos/ExpoNegociosUY/negocios.png"
+                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/negocios.png"
         ));
 
         EdicionEvento expo2026 = new EdicionEvento(
@@ -538,7 +538,7 @@ public final class DatosDePrueba {
                 antel
         );
         expo2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png"
+                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png"
         ));
         // Queda INGRESADA.
 
@@ -559,7 +559,7 @@ public final class DatosDePrueba {
                 Arrays.asList(cultura)
         );
         comics.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MontevideoComics/eventoComic.png"
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/eventoComic.png"
         ));
 
         EdicionEvento comics2026 = new EdicionEvento(
@@ -573,7 +573,7 @@ public final class DatosDePrueba {
                 imm
         );
         comics2026.asignarImagen(imagenes.get(
-                "web/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
         ));
         try {
             comics2026.aceptar();
@@ -628,31 +628,31 @@ public final class DatosDePrueba {
                 new LinkedHashMap<>();
 
         String[] rutas = {
-                "web/public/images/instituciones/avatarInstitucion.png",
-                "web/public/images/usuarios/avatarFemenino.png",
-                "web/public/images/usuarios/avatarMasculino.png",
+                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png",
+                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png",
+                "servidor-web/src/main/webapp/public/images/usuarios/avatarMasculino.png",
 
-                "web/public/images/eventos/JIAP/eventoIng.png",
-                "web/public/images/eventos/FeriaDelLibro/eventoLibro.png",
-                "web/public/images/eventos/MaratonDeMontevideo/maraton.png",
-                "web/public/images/eventos/MontevideoRock/rock.png",
-                "web/public/images/eventos/ExpoNegociosUY/negocios.png",
-                "web/public/images/eventos/MontevideoComics/eventoComic.png",
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/eventoIng.png",
+                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/eventoLibro.png",
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/maraton.png",
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/rock.png",
+                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/negocios.png",
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/eventoComic.png",
 
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2026.png",
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2027.png",
-                "web/public/images/eventos/JIAP/ediciones/edicionIng2025.png",
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2026.png",
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2027.png",
+                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2025.png",
 
-                "web/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png",
+                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png",
 
-                "web/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png",
-                "web/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png",
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png",
+                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png",
 
-                "web/public/images/eventos/MontevideoRock/ediciones/rock2026.webp",
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/ediciones/rock2026.webp",
 
-                "web/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png",
+                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png",
 
-                "web/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
+                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
         };
 
         for (String ruta : rutas) {

@@ -25,3 +25,6 @@ replay_pid*
 
 # Maven build output
 target/
+
+# Tomcat local, lo copia cada uno desde el ZIP de la demo
+tools/

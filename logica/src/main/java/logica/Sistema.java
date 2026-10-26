@@ -1,5 +1,7 @@
 package logica;
 
+import persistencia.Persistencia;
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -864,5 +866,12 @@ public class Sistema implements IControladorSistema {
     @Override
     public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
         throw new UnsupportedOperationException("Rechazar Edicion: todavia no implementado.");
+    }
+
+    // ----- Mantenimiento -----
+
+    @Override
+    public void refrescarDatos() {
+        Persistencia.refrescar();
     }
 }

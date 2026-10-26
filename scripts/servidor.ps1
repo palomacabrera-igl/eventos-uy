@@ -1,0 +1,156 @@
+<#
+.SYNOPSIS
+  Compila el sitio y lo deja andando en Tomcat.
+
+.DESCRIPTION
+  Arma el WAR con el Maven Wrapper, lo despliega en el Tomcat que esta en
+  tools/ y lo deja corriendo en segundo plano.
+
+  Funciona con el PowerShell que viene con Windows (5.1): no hace falta
+  instalar PowerShell 7. Solo necesita JAVA_HOME apuntando a un JDK 25.
+
+  Tomcat NO se baja de internet: hay que copiarlo una sola vez desde el ZIP
+  de la demo del curso (ProyectoWeb.zip -> tools/apache-tomcat-11.0.26) a la
+  carpeta tools/ de este proyecto. Esa carpeta esta en .gitignore, asi que
+  cada uno la tiene en su maquina y no viaja en el repositorio.
+
+.PARAMETER Detener
+  Para el Tomcat de este proyecto.
+
+.PARAMETER Reiniciar
+  Para, vuelve a compilar y arranca de nuevo.
+
+.EXAMPLE
+  .\scripts\servidor.ps1
+  .\scripts\servidor.ps1 -Reiniciar
+  .\scripts\servidor.ps1 -Detener
+#>
+
+[CmdletBinding()]
+param(
+    [switch]$Detener,
+    [switch]$Reiniciar
+)
+
+$ErrorActionPreference = "Stop"
+
+$VersionTomcat = "11.0.26"
+$Puerto        = 8080
+$Raiz          = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$Tomcat        = Join-Path $Raiz "tools\apache-tomcat-$VersionTomcat"
+$Webapps       = Join-Path $Tomcat "webapps"
+$ArchivoPid    = Join-Path $Raiz "tools\tomcat.pid"
+$Url           = "http://localhost:$Puerto/eventos"
+
+function Paso($texto)  { Write-Host ""; Write-Host "==> $texto" -ForegroundColor Cyan }
+function Listo($texto) { Write-Host $texto -ForegroundColor Green }
+function Aviso($texto) { Write-Host $texto -ForegroundColor Yellow }
+
+function Parar-Tomcat {
+    if (Test-Path $ArchivoPid) {
+        $numero = Get-Content $ArchivoPid
+        $proceso = Get-Process -Id $numero -ErrorAction SilentlyContinue
+        if ($proceso) {
+            Paso "Parando Tomcat (proceso $numero)"
+            Stop-Process -Id $numero -Force
+            Start-Sleep -Seconds 2
+        }
+        Remove-Item $ArchivoPid -Force -ErrorAction SilentlyContinue
+        Listo "Tomcat detenido."
+    } else {
+        Aviso "No hay ningun Tomcat de este proyecto corriendo."
+    }
+}
+
+# ---------------------------------------------------------------- detener
+if ($Detener) {
+    Parar-Tomcat
+    return
+}
+
+# ------------------------------------------------- comprobaciones previas
+if (-not (Test-Path $Tomcat)) {
+    Write-Host ""
+    Write-Host "No se encontro Tomcat en:" -ForegroundColor Red
+    Write-Host "  $Tomcat"
+    Write-Host ""
+    Write-Host "Copialo una sola vez desde el ZIP de la demo del curso:"
+    Write-Host "  ProyectoWeb.zip -> ProyectoWeb\tools\apache-tomcat-$VersionTomcat"
+    Write-Host "  y pegalo en:  $Raiz\tools\"
+    Write-Host ""
+    exit 1
+}
+
+if (-not $env:JAVA_HOME) {
+    Write-Host "Falta la variable JAVA_HOME apuntando a un JDK 25." -ForegroundColor Red
+    exit 1
+}
+
+if ($Reiniciar) { Parar-Tomcat }
+
+# --------------------------------------------------------------- compilar
+Paso "Compilando el proyecto"
+Push-Location $Raiz
+try {
+    # En PowerShell 5.1, con ErrorActionPreference en Stop, cualquier linea que
+    # un programa externo escriba en la salida de errores se toma como un fallo.
+    # Maven y la JVM escriben avisos ahi aunque todo vaya bien, asi que durante
+    # la compilacion se afloja y despues se mira el codigo de salida de verdad.
+    $antes = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & (Join-Path $Raiz "mvnw.cmd") -B -ntp install -DskipTests
+    $codigo = $LASTEXITCODE
+    $ErrorActionPreference = $antes
+    if ($codigo -ne 0) { throw "La compilacion fallo (codigo $codigo)." }
+} finally {
+    Pop-Location
+}
+
+$War = Join-Path $Raiz "servidor-web\target\eventos-uy.war"
+if (-not (Test-Path $War)) { throw "No se genero el WAR en $War" }
+
+# --------------------------------------------------------------- desplegar
+Paso "Desplegando el sitio"
+# Se despliega como ROOT para que quede en la raiz: http://localhost:8080/
+$RootDir = Join-Path $Webapps "ROOT"
+$RootWar = Join-Path $Webapps "ROOT.war"
+if (Test-Path $RootDir) { Remove-Item $RootDir -Recurse -Force }
+if (Test-Path $RootWar) { Remove-Item $RootWar -Force }
+Copy-Item $War $RootWar
+Listo "WAR copiado a webapps\ROOT.war"
+
+# ---------------------------------------------------------------- arrancar
+Paso "Arrancando Tomcat"
+$env:CATALINA_HOME = $Tomcat
+$env:CATALINA_BASE = $Tomcat
+
+$proceso = Start-Process -FilePath (Join-Path $Tomcat "bin\catalina.bat") `
+                         -ArgumentList "run" `
+                         -WorkingDirectory $Tomcat `
+                         -WindowStyle Hidden `
+                         -PassThru
+$proceso.Id | Out-File -FilePath $ArchivoPid -Encoding ascii
+
+Paso "Esperando a que responda"
+$listo = $false
+foreach ($i in 1..40) {
+    Start-Sleep -Seconds 1
+    try {
+        $r = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 2
+        if ($r.StatusCode -eq 200) { $listo = $true; break }
+    } catch {
+        # todavia no levanto, se sigue esperando
+    }
+}
+
+Write-Host ""
+if ($listo) {
+    Listo "El sitio esta andando:"
+    Write-Host "  $Url                              (cartelera desde PostgreSQL)"
+    Write-Host "  http://localhost:$Puerto/index.html   (el sitio estatico de la Parte 1)"
+    Write-Host ""
+    Write-Host "Para pararlo:  .\scripts\servidor.ps1 -Detener"
+} else {
+    Aviso "Tomcat arranco pero el sitio no respondio en 40 segundos."
+    Write-Host "Mira el log:  tools\apache-tomcat-$VersionTomcat\logs\localhost.*.log"
+}
