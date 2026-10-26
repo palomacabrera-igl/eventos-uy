@@ -119,4 +119,36 @@ public class Evento extends EntidadBase {
         }
         return null;
     }
+
+    // ===== Consulta de Evento (CU 7) =====
+
+    /**
+     * true si el evento esta en la categoria con ese nombre. Compara el nombre
+     * exacto, igual que el filtro de la Parte 1: no incluye las subcategorias.
+     */
+    public boolean tieneCategoria(String nombreCategoria) {
+        if (nombreCategoria == null) {
+            return false;
+        }
+        for (Categoria c : categorias) {
+            if (c.getNombre().equals(nombreCategoria)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Las ediciones que ve el publico: SOLO las Aceptada (letra, seccion 4).
+     * Las Ingresada y Rechazada no salen de aca aunque existan.
+     */
+    public Set<DTEdicionEvento> obtenerEdicionesAceptadas() {
+        Set<DTEdicionEvento> resultado = new HashSet<>();
+        for (EdicionEvento ed : ediciones) {
+            if (ed.estaAceptada()) {
+                resultado.add(ed.obtenerDT());
+            }
+        }
+        return resultado;
+    }
 }

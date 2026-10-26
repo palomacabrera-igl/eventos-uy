@@ -734,18 +734,46 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTEvento> listarEventos(String nombreCategoria) {
-        throw new UnsupportedOperationException("Eventos por categoria: todavia no implementado.");
+        // Sin categoria es la cartelera completa: el servlet llama siempre a esta.
+        if (nombreCategoria == null || nombreCategoria.isBlank()) {
+            return listarEventos();
+        }
+        // Una categoria que no existe no es un error: simplemente no tiene eventos.
+        Set<DTEvento> resultado = new HashSet<>();
+        for (Evento e : manejadorEvento.listar()) {
+            if (e.tieneCategoria(nombreCategoria)) {
+                resultado.add(e.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     @Override
     public DTEvento consultarEvento(String nombre) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Evento: todavia no implementado.");
+        return buscarEventoExistente(nombre).obtenerDT();
     }
 
     @Override
     public Set<DTEdicionEvento> listarEdicionesAceptadas(String nombreEvento)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Ediciones aceptadas: todavia no implementado.");
+        return buscarEventoExistente(nombreEvento).obtenerEdicionesAceptadas();
+    }
+
+    /**
+     * Busca un evento por nombre y avisa si no esta. A diferencia de
+     * seleccionarEvento(), NO lo recuerda: las operaciones de la web no
+     * dependen de una llamada anterior.
+     */
+    private Evento buscarEventoExistente(String nombre) throws ReglaNegocioException {
+        if (nombre == null || nombre.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre del evento.");
+        }
+        Evento e = findEvento(nombre);
+        if (e == null) {
+            throw new ReglaNegocioException(
+                    "No existe un evento con el nombre \"" + nombre + "\".");
+        }
+        return e;
     }
 
     @Override
