@@ -112,6 +112,19 @@ Compila los tres módulos y los deja en tu repositorio local de Maven (necesario
 - `estacion-trabajo/target/estacion-trabajo-1.0-SNAPSHOT.jar`
 - `servidor-web/target/eventos-uy.war`
 
+### Pruebas automáticas
+
+Las pruebas unitarias están en `logica/src/test/java/` y usan JUnit 5. Para
+ejecutarlas sin iniciar la aplicación ni conectarse a PostgreSQL:
+
+```powershell
+.\mvnw.cmd -pl logica test
+```
+
+Una prueba nueva debe reflejar el paquete de la clase probada. Por ejemplo,
+las pruebas de clases en `logica/` van en `logica/src/test/java/logica/` y se
+llaman `NombreDeLaClaseTest.java`.
+
 ### 3. Cargar los datos de prueba
 
 Deja en la base un conjunto inicial de usuarios, eventos, ediciones, tipos de registro y patrocinios para poder recorrer los casos de uso:

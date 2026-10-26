@@ -20,6 +20,14 @@
     </properties>
 
     <dependencies>
+        <!-- JUnit 5: disponible solamente al compilar y ejecutar pruebas. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JPA 3.1 API -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -51,6 +59,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
