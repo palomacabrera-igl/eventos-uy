@@ -46,6 +46,13 @@ public class VentanaPrincipal extends JFrame {
         JMenu menuInstituciones = new JMenu("Instituciones y Patrocinios");
         JMenu menuCategorias = new JMenu("Categorias");
         JMenu menuRegistros = new JMenu("Registros");
+        JMenu menuSistema = new JMenu("Sistema");
+
+        // ===== Actualizar datos =====
+        JMenuItem itemActualizar = new JMenuItem("Actualizar datos");
+        itemActualizar.setAccelerator(KeyStroke.getKeyStroke("F5"));
+        itemActualizar.addActionListener(e -> actualizarDatos());
+        menuSistema.add(itemActualizar);
 
         // ===== Modificar Datos de Usuario =====
         JMenuItem itemModificarUsuario = new JMenuItem("Modificar Datos de Usuario");
@@ -122,6 +129,7 @@ public class VentanaPrincipal extends JFrame {
         itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
         menuInstituciones.add(itemAltaPatrocinio);
 
+        menuBar.add(menuSistema);
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
         menuBar.add(menuInstituciones);
@@ -149,6 +157,35 @@ public class VentanaPrincipal extends JFrame {
     private void abrirConsultaEdicion()    { abrir(new VentanaConsultaEdicion()); }
     private void abrirAltaEvento()         { abrir(new VentanaAltaEvento()); }
     private void abrirAltaPatrocinio()     { abrir(new VentanaAltaPatrocinio()); }
+
+    /**
+     * Boton "Actualizar datos". La Estacion de Trabajo y el sitio web usan la
+     * misma base, pero cada programa guarda en memoria lo que ya leyo. Esto
+     * descarta esa copia para que la proxima consulta lea la base de nuevo.
+     * Antes cierra las ventanas abiertas, porque refrescar en medio de un
+     * caso de uso deja sin validez lo que esa ventana tenia seleccionado.
+     */
+    private void actualizarDatos() {
+        JInternalFrame[] abiertas = escritorio.getAllFrames();
+        if (abiertas.length > 0) {
+            int respuesta = JOptionPane.showConfirmDialog(this,
+                    "Para actualizar se van a cerrar las ventanas abiertas.\n¿Continuar?",
+                    "Actualizar datos", JOptionPane.YES_NO_OPTION);
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+            for (JInternalFrame ventana : abiertas) {
+                ventana.dispose();
+            }
+        }
+        try {
+            Persistencia.refrescar();
+            Mensajes.exito(this, "Actualizar datos",
+                    "Listo. Las próximas consultas muestran los datos actuales de la base.");
+        } catch (Exception ex) {
+            Mensajes.errorInesperado(this, "Actualizar datos", ex);
+        }
+    }
 
     /**
      * Agrega la ventana interna al escritorio, la posiciona escalonada

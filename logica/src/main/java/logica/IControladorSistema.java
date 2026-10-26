@@ -474,4 +474,19 @@ public interface IControladorSistema {
 
     /** Rechaza una edicion. Solo se puede desde INGRESADA. */
     void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException;
+
+    // ----- Mantenimiento -----
+
+    /**
+     * Descarta lo que la logica tiene guardado en memoria para que la proxima
+     * consulta vuelva a leer de la base.
+     *
+     * Hace falta porque el sitio y la Estacion de Trabajo son dos programas
+     * distintos sobre la misma base. En la Estacion de Trabajo la dispara el
+     * boton "Actualizar datos"; en el sitio, un filtro al empezar cada pagina.
+     *
+     * Esta en el contrato para que el modulo web no tenga que conocer la capa
+     * de persistencia: habla solo con IControladorSistema y con los DT.
+     */
+    void refrescarDatos();
 }

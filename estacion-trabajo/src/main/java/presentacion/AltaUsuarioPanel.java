@@ -44,6 +44,13 @@ public class AltaUsuarioPanel {
     private JTextField textField2;
     private JButton confirmarButton;
     private JButton cancelarButton;
+    private JPasswordField txtPassword;
+    private JPasswordField txtConfirmacion;
+    private JButton elegirImagenButton;
+    private JLabel lblImagen;
+
+    /** Imagen elegida con "Elegir imagen...", o null si no se eligio ninguna (es opcional). */
+    private transient DTImagen imagenElegida;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -60,6 +67,7 @@ public class AltaUsuarioPanel {
         organizadorRadioButton.addActionListener(e -> mostrarPanelEspecifico());
         confirmarButton.addActionListener(e -> confirmar());
         cancelarButton.addActionListener(e -> accionCerrar.run());
+        elegirImagenButton.addActionListener(e -> elegirImagen());
     }
 
     public JPanel getMainPanel() {
@@ -119,6 +127,19 @@ public class AltaUsuarioPanel {
             return;
         }
 
+        // Contrasena y confirmacion: obligatorias y tienen que coincidir.
+        // getPassword() devuelve char[] y no String: es lo que da JPasswordField.
+        String password = new String(txtPassword.getPassword());
+        String confirmacion = new String(txtConfirmacion.getPassword());
+        if (password.isEmpty() || confirmacion.isEmpty()) {
+            Mensajes.aviso(mainPanel, TITULO, "Ingresá la contraseña y su confirmación.");
+            return;
+        }
+        if (!password.equals(confirmacion)) {
+            Mensajes.aviso(mainPanel, TITULO, "La contraseña y la confirmación no coinciden.");
+            return;
+        }
+
         TipoUsuario tipo = asistenteRadioButton.isSelected() ? TipoUsuario.ASISTENTE : TipoUsuario.ORGANIZADOR;
 
         // Se valida la fecha de nacimiento ANTES de tocar a Sistema (si aplica), para
@@ -138,6 +159,14 @@ public class AltaUsuarioPanel {
         }
 
         DTUsuario datos = new DTUsuario(nickname, nombre, correo);
+
+        // PENDIENTE: cuando Paloma implemente altaUsuario(...) en Sistema, este
+        // try pasa a ser UNA sola llamada que ademas guarda contrasena e imagen:
+        //   controlador.altaUsuario(datosCompletos, tipo, password, confirmacion,
+        //                           institucionElegida, imagenElegida);
+        // donde datosCompletos es un DTAsistente o un DTOrganizador.
+        // Hasta entonces se usa el alta de antes, que no guarda la contrasena
+        // ni la imagen, para que la pantalla siga funcionando.
 
         // (b) Llamada a la LOGICA. Este alta son VARIOS pasos encadenados
         // (ingresarDatosUsuario -> ingresarDatosAsistente/Organizador ->
@@ -209,7 +238,20 @@ public class AltaUsuarioPanel {
         controlador.ingresarDatosOrganizador(descripcion, sitioWeb);
     }
 
+    /** "Elegir imagen...": la guarda en memoria hasta que se confirma el alta. */
+    private void elegirImagen() {
+        SelectorImagen.Eleccion eleccion = SelectorImagen.elegir(mainPanel, TITULO);
+        if (eleccion != null) {
+            imagenElegida = eleccion.imagen();
+            lblImagen.setText(eleccion.nombreArchivo());
+        }
+    }
+
     private void limpiar() {
+        txtPassword.setText("");
+        txtConfirmacion.setText("");
+        imagenElegida = null;
+        lblImagen.setText("Sin imagen");
         txtCorreo.setText("");
         txtNombre.setText("");
         txtNickname.setText("");
@@ -234,7 +276,7 @@ public class AltaUsuarioPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(7, 4, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(10, 4, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Alta de Usuario");
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -248,20 +290,39 @@ public class AltaUsuarioPanel {
         mainPanel.add(txtCorreo, new GridConstraints(1, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Nickname");
-        mainPanel.add(label4, new GridConstraints(3, 0, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         txtNombre = new JTextField();
         mainPanel.add(txtNombre, new GridConstraints(2, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         txtNickname = new JTextField();
         mainPanel.add(txtNickname, new GridConstraints(3, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
+        final JLabel labelPassword = new JLabel();
+        labelPassword.setText("Contraseña");
+        mainPanel.add(labelPassword, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        txtPassword = new JPasswordField();
+        mainPanel.add(txtPassword, new GridConstraints(4, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel labelConfirmacion = new JLabel();
+        labelConfirmacion.setText("Confirmar contraseña");
+        mainPanel.add(labelConfirmacion, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        txtConfirmacion = new JPasswordField();
+        mainPanel.add(txtConfirmacion, new GridConstraints(5, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel labelImagen = new JLabel();
+        labelImagen.setText("Imagen (opcional)");
+        mainPanel.add(labelImagen, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        elegirImagenButton = new JButton();
+        elegirImagenButton.setText("Elegir imagen...");
+        mainPanel.add(elegirImagenButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblImagen = new JLabel();
+        lblImagen.setText("Sin imagen");
+        mainPanel.add(lblImagen, new GridConstraints(6, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         asistenteRadioButton = new JRadioButton();
         asistenteRadioButton.setText("Asistente");
-        mainPanel.add(asistenteRadioButton, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(asistenteRadioButton, new GridConstraints(7, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         organizadorRadioButton = new JRadioButton();
         organizadorRadioButton.setText("Organizador");
-        mainPanel.add(organizadorRadioButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(organizadorRadioButton, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         PanelAsistente = new JPanel();
         PanelAsistente.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(PanelAsistente, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainPanel.add(PanelAsistente, new GridConstraints(8, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         Apellido = new JLabel();
         Apellido.setText("Apellido");
         PanelAsistente.add(Apellido, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -284,7 +345,7 @@ public class AltaUsuarioPanel {
         PanelAsistente.add(FechaNacAnioCBox, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         PanelOrganizador = new JPanel();
         PanelOrganizador.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(PanelOrganizador, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainPanel.add(PanelOrganizador, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
         label6.setText("Descripción");
         PanelOrganizador.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -297,10 +358,10 @@ public class AltaUsuarioPanel {
         PanelOrganizador.add(textField2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         confirmarButton = new JButton();
         confirmarButton.setText("Aceptar");
-        mainPanel.add(confirmarButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(confirmarButton, new GridConstraints(9, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelarButton = new JButton();
         cancelarButton.setText("Cancelar");
-        mainPanel.add(cancelarButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cancelarButton, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(asistenteRadioButton);

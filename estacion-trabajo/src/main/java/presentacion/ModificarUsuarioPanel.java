@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import logica.DTAsistente;
 import logica.DTFecha;
+import logica.DTImagen;
 import logica.DTOrganizador;
 import logica.DTUsuario;
 import logica.Fabrica;
@@ -40,6 +41,13 @@ public class ModificarUsuarioPanel {
     private JTextField campoSitioWeb;
     private JButton botonAceptar;
     private JButton botonCancelar;
+    private JPasswordField campoPassword;
+    private JPasswordField campoConfirmacion;
+    private JButton botonElegirImagen;
+    private JLabel etiquetaImagen;
+
+    /** Imagen nueva elegida, o null si no se cambia (es opcional). */
+    private transient DTImagen imagenNueva;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -66,6 +74,24 @@ public class ModificarUsuarioPanel {
         comboUsuarios.addActionListener(e -> seleccionarUsuario());
         botonAceptar.addActionListener(e -> aceptar());
         botonCancelar.addActionListener(e -> accionCerrar.run());
+        botonElegirImagen.addActionListener(e -> elegirImagen());
+    }
+
+    /** "Elegir imagen...": la guarda en memoria hasta que se acepta. */
+    private void elegirImagen() {
+        SelectorImagen.Eleccion eleccion = SelectorImagen.elegir(mainPanel, TITULO);
+        if (eleccion != null) {
+            imagenNueva = eleccion.imagen();
+            etiquetaImagen.setText(eleccion.nombreArchivo());
+        }
+    }
+
+    /** Al cambiar de usuario no se arrastra la contrasena ni la imagen del anterior. */
+    private void limpiarCambiosDeCuenta() {
+        campoPassword.setText("");
+        campoConfirmacion.setText("");
+        imagenNueva = null;
+        etiquetaImagen.setText("Sin cambios");
     }
 
     public JPanel getMainPanel() {
@@ -99,6 +125,7 @@ public class ModificarUsuarioPanel {
 
     private void seleccionarUsuario() {
         String nickname = (String) comboUsuarios.getSelectedItem();
+        limpiarCambiosDeCuenta();
 
         if (nickname == null || NINGUNO.equals(nickname)) {
             usuarioActual = null;
@@ -178,6 +205,29 @@ public class ModificarUsuarioPanel {
             }
         }
 
+        // Contrasena: es opcional cambiarla. Si se escribe algo en cualquiera
+        // de los dos campos, tienen que estar los dos y coincidir.
+        String nuevaPassword = new String(campoPassword.getPassword());
+        String confirmacion = new String(campoConfirmacion.getPassword());
+        if (!nuevaPassword.isEmpty() || !confirmacion.isEmpty()) {
+            if (nuevaPassword.isEmpty() || confirmacion.isEmpty()) {
+                Mensajes.aviso(mainPanel, TITULO,
+                        "Para cambiar la contraseña completá la nueva y su confirmación.");
+                return;
+            }
+            if (!nuevaPassword.equals(confirmacion)) {
+                Mensajes.aviso(mainPanel, TITULO, "La contraseña y la confirmación no coinciden.");
+                return;
+            }
+        }
+
+        // PENDIENTE: cuando Paloma implemente modificarUsuario(...) en Sistema,
+        // la llamada de abajo pasa a ser esta, que ademas guarda la contrasena
+        // y la imagen (la Estacion de Trabajo es el administrador: solicitante null):
+        //   controlador.modificarUsuario(null, dtModificado, nuevaPassword,
+        //                                confirmacion, imagenNueva);
+        // Hasta entonces se usa la de antes, que no cambia contrasena ni imagen.
+
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             DTUsuario dtModificado;
@@ -219,7 +269,7 @@ public class ModificarUsuarioPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(7, 4, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(10, 4, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Usuario:");
         mainPanel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -242,9 +292,28 @@ public class ModificarUsuarioPanel {
         campoNombre = new JTextField();
         campoNombre.setText("");
         mainPanel.add(campoNombre, new GridConstraints(4, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(260, -1), null, 0, false));
+        final JLabel labelPassword = new JLabel();
+        labelPassword.setText("Nueva contraseña");
+        mainPanel.add(labelPassword, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        campoPassword = new JPasswordField();
+        mainPanel.add(campoPassword, new GridConstraints(5, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(260, -1), null, 0, false));
+        final JLabel labelConfirmacion = new JLabel();
+        labelConfirmacion.setText("Confirmar contraseña");
+        mainPanel.add(labelConfirmacion, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        campoConfirmacion = new JPasswordField();
+        mainPanel.add(campoConfirmacion, new GridConstraints(6, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(260, -1), null, 0, false));
+        final JLabel labelImagen = new JLabel();
+        labelImagen.setText("Imagen nueva (opcional)");
+        mainPanel.add(labelImagen, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        botonElegirImagen = new JButton();
+        botonElegirImagen.setText("Elegir imagen...");
+        mainPanel.add(botonElegirImagen, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        etiquetaImagen = new JLabel();
+        etiquetaImagen.setText("Sin cambios");
+        mainPanel.add(etiquetaImagen, new GridConstraints(7, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panelEspecifico = new JPanel();
         panelEspecifico.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(panelEspecifico, new GridConstraints(5, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainPanel.add(panelEspecifico, new GridConstraints(8, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panelAsistente = new JPanel();
         panelAsistente.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
         panelEspecifico.add(panelAsistente, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -277,10 +346,10 @@ public class ModificarUsuarioPanel {
         panelOrganizador.add(campoSitioWeb, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(260, -1), null, 0, false));
         botonAceptar = new JButton();
         botonAceptar.setText("Aceptar");
-        mainPanel.add(botonAceptar, new GridConstraints(6, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(botonAceptar, new GridConstraints(9, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         botonCancelar = new JButton();
         botonCancelar.setText("Cancelar");
-        mainPanel.add(botonCancelar, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(botonCancelar, new GridConstraints(9, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label9 = new JLabel();
         label9.setText("Modificar datos de usuario");
         mainPanel.add(label9, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

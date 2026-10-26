@@ -39,8 +39,14 @@ public final class Persistencia {
      * siguientes llamadas reusan todo.
      *
      * No hay que cerrarlo: lo cierra cerrar() al terminar la aplicacion.
+     *
+     * synchronized porque en Tomcat esto lo llaman varios hilos a la vez: al
+     * abrir una pagina el navegador pide en paralelo el HTML, el CSS, las
+     * tipografias y cada imagen. Sin esto, diez hilos entran juntos al
+     * if (emf == null), construyen diez fabricas y se pisan actualizando el
+     * esquema. En la Estacion de Trabajo no se nota: hay un solo hilo.
      */
-    public static EntityManager getEntityManager() {
+    public static synchronized EntityManager getEntityManager() {
         if (emf == null) {
             emf = Persistence.createEntityManagerFactory(UNIDAD);
         }
