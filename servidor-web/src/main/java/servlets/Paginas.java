@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public final class Paginas {
 
     public static final String EVENTOS = "/WEB-INF/jsp/eventos/listar.jsp";
+    public static final String EVENTO = "/WEB-INF/jsp/eventos/consultar.jsp";
     public static final String NO_ENCONTRADA = "/WEB-INF/jsp/error/404.jsp";
 
     private Paginas() {

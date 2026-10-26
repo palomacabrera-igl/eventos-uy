@@ -1,5 +1,8 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<footer class="ev-foot container-fluid px-3 px-lg-4 py-4">
-    <p class="mb-0">eventos.uy · Programación de Aplicaciones · Tecnólogo en Informática, UTEC</p>
+<%-- El mismo pie que armaba cabezal.js en la Parte 1. --%>
+<footer class="ev-footer">
+    <div class="container">
+        <span>eventos.uy</span><span>Cartelera de eventos de Uruguay</span>
+    </div>
 </footer>
-<script src="<%= request.getContextPath() %>/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<%= request.getContextPath() %>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>

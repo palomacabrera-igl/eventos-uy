@@ -12,8 +12,13 @@
         <session-timeout>30</session-timeout>
     </session-config>
 
+    <!--
+        La raiz del sitio abre la cartelera de la base (index.jsp redirige a
+        /eventos). La index.html estatica de la Parte 1 sigue en su lugar hasta
+        que se conviertan todas las paginas, pero ya no es la de entrada.
+    -->
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
     <!--
