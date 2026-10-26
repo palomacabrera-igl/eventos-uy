@@ -39,7 +39,6 @@ $Puerto        = 8080
 $Raiz          = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Tomcat        = Join-Path $Raiz "tools\apache-tomcat-$VersionTomcat"
 $Webapps       = Join-Path $Tomcat "webapps"
-$ArchivoPid    = Join-Path $Raiz "tools\tomcat.pid"
 $Url           = "http://localhost:$Puerto/eventos"
 
 function Paso($texto)  { Write-Host ""; Write-Host "==> $texto" -ForegroundColor Cyan }
@@ -47,18 +46,35 @@ function Listo($texto) { Write-Host $texto -ForegroundColor Green }
 function Aviso($texto) { Write-Host $texto -ForegroundColor Yellow }
 
 function Parar-Tomcat {
-    if (Test-Path $ArchivoPid) {
-        $numero = Get-Content $ArchivoPid
-        $proceso = Get-Process -Id $numero -ErrorAction SilentlyContinue
-        if ($proceso) {
-            Paso "Parando Tomcat (proceso $numero)"
-            Stop-Process -Id $numero -Force
-            Start-Sleep -Seconds 2
-        }
-        Remove-Item $ArchivoPid -Force -ErrorAction SilentlyContinue
-        Listo "Tomcat detenido."
+    # Se usa el apagado del propio Tomcat y no se mata el proceso.
+    #
+    # Por que: catalina.bat es un archivo .bat, y al arrancarlo Windows corre
+    # primero un cmd.exe que despues lanza el java de verdad y se va. Si se
+    # guarda el numero de proceso del .bat y se lo mata, se mata al cmd que ya
+    # no existe y el java sigue vivo ocupando el puerto 8080.
+    #
+    # "catalina.bat stop" le habla al propio Tomcat por su puerto de apagado y
+    # lo cierra ordenadamente, cierre de JPA incluido.
+    if (-not (Test-Path $Tomcat)) {
+        Aviso "No hay Tomcat en tools/, no hay nada que parar."
+        return
+    }
+
+    Paso "Parando Tomcat"
+    $env:CATALINA_HOME = $Tomcat
+    $env:CATALINA_BASE = $Tomcat
+
+    $antes = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & (Join-Path $Tomcat "bin\catalina.bat") stop 2>$null | Out-Null
+    $ErrorActionPreference = $antes
+
+    Start-Sleep -Seconds 3
+    $ocupado = Get-NetTCPConnection -LocalPort $Puerto -State Listen -ErrorAction SilentlyContinue
+    if ($ocupado) {
+        Aviso "El puerto $Puerto sigue ocupado. Esperá unos segundos y volvé a probar."
     } else {
-        Aviso "No hay ningun Tomcat de este proyecto corriendo."
+        Listo "Tomcat detenido."
     }
 }
 
@@ -124,12 +140,11 @@ Paso "Arrancando Tomcat"
 $env:CATALINA_HOME = $Tomcat
 $env:CATALINA_BASE = $Tomcat
 
-$proceso = Start-Process -FilePath (Join-Path $Tomcat "bin\catalina.bat") `
+$null = Start-Process -FilePath (Join-Path $Tomcat "bin\catalina.bat") `
                          -ArgumentList "run" `
                          -WorkingDirectory $Tomcat `
                          -WindowStyle Hidden `
                          -PassThru
-$proceso.Id | Out-File -FilePath $ArchivoPid -Encoding ascii
 
 Paso "Esperando a que responda"
 $listo = $false
