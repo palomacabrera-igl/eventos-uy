@@ -3,16 +3,22 @@
   Compila el sitio y lo deja andando en Tomcat.
 
 .DESCRIPTION
-  Arma el WAR con el Maven Wrapper, lo despliega en el Tomcat que esta en
-  tools/ y lo deja corriendo en segundo plano.
+  Arma el WAR con el Maven Wrapper, lo despliega en Tomcat y lo deja
+  corriendo en segundo plano.
 
   Funciona con el PowerShell que viene con Windows (5.1): no hace falta
   instalar PowerShell 7. Solo necesita JAVA_HOME apuntando a un JDK 25.
 
-  Tomcat NO se baja de internet: hay que copiarlo una sola vez desde el ZIP
-  de la demo del curso (ProyectoWeb.zip -> tools/apache-tomcat-11.0.26) a la
-  carpeta tools/ de este proyecto. Esa carpeta esta en .gitignore, asi que
-  cada uno la tiene en su maquina y no viaja en el repositorio.
+  Tomcat NO se baja de internet: se copia una sola vez desde el ZIP de la
+  demo del curso (ProyectoWeb.zip -> apache-tomcat-11.0.26). El script lo
+  busca, en este orden:
+
+    1. La variable de entorno CATALINA_HOME, si esta definida.
+    2. <carpeta del usuario>\tomcat\apache-tomcat-11.0.26
+    3. tools\apache-tomcat-11.0.26 dentro del proyecto (como era antes).
+
+  Lo recomendado es el 2: Tomcat es un servidor de aplicaciones, no parte
+  del codigo, y adentro del proyecto ensucia el arbol que se ve en IntelliJ.
 
 .PARAMETER Detener
   Para el Tomcat de este proyecto.
@@ -37,9 +43,26 @@ $ErrorActionPreference = "Stop"
 $VersionTomcat = "11.0.26"
 $Puerto        = 8080
 $Raiz          = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$Tomcat        = Join-Path $Raiz "tools\apache-tomcat-$VersionTomcat"
-$Webapps       = Join-Path $Tomcat "webapps"
 $Url           = "http://localhost:$Puerto/eventos"
+
+# Donde esta Tomcat. Se prueban los tres lugares y gana el primero que exista,
+# asi cada integrante lo puede tener donde le quede comodo sin tocar el script.
+function Buscar-Tomcat {
+    $candidatos = @()
+    if ($env:CATALINA_HOME) { $candidatos += $env:CATALINA_HOME }
+    $candidatos += Join-Path $HOME "tomcat\apache-tomcat-$VersionTomcat"
+    $candidatos += Join-Path $Raiz "tools\apache-tomcat-$VersionTomcat"
+
+    foreach ($c in $candidatos) {
+        if ($c -and (Test-Path (Join-Path $c "bin\catalina.bat"))) { return $c }
+    }
+    return $candidatos[1]   # el recomendado, para poder avisar donde ponerlo
+}
+
+$Tomcat        = Buscar-Tomcat
+$Webapps       = Join-Path $Tomcat "webapps"
+$Recomendado   = Join-Path $HOME "tomcat\apache-tomcat-$VersionTomcat"
+$EnElProyecto  = Join-Path $Raiz "tools\apache-tomcat-$VersionTomcat"
 
 function Paso($texto)  { Write-Host ""; Write-Host "==> $texto" -ForegroundColor Cyan }
 function Listo($texto) { Write-Host $texto -ForegroundColor Green }
@@ -56,7 +79,7 @@ function Parar-Tomcat {
     # "catalina.bat stop" le habla al propio Tomcat por su puerto de apagado y
     # lo cierra ordenadamente, cierre de JPA incluido.
     if (-not (Test-Path $Tomcat)) {
-        Aviso "No hay Tomcat en tools/, no hay nada que parar."
+        Aviso "No se encontro Tomcat, no hay nada que parar."
         return
     }
 
@@ -92,7 +115,12 @@ if (-not (Test-Path $Tomcat)) {
     Write-Host ""
     Write-Host "Copialo una sola vez desde el ZIP de la demo del curso:"
     Write-Host "  ProyectoWeb.zip -> ProyectoWeb\tools\apache-tomcat-$VersionTomcat"
-    Write-Host "  y pegalo en:  $Raiz\tools\"
+    Write-Host ""
+    Write-Host "y pegalo en cualquiera de estos lugares:"
+    Write-Host "  $Recomendado   (recomendado)"
+    Write-Host "  $EnElProyecto"
+    Write-Host ""
+    Write-Host "o defini CATALINA_HOME apuntando a donde ya lo tengas."
     Write-Host ""
     exit 1
 }
@@ -167,5 +195,5 @@ if ($listo) {
     Write-Host "Para pararlo:  .\scripts\servidor.ps1 -Detener"
 } else {
     Aviso "Tomcat arranco pero el sitio no respondio en 40 segundos."
-    Write-Host "Mira el log:  tools\apache-tomcat-$VersionTomcat\logs\localhost.*.log"
+    Write-Host "Mira el log:  $(Join-Path $Tomcat 'logs\localhost.*.log')"
 }

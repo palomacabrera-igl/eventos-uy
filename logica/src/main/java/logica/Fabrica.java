@@ -24,4 +24,18 @@ public class Fabrica {
     public IControladorSistema getControladorSistema() {
         return controladorSistema;
     }
+
+    /**
+     * Apaga el Servidor Central y suelta la conexion con la base.
+     *
+     * Lo llama quien hospeda la logica cuando su aplicacion termina: Tomcat al
+     * replegar el sitio, o la Estacion de Trabajo al cerrarse. Esta aca, en la
+     * Fabrica, para que la presentacion no tenga que conocer a la capa de
+     * persistencia: la Fabrica es la puerta de entrada del componente, y
+     * tambien la de salida.
+     */
+    public static void cerrar() {
+        persistencia.Persistencia.cerrar();
+        instancia = null;
+    }
 }
