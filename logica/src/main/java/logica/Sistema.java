@@ -717,7 +717,95 @@ public class Sistema implements IControladorSistema {
     public void altaUsuario(DTUsuario datos, TipoUsuario tipo, String password,
                             String confirmacion, String nombreInstitucion, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Usuario: todavia no implementado.");
+
+        if (datos == null || tipo == null) {
+            throw new ReglaNegocioException("Faltan los datos del usuario.");
+        }
+
+        // 1. Lo obligatorio. El formulario web ya lo pide con "required", pero
+        //    eso vive en el navegador y se puede saltear: la regla tiene que
+        //    estar aca, que es por donde pasa todo el mundo si o si.
+        String nickname = limpiar(datos.getNickname());
+        String nombre = limpiar(datos.getNombre());
+        String correo = limpiar(datos.getCorreo());
+        if (nickname.isEmpty() || nombre.isEmpty() || correo.isEmpty()) {
+            throw new ReglaNegocioException("El nickname, el nombre y el correo son obligatorios.");
+        }
+
+        // 2. La contrasena y su confirmacion.
+        if (password == null || password.isEmpty()) {
+            throw new ReglaNegocioException("Hay que ingresar una contraseña.");
+        }
+        if (!password.equals(confirmacion)) {
+            throw new ReglaNegocioException("Las dos contraseñas no coinciden.");
+        }
+
+        // 3. Nickname y correo son unicos en todo el sistema. Aca el mensaje SI
+        //    dice cual de los dos esta repetido, al reves del inicio de sesion:
+        //    quien se esta registrando necesita saber que corregir, y ademas no
+        //    revela nada que no revele el propio formulario.
+        if (manejadorUsuario.buscar(nickname) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un usuario con el nickname \"" + nickname + "\".");
+        }
+        if (manejadorUsuario.buscarPorCorreo(correo) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un usuario con el correo \"" + correo + "\".");
+        }
+
+        // 4. Cada tipo trae sus propios datos, asi que se arma la entidad que
+        //    corresponde. El DT que llega tiene que ser el del tipo pedido.
+        Usuario usuario;
+        if (tipo == TipoUsuario.ASISTENTE) {
+            if (!(datos instanceof DTAsistente asistente)) {
+                throw new ReglaNegocioException("Faltan los datos del asistente.");
+            }
+            if (limpiar(asistente.getApellido()).isEmpty()
+                    || asistente.getFechaNacimiento() == null) {
+                throw new ReglaNegocioException(
+                        "El apellido y la fecha de nacimiento son obligatorios.");
+            }
+            Asistente nuevo = new Asistente(nickname, nombre, correo,
+                    asistente.getApellido().trim(),
+                    asistente.getFechaNacimiento().aLocalDate(),
+                    password);
+
+            // La institucion es opcional, pero si la nombran tiene que existir.
+            if (nombreInstitucion != null && !nombreInstitucion.isBlank()) {
+                Institucion institucion = manejadorInstitucion.buscar(nombreInstitucion.trim());
+                if (institucion == null) {
+                    throw new ReglaNegocioException(
+                            "No existe una institucion con el nombre \"" + nombreInstitucion + "\".");
+                }
+                nuevo.setInstitucion(institucion);
+            }
+            usuario = nuevo;
+
+        } else {
+            if (!(datos instanceof DTOrganizador organizador)) {
+                throw new ReglaNegocioException("Faltan los datos del organizador.");
+            }
+            if (limpiar(organizador.getDescripcion()).isEmpty()) {
+                throw new ReglaNegocioException("La descripcion es obligatoria.");
+            }
+            usuario = new Organizador(nickname, nombre, correo,
+                    organizador.getDescripcion().trim(),
+                    organizador.getSitioWeb(),
+                    password);
+        }
+
+        // 5. La imagen es opcional y se asigna antes de guardar, asi el alta
+        //    entera es una sola escritura en la base.
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+        }
+
+        manejadorUsuario.agregar(usuario);
+    }
+
+    /** null y los espacios de los costados molestan en todas las validaciones. */
+    private static String limpiar(String texto) {
+        return texto == null ? "" : texto.trim();
     }
 
     @Override
