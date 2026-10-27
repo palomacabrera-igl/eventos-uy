@@ -837,7 +837,24 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de usuario: todavia no implementado.");
+        Usuario usuario = find(limpiar(nickname));
+        if (usuario == null) {
+            throw new ReglaNegocioException("No existe un usuario con el nickname \""
+                    + nickname + "\".");
+        }
+        return obtenerDTImagen(usuario.getImagen());
+    }
+
+    @Override
+    public void asignarImagenUsuario(String nickname, DTImagen imagen)
+            throws ReglaNegocioException {
+        Usuario usuario = find(limpiar(nickname));
+        if (usuario == null) {
+            throw new ReglaNegocioException("No existe un usuario con el nickname \""
+                    + nickname + "\".");
+        }
+        usuario.asignarImagen(crearImagen(imagen));
+        manejadorUsuario.actualizar(usuario);
     }
 
     // ----- Eventos y ediciones (CU 6 a 9) -----
@@ -908,12 +925,28 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenEvento(String nombreEvento) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de evento: todavia no implementado.");
+        return obtenerDTImagen(buscarEventoExistente(nombreEvento).getImagen());
     }
 
     @Override
     public DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de edicion: todavia no implementado.");
+        return obtenerDTImagen(buscarEdicionDelEvento(nombreEdicion).getImagen());
+    }
+
+    @Override
+    public void asignarImagenEvento(String nombreEvento, DTImagen imagen)
+            throws ReglaNegocioException {
+        Evento evento = buscarEventoExistente(nombreEvento);
+        evento.asignarImagen(crearImagen(imagen));
+        manejadorEvento.actualizar(evento);
+    }
+
+    @Override
+    public void asignarImagenEdicion(String nombreEdicion, DTImagen imagen)
+            throws ReglaNegocioException {
+        EdicionEvento edicion = buscarEdicionDelEvento(nombreEdicion);
+        edicion.asignarImagen(crearImagen(imagen));
+        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
@@ -1038,8 +1071,32 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "No existe una institucion con el nombre \"" + nombre + "\".");
         }
-        Imagen imagen = institucion.getImagen();
-        return imagen == null ? null : new DTImagen(imagen.getContenido(), imagen.getTipo());
+        return obtenerDTImagen(institucion.getImagen());
+    }
+
+    @Override
+    public void asignarImagenInstitucion(String nombre, DTImagen imagen)
+            throws ReglaNegocioException {
+        Institucion institucion = findInstitucion(limpiar(nombre));
+        if (institucion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una institucion con el nombre \"" + nombre + "\".");
+        }
+        institucion.asignarImagen(crearImagen(imagen));
+        manejadorInstitucion.actualizar(institucion);
+    }
+
+    private static DTImagen obtenerDTImagen(Imagen imagen) {
+        return imagen == null ? null
+                : new DTImagen(imagen.getContenido(), imagen.getTipo());
+    }
+
+    private static Imagen crearImagen(DTImagen imagen) throws ReglaNegocioException {
+        if (imagen == null || imagen.getContenido() == null || imagen.getContenido().length == 0
+                || imagen.getTipo() == null || imagen.getTipo().isBlank()) {
+            throw new ReglaNegocioException("La imagen es obligatoria y debe tener contenido.");
+        }
+        return new Imagen(imagen.getContenido(), imagen.getTipo());
     }
 
     // ----- Consulta de Registro (CU 13) -----

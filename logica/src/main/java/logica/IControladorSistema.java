@@ -327,6 +327,10 @@ public interface IControladorSistema {
      */
     DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException;
 
+    /** Asigna o reemplaza la imagen de un usuario existente. */
+    void asignarImagenUsuario(String nickname, DTImagen imagen)
+            throws ReglaNegocioException;
+
     // ----- Eventos y ediciones (CU 6 a 9) -----
 
     /**
@@ -381,6 +385,14 @@ public interface IControladorSistema {
     /** Los bytes de la imagen de una edicion, o null si no tiene. */
     DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException;
 
+    /** Asigna o reemplaza la imagen de un evento existente. */
+    void asignarImagenEvento(String nombreEvento, DTImagen imagen)
+            throws ReglaNegocioException;
+
+    /** Asigna o reemplaza la imagen de una edicion existente. */
+    void asignarImagenEdicion(String nombreEdicion, DTImagen imagen)
+            throws ReglaNegocioException;
+
     // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
 
     /**
@@ -411,6 +423,10 @@ public interface IControladorSistema {
 
     /** Los bytes de la imagen de una institucion, o null si no tiene. */
     DTImagen obtenerImagenInstitucion(String nombre) throws ReglaNegocioException;
+
+    /** Asigna o reemplaza la imagen de una institucion existente. */
+    void asignarImagenInstitucion(String nombre, DTImagen imagen)
+            throws ReglaNegocioException;
 
     // ----- Registro a Edicion de Evento (CU 12) -----
     //

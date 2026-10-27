@@ -10,13 +10,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import logica.Evento;
-import logica.Imagen;
-import logica.Institucion;
-import logica.ManejadorEvento;
-import logica.ManejadorInstitucion;
-import logica.ManejadorUsuario;
-import logica.Usuario;
+import logica.DTImagen;
+import logica.Fabrica;
+import logica.IControladorSistema;
+import logica.ReglaNegocioException;
 
 @WebServlet("/spike-imagen")
 @MultipartConfig(
@@ -24,6 +21,9 @@ import logica.Usuario;
         maxRequestSize = 6 * 1024 * 1024
 )
 public class SubirImagen extends HttpServlet {
+
+    private final transient IControladorSistema controlador =
+            Fabrica.getInstancia().getControladorSistema();
 
     @Override
     protected void doGet(
@@ -84,20 +84,13 @@ public class SubirImagen extends HttpServlet {
         }
 
         byte[] contenido = archivo.getInputStream().readAllBytes();
-        Imagen imagen = new Imagen(contenido, tipoImagen);
-
-        boolean actualizada = asignarImagen(
-                tipoEntidad,
-                clave.trim(),
-                imagen
-        );
-
-        if (!actualizada) {
+        try {
+            asignarImagen(tipoEntidad, clave.trim(), new DTImagen(contenido, tipoImagen));
+        } catch (ReglaNegocioException e) {
             mostrarError(
                     request,
                     response,
-                    "No existe " + tipoEntidad
-                            + " con identificador: " + clave
+                    e.getMessage()
             );
             return;
         }
@@ -112,77 +105,17 @@ public class SubirImagen extends HttpServlet {
         );
     }
 
-    private boolean asignarImagen(
+    private void asignarImagen(
             String tipoEntidad,
             String clave,
-            Imagen imagen
-    ) {
+            DTImagen imagen
+    ) throws ReglaNegocioException {
         switch (tipoEntidad) {
-            case "usuario" -> {
-                Usuario usuario = ManejadorUsuario.getInstancia()
-                        .buscar(clave);
-
-                if (usuario == null) {
-                    return false;
-                }
-
-                usuario.asignarImagen(imagen);
-                ManejadorUsuario.getInstancia().actualizar(usuario);
-                return true;
-            }
-
-            case "evento" -> {
-                Evento evento = ManejadorEvento.getInstancia()
-                        .buscar(clave);
-
-                if (evento == null) {
-                    return false;
-                }
-
-                evento.asignarImagen(imagen);
-                ManejadorEvento.getInstancia().actualizar(evento);
-                return true;
-            }
-
-            case "edicion" -> {
-                var edicion = ManejadorEvento.getInstancia()
-                        .buscarEdicion(clave);
-
-                if (edicion == null) {
-                    return false;
-                }
-
-                edicion.asignarImagen(imagen);
-
-                /*
-                 * La edición se actualiza al actualizar el evento al que
-                 * pertenece, porque Evento tiene cascade MERGE sobre ediciones.
-                 */
-                ManejadorEvento.getInstancia()
-                        .actualizar(edicion.getEvento());
-
-                return true;
-            }
-
-            case "institucion" -> {
-                Institucion institucion =
-                        ManejadorInstitucion.getInstancia()
-                                .buscar(clave);
-
-                if (institucion == null) {
-                    return false;
-                }
-
-                institucion.asignarImagen(imagen);
-                ManejadorInstitucion.getInstancia()
-                        .actualizar(institucion);
-
-                return true;
-            }
-
-            default -> {
-                return false;
-            }
+            case "usuario" -> controlador.asignarImagenUsuario(clave, imagen);
+            case "evento" -> controlador.asignarImagenEvento(clave, imagen);
+            case "edicion" -> controlador.asignarImagenEdicion(clave, imagen);
+            case "institucion" -> controlador.asignarImagenInstitucion(clave, imagen);
+            default -> throw new ReglaNegocioException("Tipo de entidad invalido.");
         }
     }
 
