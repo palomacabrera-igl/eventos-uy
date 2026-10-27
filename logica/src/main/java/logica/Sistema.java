@@ -859,7 +859,89 @@ public class Sistema implements IControladorSistema {
     public void modificarUsuario(String solicitante, DTUsuario datos, String nuevaPassword,
                                  String confirmacion, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Modificar Usuario: todavia no implementado.");
+
+        if (solicitante == null || solicitante.isBlank()) {
+            throw new ReglaNegocioException("Hay que iniciar sesion para modificar los datos.");
+        }
+        if (datos == null) {
+            throw new ReglaNegocioException("Faltan los datos del usuario.");
+        }
+
+        // Se modifica SIEMPRE el usuario que inicio sesion, nunca el que venga
+        // nombrado en el formulario. Si alguien manda el nickname de otro, el
+        // pedido se rechaza en vez de ignorarse en silencio.
+        Usuario usuario = exigirUsuario(solicitante);
+        String pedido = datos.getNickname();
+        if (pedido != null && !pedido.isBlank() && !usuario.esSuPropioPerfil(pedido)) {
+            throw new ReglaNegocioException("Solo se pueden modificar los datos propios.");
+        }
+
+        if (limpiar(datos.getNombre()).isEmpty()) {
+            throw new ReglaNegocioException("El nombre es obligatorio.");
+        }
+
+        // La contrasena es opcional: los dos campos vacios significan "dejala
+        // como esta". Si se escribe una, tiene que coincidir con su
+        // confirmacion, aunque el pedido no haya pasado por el navegador.
+        boolean cambiaPassword = nuevaPassword != null && !nuevaPassword.isEmpty();
+        if (cambiaPassword && !nuevaPassword.equals(confirmacion)) {
+            throw new ReglaNegocioException("Las dos contraseñas no coinciden.");
+        }
+
+        // Lo propio de cada tipo, antes de tocar nada: si algo falla, el
+        // usuario tiene que quedar como estaba.
+        Institucion institucion = null;
+        boolean cambiaInstitucion = false;
+
+        if (usuario instanceof Asistente) {
+            if (!(datos instanceof DTAsistente asistente)) {
+                throw new ReglaNegocioException("Faltan los datos del asistente.");
+            }
+            if (limpiar(asistente.getApellido()).isEmpty()
+                    || asistente.getFechaNacimiento() == null) {
+                throw new ReglaNegocioException(
+                        "El apellido y la fecha de nacimiento son obligatorios.");
+            }
+            // Sin institucion es una opcion valida, asi que se distingue entre
+            // "no la nombraron" y "la sacaron": las dos llegan como vacio y
+            // las dos significan lo mismo, dejar al asistente sin institucion.
+            cambiaInstitucion = true;
+            String nombreInstitucion = limpiar(asistente.getInstitucion());
+            if (!nombreInstitucion.isEmpty()) {
+                institucion = manejadorInstitucion.buscar(nombreInstitucion);
+                if (institucion == null) {
+                    throw new ReglaNegocioException(
+                            "No existe una institucion con el nombre \"" + nombreInstitucion + "\".");
+                }
+            }
+        } else {
+            if (!(datos instanceof DTOrganizador organizador)) {
+                throw new ReglaNegocioException("Faltan los datos del organizador.");
+            }
+            if (limpiar(organizador.getDescripcion()).isEmpty()) {
+                throw new ReglaNegocioException("La descripcion es obligatoria.");
+            }
+        }
+
+        // El nickname y el correo no se tocan: modificarDatos() solo cambia el
+        // nombre y lo propio de cada tipo, asi que si el formulario los manda
+        // igual no pasa nada.
+        usuario.modificarDatos(datos);
+
+        if (cambiaInstitucion) {
+            ((Asistente) usuario).setInstitucion(institucion);
+        }
+        if (cambiaPassword) {
+            usuario.cambiarPassword(nuevaPassword);
+        }
+        // La imagen solo se reemplaza cuando eligieron una nueva. Un
+        // formulario enviado sin elegir archivo deja la que ya estaba.
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+        }
+
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorUsuario.actualizar(usuario);
     }
 
     @Override

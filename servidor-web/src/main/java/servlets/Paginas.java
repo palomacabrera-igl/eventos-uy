@@ -20,6 +20,7 @@ public final class Paginas {
     public static final String LOGIN = "/WEB-INF/jsp/sesion/login.jsp";
     public static final String REGISTRO = "/WEB-INF/jsp/sesion/registro.jsp";
     public static final String PERFIL = "/WEB-INF/jsp/usuarios/perfil.jsp";
+    public static final String PERFIL_EDITAR = "/WEB-INF/jsp/usuarios/editar.jsp";
     public static final String NO_ENCONTRADA = "/WEB-INF/jsp/error/404.jsp";
 
     private Paginas() {

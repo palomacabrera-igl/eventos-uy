@@ -71,6 +71,13 @@ public class Perfil extends HttpServlet {
                 request.setAttribute("registros", registros);
             }
 
+            // Vuelve de haber guardado los cambios: el aviso no puede viajar
+            // en el request porque hubo un redirect en el medio, asi que
+            // viaja como marca en la direccion.
+            if (request.getParameter("guardado") != null) {
+                request.setAttribute("aviso", "Tus datos quedaron guardados.");
+            }
+
             request.setAttribute("titulo", perfil.getNombre());
             Paginas.forward(request, response, Paginas.PERFIL);
 
