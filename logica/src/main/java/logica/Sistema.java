@@ -902,4 +902,14 @@ public class Sistema implements IControladorSistema {
     public void refrescarDatos() {
         Persistencia.refrescar();
     }
+
+    @Override
+    public void abrirUnidadDeTrabajo() {
+        Persistencia.abrirUnidadDeTrabajo();
+    }
+
+    @Override
+    public void cerrarUnidadDeTrabajo() {
+        Persistencia.cerrarUnidadDeTrabajo();
+    }
 }

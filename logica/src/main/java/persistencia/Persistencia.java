@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import java.util.function.Consumer;
 
 /**
@@ -24,6 +26,25 @@ public final class Persistencia {
 
     /** Tiene que coincidir con el persistence-unit name del persistence.xml. */
     private static final String UNIDAD = "eventosuy";
+
+    /**
+     * Candado de la unidad de trabajo.
+     *
+     * Hay UN SOLO EntityManager para toda la aplicacion, y un EntityManager
+     * no se puede usar desde dos hilos a la vez (lo dice la especificacion de
+     * JPA). Tomcat atiende cada peticion en un hilo distinto, asi que sin esto
+     * dos paginas pedidas al mismo tiempo se pisan: una llama a clear()
+     * mientras la otra esta leyendo, y saltan ConcurrentModificationException
+     * y errores de JDBC.
+     *
+     * Es la misma idea que usa la demo del curso, donde los metodos del
+     * Manejador son synchronized. La diferencia es que aca la zona protegida
+     * no es un metodo sino TODA la peticion: desde que se refresca hasta que
+     * se termino de dibujar la pagina. Por eso es un ReentrantLock y no un
+     * bloque synchronized, que no puede abrirse en un metodo y cerrarse en
+     * otro.
+     */
+    private static final ReentrantLock CANDADO = new ReentrantLock();
 
     private static EntityManagerFactory emf;
     private static EntityManager em;
@@ -116,6 +137,29 @@ public final class Persistencia {
         EntityManager em = getEntityManager();
         if (em.isOpen()) {
             em.clear();
+        }
+    }
+
+    /**
+     * Empieza una unidad de trabajo: espera el turno y vuelve a leer de la base.
+     *
+     * El refresco va ADENTRO del candado a proposito. Si estuviera afuera,
+     * entre que un hilo refresca y lee, otro podria refrescar y borrarle lo
+     * que acababa de cargar: el error volveria igual.
+     *
+     * Quien la llama tiene que cerrar la unidad en un finally, SIEMPRE. Si una
+     * pagina falla y el candado no se suelta, el sitio queda colgado para
+     * todos hasta reiniciar Tomcat.
+     */
+    public static void abrirUnidadDeTrabajo() {
+        CANDADO.lock();
+        refrescar();
+    }
+
+    /** Termina la unidad de trabajo y le deja el turno al siguiente. */
+    public static void cerrarUnidadDeTrabajo() {
+        if (CANDADO.isHeldByCurrentThread()) {
+            CANDADO.unlock();
         }
     }
 

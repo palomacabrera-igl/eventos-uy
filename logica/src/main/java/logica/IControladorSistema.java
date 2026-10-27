@@ -489,4 +489,20 @@ public interface IControladorSistema {
      * de persistencia: habla solo con IControladorSistema y con los DT.
      */
     void refrescarDatos();
+
+    /**
+     * Empieza una unidad de trabajo: espera el turno, refresca y queda listo
+     * para leer. La usa el sitio al empezar cada pagina.
+     *
+     * Hace falta porque la logica tiene un solo EntityManager y Tomcat atiende
+     * cada peticion en un hilo distinto. Sin esto, dos paginas pedidas a la
+     * vez se pisan.
+     */
+    void abrirUnidadDeTrabajo();
+
+    /**
+     * Termina la unidad de trabajo. SIEMPRE se llama desde un finally: si una
+     * pagina falla y no se cierra, el sitio queda colgado para todos.
+     */
+    void cerrarUnidadDeTrabajo();
 }
