@@ -688,7 +688,29 @@ public class Sistema implements IControladorSistema {
     @Override
     public DTUsuario iniciarSesion(String identificador, String password)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Inicio de Sesion: todavia no implementado.");
+
+        if (identificador == null || identificador.isBlank()
+                || password == null || password.isEmpty()) {
+            throw new ReglaNegocioException("Ingresa tu usuario y tu contraseña.");
+        }
+
+        // La letra acepta el nickname O el correo. Se prueba primero por
+        // nickname y solo si no aparece se busca por correo, para no hacer dos
+        // consultas a la base cuando con una alcanza.
+        String buscado = identificador.trim();
+        Usuario usuario = manejadorUsuario.buscar(buscado);
+        if (usuario == null) {
+            usuario = manejadorUsuario.buscarPorCorreo(buscado);
+        }
+
+        if (usuario == null || !usuario.verificarPassword(password)) {
+            throw new ReglaNegocioException("El usuario o la contraseña no son correctos.");
+        }
+
+        // El DT que vuelve es un DTAsistente o un DTOrganizador, y cada uno se
+        // declara su propio tipo en el constructor. Por eso el cabezal puede
+        // preguntar esOrganizador() sin que nadie se haya acordado de setearlo.
+        return usuario.obtenerDT();
     }
 
     @Override
