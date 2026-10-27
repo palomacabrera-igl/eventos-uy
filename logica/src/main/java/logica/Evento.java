@@ -142,6 +142,20 @@ public class Evento extends EntidadBase {
      * Las ediciones que ve el publico: SOLO las Aceptada (letra, seccion 4).
      * Las Ingresada y Rechazada no salen de aca aunque existan.
      */
+    /**
+     * Las ediciones que todavia esperan que el administrador las acepte o las
+     * rechace (Aceptar/Rechazar Edicion, Estacion de Trabajo).
+     */
+    public Set<DTEdicionEvento> obtenerEdicionesIngresadas() {
+        Set<DTEdicionEvento> resultado = new HashSet<>();
+        for (EdicionEvento ed : ediciones) {
+            if (ed.getEstado() == EstadoEdicion.INGRESADA) {
+                resultado.add(ed.obtenerDT());
+            }
+        }
+        return resultado;
+    }
+
     public Set<DTEdicionEvento> obtenerEdicionesAceptadas() {
         Set<DTEdicionEvento> resultado = new HashSet<>();
         for (EdicionEvento ed : ediciones) {
