@@ -7,16 +7,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import logica.Evento;
-import logica.Imagen;
-import logica.Institucion;
-import logica.ManejadorEvento;
-import logica.ManejadorInstitucion;
-import logica.ManejadorUsuario;
-import logica.Usuario;
+import logica.DTImagen;
+import logica.Fabrica;
+import logica.IControladorSistema;
+import logica.ReglaNegocioException;
 
 @WebServlet("/imagen")
 public class VerImagen extends HttpServlet {
+
+    private final transient IControladorSistema controlador =
+            Fabrica.getInstancia().getControladorSistema();
 
     @Override
     protected void doGet(
@@ -41,7 +41,13 @@ public class VerImagen extends HttpServlet {
             return;
         }
 
-        Imagen imagen = buscarImagen(tipoEntidad, clave);
+        DTImagen imagen;
+        try {
+            imagen = buscarImagen(tipoEntidad, clave);
+        } catch (ReglaNegocioException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         if (imagen == null
                 || imagen.getContenido() == null
@@ -56,43 +62,14 @@ public class VerImagen extends HttpServlet {
         response.getOutputStream().write(imagen.getContenido());
     }
 
-    private Imagen buscarImagen(
-            String tipoEntidad,
-            String clave
-    ) {
+    private DTImagen buscarImagen(String tipoEntidad, String clave
+    ) throws ReglaNegocioException {
         return switch (tipoEntidad) {
-            case "usuario" -> {
-                Usuario usuario = ManejadorUsuario.getInstancia()
-                        .buscar(clave);
-
-                yield usuario == null ? null : usuario.getImagen();
-            }
-
-            case "evento" -> {
-                Evento evento = ManejadorEvento.getInstancia()
-                        .buscar(clave);
-
-                yield evento == null ? null : evento.getImagen();
-            }
-
-            case "edicion" -> {
-                var edicion = ManejadorEvento.getInstancia()
-                        .buscarEdicion(clave);
-
-                yield edicion == null ? null : edicion.getImagen();
-            }
-
-            case "institucion" -> {
-                Institucion institucion =
-                        ManejadorInstitucion.getInstancia()
-                                .buscar(clave);
-
-                yield institucion == null
-                        ? null
-                        : institucion.getImagen();
-            }
-
-            default -> null;
+            case "usuario" -> controlador.obtenerImagenUsuario(clave);
+            case "evento" -> controlador.obtenerImagenEvento(clave);
+            case "edicion" -> controlador.obtenerImagenEdicion(clave);
+            case "institucion" -> controlador.obtenerImagenInstitucion(clave);
+            default -> throw new ReglaNegocioException("Tipo de entidad invalido.");
         };
     }
 }

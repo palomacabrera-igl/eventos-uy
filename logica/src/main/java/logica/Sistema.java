@@ -837,7 +837,24 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenUsuario(String nickname) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de usuario: todavia no implementado.");
+        Usuario usuario = find(limpiar(nickname));
+        if (usuario == null) {
+            throw new ReglaNegocioException("No existe un usuario con el nickname \""
+                    + nickname + "\".");
+        }
+        return obtenerDTImagen(usuario.getImagen());
+    }
+
+    @Override
+    public void asignarImagenUsuario(String nickname, DTImagen imagen)
+            throws ReglaNegocioException {
+        Usuario usuario = find(limpiar(nickname));
+        if (usuario == null) {
+            throw new ReglaNegocioException("No existe un usuario con el nickname \""
+                    + nickname + "\".");
+        }
+        usuario.asignarImagen(crearImagen(imagen));
+        manejadorUsuario.actualizar(usuario);
     }
 
     // ----- Eventos y ediciones (CU 6 a 9) -----
@@ -908,12 +925,28 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenEvento(String nombreEvento) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de evento: todavia no implementado.");
+        return obtenerDTImagen(buscarEventoExistente(nombreEvento).getImagen());
     }
 
     @Override
     public DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de edicion: todavia no implementado.");
+        return obtenerDTImagen(buscarEdicionDelEvento(nombreEdicion).getImagen());
+    }
+
+    @Override
+    public void asignarImagenEvento(String nombreEvento, DTImagen imagen)
+            throws ReglaNegocioException {
+        Evento evento = buscarEventoExistente(nombreEvento);
+        evento.asignarImagen(crearImagen(imagen));
+        manejadorEvento.actualizar(evento);
+    }
+
+    @Override
+    public void asignarImagenEdicion(String nombreEdicion, DTImagen imagen)
+            throws ReglaNegocioException {
+        EdicionEvento edicion = buscarEdicionDelEvento(nombreEdicion);
+        edicion.asignarImagen(crearImagen(imagen));
+        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
@@ -922,35 +955,148 @@ public class Sistema implements IControladorSistema {
     public void altaTipoRegistro(String solicitante, String nombreEdicion, String nombre,
                                  String descripcion, double costo, int cupo)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Tipo de Registro: todavia no implementado.");
+        Usuario usuario = find(limpiar(solicitante));
+        if (!(usuario instanceof Organizador)) {
+            throw new ReglaNegocioException(
+                    "Solo un organizador puede dar de alta tipos de registro.");
+        }
+
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        if (!edicion.getOrganizador().getNickname().equals(usuario.getNickname())) {
+            throw new ReglaNegocioException(
+                    "El organizador no es responsable de la edicion \""
+                            + edicion.getNombre() + "\".");
+        }
+
+        String nombreLimpio = limpiar(nombre);
+        if (nombreLimpio.isEmpty()) {
+            throw new ReglaNegocioException("El nombre del tipo de registro es obligatorio.");
+        }
+        if (edicion.buscarTipoRegistro(nombreLimpio) != null) {
+            throw new ReglaNegocioException("Ya existe un tipo de registro con el nombre \""
+                    + nombreLimpio + "\" en la edicion " + edicion.getNombre() + ".");
+        }
+        if (costo < 0) {
+            throw new ReglaNegocioException("El costo no puede ser negativo.");
+        }
+        if (cupo <= 0) {
+            throw new ReglaNegocioException("El cupo debe ser mayor que cero.");
+        }
+
+        edicion.crearTipoRegistro(nombreLimpio, limpiar(descripcion), costo, cupo);
+        // El tipo pertenece a la edicion y esta al evento: al actualizar la
+        // raiz del agregado se persiste por cascade, como en el flujo Swing.
+        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     @Override
     public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Tipo de Registro: todavia no implementado.");
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        if (!edicion.estaAceptada()) {
+            throw new ReglaNegocioException(
+                    "La edicion \"" + edicion.getNombre()
+                            + "\" no esta disponible para consulta publica.");
+        }
+
+        TipoRegistro tipo = edicion.buscarTipoRegistro(limpiar(nombreTipo));
+        if (tipo == null) {
+            throw new ReglaNegocioException("La edicion " + edicion.getNombre()
+                    + " no tiene un tipo de registro con el nombre \""
+                    + nombreTipo + "\".");
+        }
+        return tipo.obtenerDT();
     }
 
     @Override
     public void altaInstitucion(String solicitante, String nombre, String descripcion,
                                 String sitioWeb, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Institucion: todavia no implementado.");
+        Usuario usuario = find(limpiar(solicitante));
+        if (!(usuario instanceof Organizador)) {
+            throw new ReglaNegocioException(
+                    "Solo un organizador puede dar de alta instituciones.");
+        }
+
+        String nombreLimpio = limpiar(nombre);
+        String descripcionLimpia = limpiar(descripcion);
+        String sitioWebLimpio = limpiar(sitioWeb);
+        if (nombreLimpio.isEmpty() || descripcionLimpia.isEmpty() || sitioWebLimpio.isEmpty()) {
+            throw new ReglaNegocioException(
+                    "El nombre, la descripcion y el sitio web son obligatorios.");
+        }
+        if (findInstitucion(nombreLimpio) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe una institucion con el nombre \"" + nombreLimpio + "\".");
+        }
+
+        Institucion institucion = new Institucion(nombreLimpio, descripcionLimpia, sitioWebLimpio);
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            institucion.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+        }
+        manejadorInstitucion.agregar(institucion);
     }
 
     @Override
     public Set<DTInstitucion> listarInstituciones() {
-        throw new UnsupportedOperationException("Listar instituciones: todavia no implementado.");
+        Set<DTInstitucion> resultado = new HashSet<>();
+        for (Institucion institucion : manejadorInstitucion.listar()) {
+            resultado.add(institucion.obtenerDT());
+        }
+        return resultado;
     }
 
     @Override
     public DTInstitucion consultarInstitucion(String nombre) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Institucion: todavia no implementado.");
+        Institucion institucion = findInstitucion(limpiar(nombre));
+        if (institucion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una institucion con el nombre \"" + nombre + "\".");
+        }
+        return institucion.obtenerDT();
     }
 
     @Override
     public DTImagen obtenerImagenInstitucion(String nombre) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Imagen de institucion: todavia no implementado.");
+        Institucion institucion = findInstitucion(limpiar(nombre));
+        if (institucion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una institucion con el nombre \"" + nombre + "\".");
+        }
+        return obtenerDTImagen(institucion.getImagen());
+    }
+
+    @Override
+    public void asignarImagenInstitucion(String nombre, DTImagen imagen)
+            throws ReglaNegocioException {
+        Institucion institucion = findInstitucion(limpiar(nombre));
+        if (institucion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una institucion con el nombre \"" + nombre + "\".");
+        }
+        institucion.asignarImagen(crearImagen(imagen));
+        manejadorInstitucion.actualizar(institucion);
+    }
+
+    private static DTImagen obtenerDTImagen(Imagen imagen) {
+        return imagen == null ? null
+                : new DTImagen(imagen.getContenido(), imagen.getTipo());
+    }
+
+    private static Imagen crearImagen(DTImagen imagen) throws ReglaNegocioException {
+        if (imagen == null || imagen.getContenido() == null || imagen.getContenido().length == 0
+                || imagen.getTipo() == null || imagen.getTipo().isBlank()) {
+            throw new ReglaNegocioException("La imagen es obligatoria y debe tener contenido.");
+        }
+        return new Imagen(imagen.getContenido(), imagen.getTipo());
     }
 
     // ----- Consulta de Registro (CU 13) -----
