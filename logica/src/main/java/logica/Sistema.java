@@ -811,22 +811,49 @@ public class Sistema implements IControladorSistema {
     @Override
     public DTUsuario consultarUsuario(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Usuario: todavia no implementado.");
+        // El perfil en si es publico: nickname, nombre, correo, tipo y si
+        // tiene imagen. La contrasena no esta en el DT, asi que no hay nada
+        // que esconder aca. Lo que depende de quien pregunta son los dos
+        // listados de abajo, no estos datos.
+        return exigirUsuario(nickname).obtenerDT();
     }
 
     @Override
     public Set<DTEdicionEvento> listarEdicionesDeOrganizador(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException(
-                "Ediciones de un organizador: todavia no implementado.");
+
+        Usuario usuario = exigirUsuario(nickname);
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException(
+                    "El usuario \"" + usuario.getNickname() + "\" no es un organizador.");
+        }
+        return organizador.obtenerEdicionesPara(solicitante);
     }
 
     @Override
     public Set<DTRegistro> listarRegistrosDeAsistente(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException(
-                "Registros de un asistente: todavia no implementado.");
+
+        Usuario usuario = exigirUsuario(nickname);
+        if (!(usuario instanceof Asistente asistente)) {
+            throw new ReglaNegocioException(
+                    "El usuario \"" + usuario.getNickname() + "\" no es un asistente.");
+        }
+        return asistente.obtenerRegistrosPara(solicitante);
     }
+
+    /** El usuario que se pide, o un error si no existe. */
+    private Usuario exigirUsuario(String nickname) throws ReglaNegocioException {
+        Usuario usuario = (nickname == null || nickname.isBlank())
+                ? null
+                : manejadorUsuario.buscar(nickname.trim());
+        if (usuario == null) {
+            throw new ReglaNegocioException(
+                    "No existe un usuario con el nickname \"" + nickname + "\".");
+        }
+        return usuario;
+    }
+
 
     @Override
     public void modificarUsuario(String solicitante, DTUsuario datos, String nuevaPassword,

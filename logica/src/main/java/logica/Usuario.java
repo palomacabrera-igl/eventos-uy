@@ -111,6 +111,16 @@ public abstract class Usuario extends EntidadBase {
      * Polimorfico: cada subtipo concreto arma su propio DT (DTAsistente o
      * DTOrganizador), que extiende a DTUsuario con sus campos propios.
      */
+    /**
+     * Si quien pregunta es el duenio de este perfil (CU 4).
+     *
+     * Se compara contra el nickname de la entidad y no contra el texto que
+     * llego, asi unos espacios de mas no deciden quien ve que.
+     */
+    public boolean esSuPropioPerfil(String solicitante) {
+        return solicitante != null && nickname.equals(solicitante.trim());
+    }
+
     public abstract DTUsuario obtenerDT();
 
     /**

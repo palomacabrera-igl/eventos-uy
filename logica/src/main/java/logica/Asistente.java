@@ -11,7 +11,9 @@ import jakarta.persistence.OneToMany;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Usuario de tipo asistente. Ademas de los datos de {@link Usuario}, tiene
@@ -115,6 +117,25 @@ public class Asistente extends Usuario {
 
     public List<Registro> getRegistros() {
         return registros;
+    }
+
+    /**
+     * Los registros de este asistente, segun quien los este mirando (CU 4).
+     *
+     * A diferencia de las ediciones de un organizador, aca no se muestra nada
+     * a nadie mas: a que eventos se anoto alguien es asunto suyo. Se devuelve
+     * el conjunto vacio y no un error, porque el perfil SI se puede mirar; lo
+     * unico que no se ve es esta parte.
+     */
+    public Set<DTRegistro> obtenerRegistrosPara(String solicitante) {
+        Set<DTRegistro> resultado = new LinkedHashSet<>();
+        if (!esSuPropioPerfil(solicitante)) {
+            return resultado;
+        }
+        for (Registro reg : registros) {
+            resultado.add(reg.obtenerDT());
+        }
+        return resultado;
     }
 
     public DTRegistro darRegistro(String nombreEdicion) {
