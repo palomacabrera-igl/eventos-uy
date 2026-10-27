@@ -2,6 +2,9 @@ package servlets;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 
 import logica.DTFecha;
 
@@ -42,5 +45,39 @@ public final class Texto {
             return "";
         }
         return String.format("%02d/%02d/%04d", fecha.getDia(), fecha.getMes(), fecha.getAnio());
+    }
+
+    /**
+     * Lo mismo para las fechas que viajan como LocalDate, como la del
+     * registro. Sin esto saldria "2026-09-01" y el resto del sitio muestra
+     * "01/09/2026": la misma fecha escrita de dos formas distintas en la
+     * misma pantalla.
+     */
+    public static String fecha(LocalDate fecha) {
+        if (fecha == null) {
+            return "";
+        }
+        return String.format("%02d/%02d/%04d",
+                fecha.getDayOfMonth(), fecha.getMonthValue(), fecha.getYear());
+    }
+
+    /**
+     * Un importe como se escribe aca: $ 2.500 o $ 2.500,50.
+     *
+     * El costo viaja como Double, y mostrarlo tal cual da "2500.0", que no es
+     * como se escribe la plata en ningun lado. Los simbolos se fijan a mano y
+     * no se toman del sistema, asi se ve igual en la maquina de cada uno.
+     */
+    public static String importe(Double valor) {
+        if (valor == null) {
+            return "";
+        }
+        DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+        simbolos.setDecimalSeparator(',');
+        simbolos.setGroupingSeparator('.');
+
+        boolean redondo = valor == Math.floor(valor) && !valor.isInfinite();
+        String patron = redondo ? "#,##0" : "#,##0.00";
+        return "$ " + new DecimalFormat(patron, simbolos).format(valor);
     }
 }
