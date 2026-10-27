@@ -142,8 +142,8 @@ public class AltaUsuarioPanel {
 
         TipoUsuario tipo = asistenteRadioButton.isSelected() ? TipoUsuario.ASISTENTE : TipoUsuario.ORGANIZADOR;
 
-        // Se valida la fecha de nacimiento ANTES de tocar a Sistema (si aplica), para
-        // no dejar datos a medio recordar si el usuario todavia tiene que corregir algo.
+        // La fecha se valida aca porque el formulario la arma con tres combos y
+        // puede quedar una fecha que no existe (31 de febrero).
         if (tipo == TipoUsuario.ASISTENTE && !fechaNacimientoValida()) {
             return;
         }
@@ -158,34 +158,32 @@ public class AltaUsuarioPanel {
             return;
         }
 
-        DTUsuario datos = new DTUsuario(nickname, nombre, correo);
-
-        // PENDIENTE: cuando Paloma implemente altaUsuario(...) en Sistema, este
-        // try pasa a ser UNA sola llamada que ademas guarda contrasena e imagen:
-        //   controlador.altaUsuario(datosCompletos, tipo, password, confirmacion,
-        //                           institucionElegida, imagenElegida);
-        // donde datosCompletos es un DTAsistente o un DTOrganizador.
-        // Hasta entonces se usa el alta de antes, que no guarda la contrasena
-        // ni la imagen, para que la pantalla siga funcionando.
-
-        // (b) Llamada a la LOGICA. Este alta son VARIOS pasos encadenados
-        // (ingresarDatosUsuario -> ingresarDatosAsistente/Organizador ->
-        // seleccionarInstitucion), asi que van todos en UN SOLO try: si falla
-        // un paso del medio, se avisa una sola vez y no se dice "creado con exito".
+        // (b) Llamada a la LOGICA: el alta entera es UNA sola llamada, que
+        // tambien guarda la contrasena (la entidad la hashea) y la imagen.
+        // La logica vuelve a validar todo (vacios, contrasenas, nickname y
+        // correo repetidos), porque la usa tambien el sitio web.
         try {
-            controlador.ingresarDatosUsuario(datos, tipo);
-
+            DTUsuario datos;
+            String institucion = null;
             if (tipo == TipoUsuario.ASISTENTE) {
-                confirmarAsistente();
+                datos = datosAsistente(nickname, nombre, correo);
+                String elegida = (String) InstitucionCBox.getSelectedItem();
+                if (elegida != null && !SIN_INSTITUCION.equals(elegida)) {
+                    institucion = elegida;
+                }
             } else {
-                confirmarOrganizador();
+                datos = new DTOrganizador(nickname, nombre, correo,
+                        textField1.getText().trim(), textField2.getText().trim());
             }
+
+            controlador.altaUsuario(datos, tipo, password, confirmacion, institucion, imagenElegida);
 
             Mensajes.exito(mainPanel, TITULO, "El usuario se ha creado con éxito.");
             limpiar();
             accionCerrar.run();
         } catch (ReglaNegocioException ex) {
-            // [nickname/correo en uso]: se avisa y la ventana queda abierta (LOOP del dss)
+            // [nickname/correo en uso, contrasenas distintas]: se avisa y la
+            // ventana queda abierta para corregir (LOOP del DSS).
             Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
@@ -213,29 +211,15 @@ public class AltaUsuarioPanel {
         return true;
     }
 
-    private void confirmarAsistente() throws ReglaNegocioException {
-        String apellido = txtApellido.getText().trim();
+    /** Arma el DTAsistente con el apellido y la fecha elegida en los combos. */
+    private DTAsistente datosAsistente(String nickname, String nombre, String correo) {
         int dia = (Integer) FechaNacDiaCBox.getSelectedItem();
         int mes = (Integer) FechaNacMesCBox.getSelectedItem();
         int anio = (Integer) FechaNacAnioCBox.getSelectedItem();
         DTFecha fechaNac = new DTFecha(dia, mes, anio);
-
-        // ingresarDatosAsistente(apellido, fechaNac)
-        controlador.ingresarDatosAsistente(apellido, fechaNac);
-
-        String institucion = (String) InstitucionCBox.getSelectedItem();
-        if (institucion != null && !SIN_INSTITUCION.equals(institucion)) {
-            // [pertenece a institucion]: seleccionarInstitucion(nombreInstitucion)
-            controlador.seleccionarInstitucion(institucion);
-        }
-    }
-
-    private void confirmarOrganizador() throws ReglaNegocioException {
-        String descripcion = textField1.getText().trim();
-        String sitioWeb = textField2.getText().trim();
-
-        // ingresarDatosOrganizador(descripcion, sitioWeb)
-        controlador.ingresarDatosOrganizador(descripcion, sitioWeb);
+        // La institucion viaja aparte, como parametro de altaUsuario.
+        return new DTAsistente(nickname, nombre, correo,
+                txtApellido.getText().trim(), fechaNac, null);
     }
 
     /** "Elegir imagen...": la guarda en memoria hasta que se confirma el alta. */

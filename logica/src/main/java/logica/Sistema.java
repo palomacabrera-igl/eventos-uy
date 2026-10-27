@@ -1136,20 +1136,52 @@ public class Sistema implements IControladorSistema {
 
     // ----- Aceptar/Rechazar Edicion de Evento (Estacion de Trabajo) -----
 
+    /**
+     * Las ediciones Ingresada de un evento, para que el administrador elija
+     * cual aceptar o rechazar. No recuerda nada: la operacion siguiente recibe
+     * el nombre de la edicion.
+     */
     @Override
     public Set<DTEdicionEvento> listarEdicionesIngresadas(String nombreEvento)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Ediciones ingresadas: todavia no implementado.");
+        return buscarEventoExistente(nombreEvento).obtenerEdicionesIngresadas();
     }
 
+    /**
+     * Acepta una edicion: pasa a ACEPTADA y desde ese momento el sitio la
+     * muestra al publico. La regla de que solo se puede desde INGRESADA vive
+     * en la entidad (EdicionEvento.aceptar), que es la unica que cambia el estado.
+     */
     @Override
     public void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Aceptar Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionPorNombre(nombreEdicion);
+        edicion.aceptar();
+        manejadorEvento.actualizar(edicion.getEvento());
     }
 
+    /** Rechaza una edicion. Solo se puede desde INGRESADA, igual que aceptar. */
     @Override
     public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Rechazar Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionPorNombre(nombreEdicion);
+        edicion.rechazar();
+        manejadorEvento.actualizar(edicion.getEvento());
+    }
+
+    /**
+     * Busca una edicion por su nombre, que es unico en todo el sistema, sin
+     * depender de un evento seleccionado antes.
+     */
+    private EdicionEvento buscarEdicionPorNombre(String nombreEdicion)
+            throws ReglaNegocioException {
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre de la edicion.");
+        }
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        return edicion;
     }
 
     // ----- Mantenimiento -----

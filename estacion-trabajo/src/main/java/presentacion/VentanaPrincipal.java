@@ -124,6 +124,11 @@ public class VentanaPrincipal extends JFrame {
         itemAltaEvento.addActionListener(e -> abrirAltaEvento());
         menuEventos.add(itemAltaEvento);
 
+        // ===== Aceptar/Rechazar Edicion de Evento =====
+        JMenuItem itemAceptarRechazar = new JMenuItem("Aceptar/Rechazar Edicion de Evento");
+        itemAceptarRechazar.addActionListener(e -> abrirAceptarRechazarEdicion());
+        menuEventos.add(itemAceptarRechazar);
+
         // ===== Alta de Patrocinio =====
         JMenuItem itemAltaPatrocinio = new JMenuItem("Alta de Patrocinio");
         itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
@@ -157,6 +162,7 @@ public class VentanaPrincipal extends JFrame {
     private void abrirConsultaEdicion()    { abrir(new VentanaConsultaEdicion()); }
     private void abrirAltaEvento()         { abrir(new VentanaAltaEvento()); }
     private void abrirAltaPatrocinio()     { abrir(new VentanaAltaPatrocinio()); }
+    private void abrirAceptarRechazarEdicion() { abrir(new VentanaAceptarRechazarEdicion()); }
 
     /**
      * Boton "Actualizar datos". La Estacion de Trabajo y el sitio web usan la
