@@ -1227,7 +1227,99 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaPatrocinio(String solicitante, String nombreEdicion, DTPatrocinio datos)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Patrocinio sin estado: todavia no implementado.");
+
+        if (solicitante == null || solicitante.isBlank()) {
+            throw new ReglaNegocioException("Hay que iniciar sesion para dar de alta un patrocinio.");
+        }
+        if (datos == null || nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Faltan los datos del patrocinio.");
+        }
+
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+
+        // La letra: el organizador ve "las ediciones de ese evento que EL
+        // organiza". En cualquier estado, eso si: se puede patrocinar una
+        // edicion todavia Ingresada.
+        if (!edicion.loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(
+                    "Solo el organizador de la edicion " + edicion.getNombre()
+                            + " puede darle un patrocinio.");
+        }
+
+        NivelPatrocinio nivel = nivelDe(datos.getNivel());
+
+        if (datos.getMonto() <= 0) {
+            throw new ReglaNegocioException("El aporte economico tiene que ser mayor que cero.");
+        }
+        if (datos.getCantRegistrosGratis() < 0) {
+            throw new ReglaNegocioException(
+                    "La cantidad de registros gratuitos no puede ser negativa.");
+        }
+
+        String codigo = limpiar(datos.getCodigoPatrocinio());
+        if (codigo.isEmpty()) {
+            throw new ReglaNegocioException("El codigo de patrocinio es obligatorio.");
+        }
+        // El codigo es unico en toda la plataforma. Hasta ahora esto solo lo
+        // frenaba la restriccion de la base, que corta con un error de
+        // Hibernate en vez de con un mensaje que se pueda mostrar.
+        if (manejadorEvento.buscarPatrocinioPorCodigo(codigo) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un patrocinio con el codigo \"" + codigo + "\".");
+        }
+
+        Institucion institucion = manejadorInstitucion.buscar(limpiar(datos.getInstitucion()));
+        if (institucion == null) {
+            throw new ReglaNegocioException("No existe una institucion con el nombre \""
+                    + datos.getInstitucion() + "\".");
+        }
+        // Una institucion patrocina una edicion una sola vez.
+        if (edicion.tienePatrocinioDe(institucion.getNombre())) {
+            throw new ReglaNegocioException("La institucion " + institucion.getNombre()
+                    + " ya tiene un patrocinio para la edicion " + edicion.getNombre() + ".");
+        }
+
+        TipoRegistro tipo = edicion.buscarTipoRegistro(limpiar(datos.getTipoRegistro()));
+        if (tipo == null) {
+            throw new ReglaNegocioException("La edicion " + edicion.getNombre()
+                    + " no tiene un tipo de registro \"" + datos.getTipoRegistro() + "\".");
+        }
+
+        // El tope del 20%: la cuenta y la comparacion viven en Patrocinio.
+        if (Patrocinio.superaElTope(datos.getMonto(), tipo.getCosto(),
+                datos.getCantRegistrosGratis())) {
+            throw new ReglaNegocioException(String.format(
+                    "El valor de los registros gratuitos ($%.2f = %d x $%.2f) supera "
+                            + "el 20%% del aporte ($%.2f). Maximo permitido: $%.2f.",
+                    Patrocinio.valorDeGratis(tipo.getCosto(), datos.getCantRegistrosGratis()),
+                    datos.getCantRegistrosGratis(), tipo.getCosto(),
+                    datos.getMonto(), Patrocinio.topeDeGratis(datos.getMonto())));
+        }
+
+        // La fecha la pone el sistema, no el formulario (letra, seccion 6).
+        Patrocinio patrocinio = new Patrocinio(LocalDate.now(), datos.getMonto(),
+                datos.getCantRegistrosGratis(), codigo, nivel, institucion, tipo);
+
+        edicion.agregarPatrocinio(patrocinio);
+        // JPA: confirma el cambio en la base (sin transaccion se perderia).
+        manejadorEvento.actualizar(edicion.getEvento());
+    }
+
+    /** El nivel que llega como texto desde la pantalla, o un error entendible. */
+    private static NivelPatrocinio nivelDe(String texto) throws ReglaNegocioException {
+        try {
+            return NivelPatrocinio.valueOf(limpiar(texto).toUpperCase());
+        } catch (IllegalArgumentException noEsUnNivel) {
+            // valueOf tira IllegalArgumentException, que es un error de
+            // programa; se traduce a ReglaNegocioException, que es lo que la
+            // pantalla sabe mostrar.
+            throw new ReglaNegocioException(
+                    "El nivel de patrocinio tiene que ser Platino, Oro, Plata o Bronce.");
+        }
     }
 
     @Override

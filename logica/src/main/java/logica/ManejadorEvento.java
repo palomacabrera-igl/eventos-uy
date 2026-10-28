@@ -71,6 +71,24 @@ public class ManejadorEvento {
     }
 
     /**Busca una edicion por nombre. Devuelve null si no existe.*/
+    /**
+     * El patrocinio que tiene ese codigo, en cualquier edicion, o null.
+     *
+     * El codigo es unico en toda la plataforma (letra, seccion 4), asi que no
+     * alcanza con mirar la edicion que se esta patrocinando: hay que mirar
+     * todas. Se hace con una consulta y no recorriendo los eventos en memoria
+     * porque la base lo resuelve en un paso.
+     */
+    public Patrocinio buscarPatrocinioPorCodigo(String codigo) {
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT p FROM Patrocinio p WHERE p.codigo = :codigo",
+                             Patrocinio.class)
+                .setParameter("codigo", codigo)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+    }
+
     public EdicionEvento buscarEdicion(String nombreEdicion) {
         return Persistencia.getEntityManager()
                 .createQuery("SELECT ed FROM EdicionEvento ed WHERE ed.nombre = :nombre",

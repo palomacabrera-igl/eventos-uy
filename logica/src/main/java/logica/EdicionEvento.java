@@ -173,6 +173,18 @@ public class EdicionEvento extends EntidadBase {
         return resultado;
     }
 
+    /**
+     * true si esta edicion la organiza esa persona.
+     *
+     * La letra pide, para el Alta de Patrocinio, que el organizador vea "las
+     * ediciones de ese evento que el organiza": nadie patrocina la edicion de
+     * otro.
+     */
+    public boolean loOrganiza(String nickname) {
+        return nickname != null && organizador != null
+                && organizador.getNickname().equals(nickname.trim());
+    }
+
     public Patrocinio buscarPatrocinio(String codigo) {
         for (Patrocinio p : patrocinios) {
             // equals y no ==: con texto, == compara si son el MISMO objeto

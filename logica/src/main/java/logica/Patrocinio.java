@@ -66,6 +66,31 @@ public class Patrocinio extends EntidadBase {
 
     protected Patrocinio() {}
 
+    /**
+     * El tope que pone la letra: el costo de los registros gratuitos no puede
+     * pasar del 20% del aporte economico (seccion 4).
+     *
+     * Esta aca, y como metodo aparte, por dos motivos: es una regla del
+     * patrocinio y no del caso de uso, y asi se puede probar sola, sin tener
+     * que armar una edicion entera ni levantar la base.
+     */
+    public static final double PORCENTAJE_TOPE = 0.20;
+
+    /** Lo maximo que puede valer lo que se regala, dado el aporte. */
+    public static double topeDeGratis(double aporte) {
+        return aporte * PORCENTAJE_TOPE;
+    }
+
+    /** Lo que vale lo que se regala: el costo del tipo por la cantidad. */
+    public static double valorDeGratis(double costoDelTipo, int cantidad) {
+        return costoDelTipo * cantidad;
+    }
+
+    /** true cuando lo regalado pasa el tope y el patrocinio hay que rechazarlo. */
+    public static boolean superaElTope(double aporte, double costoDelTipo, int cantidad) {
+        return valorDeGratis(costoDelTipo, cantidad) > topeDeGratis(aporte);
+    }
+
     public Patrocinio(LocalDate fechaIni, Double monto, int cantRegistrosGratis,
                       String codigo, NivelPatrocinio nivelPatro,
                       Institucion institucion, TipoRegistro tipoRegistro){
