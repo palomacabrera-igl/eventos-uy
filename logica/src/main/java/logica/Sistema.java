@@ -817,8 +817,21 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTEdicionEvento> listarEdicionesDeOrganizador(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException(
-                "Ediciones de un organizador: todavia no implementado.");
+        String nicknameLimpio = limpiar(nickname);
+        Usuario usuario = find(nicknameLimpio);
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException(
+                    "No existe un organizador con el nickname \"" + nicknameLimpio + "\".");
+        }
+
+        boolean esPropioPerfil = nicknameLimpio.equals(limpiar(solicitante));
+        Set<DTEdicionEvento> resultado = new HashSet<>();
+        for (EdicionEvento edicion : organizador.getEdiciones()) {
+            if (esPropioPerfil || edicion.estaAceptada()) {
+                resultado.add(edicion.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     @Override

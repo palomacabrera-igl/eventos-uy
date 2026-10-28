@@ -19,6 +19,9 @@ public final class Paginas {
     public static final String EVENTO = "/WEB-INF/jsp/eventos/consultar.jsp";
     public static final String LOGIN = "/WEB-INF/jsp/sesion/login.jsp";
     public static final String REGISTRO = "/WEB-INF/jsp/sesion/registro.jsp";
+    public static final String ALTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/alta.jsp";
+    public static final String CONSULTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/consultar.jsp";
+    public static final String ALTA_INSTITUCION = "/WEB-INF/jsp/instituciones/alta.jsp";
     public static final String NO_ENCONTRADA = "/WEB-INF/jsp/error/404.jsp";
 
     private Paginas() {
