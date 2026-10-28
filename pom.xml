@@ -62,12 +62,12 @@
                 <plugin>
                     <!--
                         Cubrimiento de sentencias de la capa logica (letra, 7.5).
-                        La 0.8.13 es la primera que lee las clases de Java 25:
-                        con la 0.8.12 el informe sale vacio.
+                        Es la version que usa la demo del curso. La 0.8.12 no lee
+                        las clases de Java 25 y el informe sale vacio.
                     -->
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.13</version>
+                    <version>0.8.15</version>
                 </plugin>
             </plugins>
         </pluginManagement>

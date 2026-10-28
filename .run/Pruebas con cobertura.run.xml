@@ -1,0 +1,35 @@
+<component name="ProjectRunConfigurationManager">
+  <!--
+      Corre las pruebas de la capa logica con Run with Coverage, que es como
+      la letra (7.5) pide medir el cubrimiento de sentencias.
+
+      El patron limita la medicion a los paquetes logica y persistencia: no
+      tiene sentido contar la Estacion de Trabajo ni los servlets, que la
+      letra deja expresamente afuera.
+  -->
+  <configuration default="false" name="Pruebas con cobertura" type="JUnit" factoryName="JUnit">
+    <module name="logica" />
+    <extension name="coverage" sample_coverage="false" runner="idea">
+      <pattern>
+        <option name="PATTERN" value="logica.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="persistencia.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="logica" />
+    <option name="MAIN_CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="package" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="PARAMETERS" value="" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="singleModule" />
+    </option>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
