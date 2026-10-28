@@ -2,6 +2,7 @@ package logica;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -9,30 +10,40 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Pruebas de Alta de Patrocinio (CU 15), sin base de datos: lo que se prueba
- * aca son las reglas que viven en las entidades.
+ * Pruebas de caja negra del Alta de Patrocinio (CU 15): se construyen solo a
+ * partir de la especificacion de la letra, con clases de equivalencia y
+ * valores limite. No necesitan base de datos.
+ *
+ * <p>La letra, seccion 4: «el tope del 20 % del aporte para el costo de los
+ * registros gratuitos del patrocinio».
  *
  * <pre>
- *  superaElTope(aporte, costoDelTipo, cantidad) -- letra, seccion 4
- *  CV  lo regalado vale menos que el 20% del aporte   -&gt; se acepta
- *  CI  lo regalado vale mas que el 20%                -&gt; se rechaza
- *  Valor limite: vale EXACTAMENTE el 20%              -&gt; se acepta
- *  Valor limite: cero registros gratuitos             -&gt; se acepta siempre
- *  Valor limite: un tipo de registro gratis           -&gt; se acepta siempre
+ *  superaElTope(aporte, costoDelTipo, cantidad)
+ *
+ *  Con un aporte de $100.000 y un tipo de $500, el tope son $20.000,
+ *  o sea 40 registros gratuitos.
+ *
+ *  Clase de equivalencia          Rango (cantidad)  Valores limite
+ *  -----------------------------  ----------------  ------------------
+ *  CV  no se pasa del tope        [0, 40]           0, 40
+ *  CI  se pasa del tope           [41, maxint]      41, Integer.MAX_VALUE
+ *
+ *  Casos aparte, del comportamiento y no del rango:
+ *  CV  un tipo de registro que no cuesta nada  -> nunca se pasa
+ *  CV  cero registros gratuitos                -> nunca se pasa
  *
  *  tienePatrocinioDe(institucion)
- *  CI  la institucion ya patrocina esta edicion       -&gt; se rechaza
- *  CV  otra institucion                               -&gt; se acepta
- *
- *  buscarPatrocinio(codigo) -- el codigo dentro de la edicion
- *  CV  el codigo que existe                           -&gt; lo encuentra
- *  CI  uno que no existe                              -&gt; null
+ *  CV  una institucion que todavia no patrocina la edicion
+ *  CI  una que ya la patrocina
  *
  *  loOrganiza(nickname)
- *  CV  el organizador de la edicion, con o sin espacios
- *  CI  otro organizador, o nadie (null)
+ *  CV  el nickname del organizador, con y sin espacios
+ *  CI  otro nickname, otra capitalizacion, o nadie (null)
  * </pre>
  */
 @DisplayName("Alta de Patrocinio (CU 15)")
@@ -49,7 +60,7 @@ class AltaPatrocinioTest {
                 "Organiza eventos", null, "Imm2026!");
 
         edicion = new EdicionEvento("JIAP 2027", "JIAP",
-                LocalDate.of(2027, 10, 1), LocalDate.of(2027, 10, 5),
+                LocalDate.of(2027, 3, 1), LocalDate.of(2027, 3, 5),
                 LocalDate.of(2026, 10, 27), "Montevideo", "Uruguay", duenio);
 
         general = edicion.crearTipoRegistro("General", "Entrada general", 500.0, 100);
@@ -61,88 +72,101 @@ class AltaPatrocinioTest {
                 NivelPatrocinio.ORO, institucion, general);
     }
 
-    // ----- El tope del 20 % -----
+    // ------------------------------------------------ el tope del 20 %
 
-    @Test
-    @DisplayName("lo regalado por debajo del 20 % del aporte se acepta")
-    void porDebajoDelTope() {
-        // 10 registros de $500 son $5.000; el 20 % de $100.000 son $20.000.
-        assertFalse(Patrocinio.superaElTope(100000.0, 500.0, 10));
+    @ParameterizedTest(name = "{0} registros de $500 sobre un aporte de $100.000 -> se acepta")
+    @DisplayName("dentro del tope: los extremos de la clase valida")
+    @ValueSource(ints = {0, 1, 39, 40})
+    void dentroDelTope(int cantidad) {
+        assertFalse(Patrocinio.superaElTope(100000.0, 500.0, cantidad));
+    }
+
+    @ParameterizedTest(name = "{0} registros de $500 sobre un aporte de $100.000 -> se rechaza")
+    @DisplayName("fuera del tope: los extremos de la clase invalida")
+    @ValueSource(ints = {41, 100, Integer.MAX_VALUE})
+    void fueraDelTope(int cantidad) {
+        assertTrue(Patrocinio.superaElTope(100000.0, 500.0, cantidad));
     }
 
     @Test
-    @DisplayName("lo regalado por encima del 20 % se rechaza")
-    void porEncimaDelTope() {
-        // 50 registros de $500 son $25.000, y el tope son $20.000.
-        assertTrue(Patrocinio.superaElTope(100000.0, 500.0, 50));
+    @DisplayName("valor limite: justo el 20 % se acepta, y un registro mas ya no")
+    void elLimiteExacto() {
+        // Datos de prueba: 40 registros de $500 son $20.000, que es
+        // exactamente el 20 % de $100.000.
+        double aporte = 100000.0;
+        double costo = 500.0;
+
+        // Ejecucion y resultado esperado
+        assertEquals(20000.0, Patrocinio.topeDeGratis(aporte));
+        assertEquals(20000.0, Patrocinio.valorDeGratis(costo, 40));
+
+        // La letra dice "supera", asi que justo en el limite se acepta.
+        assertFalse(Patrocinio.superaElTope(aporte, costo, 40));
+        assertTrue(Patrocinio.superaElTope(aporte, costo, 41));
     }
 
-    @Test
-    @DisplayName("valor limite: exactamente el 20 % se acepta, no se pasa")
-    void justoEnElTope() {
-        // 40 registros de $500 son $20.000, que es justo el 20 % de $100.000.
-        assertEquals(20000.0, Patrocinio.topeDeGratis(100000.0));
-        assertEquals(20000.0, Patrocinio.valorDeGratis(500.0, 40));
-        assertFalse(Patrocinio.superaElTope(100000.0, 500.0, 40));
-
-        // Un solo registro mas ya se pasa.
-        assertTrue(Patrocinio.superaElTope(100000.0, 500.0, 41));
+    @ParameterizedTest(name = "aporte ${0}, tipo de ${1}, {2} gratuitos -> {3}")
+    @DisplayName("el tope se calcula sobre el aporte de cada patrocinio")
+    @CsvSource({
+            // aporte,  costo,  cantidad,  se pasa?
+            "  1000.0,  500.0,         0,  false",   // CV: nada gratis, nunca se pasa
+            "  1000.0,    0.0,       999,  false",   // CV: tipo sin costo, nunca se pasa
+            "  1000.0,  500.0,         1,  true",    // CI: $500 sobre un tope de $200
+            " 10000.0,  500.0,         4,  false",   // CV: $2.000 = el 20 % justo
+            " 10000.0,  500.0,         5,  true"     // CI: $2.500 pasa el tope
+    })
+    void elTopeSegunElAporte(double aporte, double costo, int cantidad, boolean sePasa) {
+        assertEquals(sePasa, Patrocinio.superaElTope(aporte, costo, cantidad));
     }
 
-    @Test
-    @DisplayName("valor limite: sin registros gratuitos nunca se pasa del tope")
-    void sinRegistrosGratis() {
-        assertFalse(Patrocinio.superaElTope(1000.0, 500.0, 0));
-    }
-
-    @Test
-    @DisplayName("valor limite: si el tipo de registro no cuesta nada, tampoco")
-    void tipoDeRegistroGratuito() {
-        assertFalse(Patrocinio.superaElTope(1000.0, 0.0, 999));
-    }
-
-    // ----- Una institucion, un patrocinio por edicion -----
+    // -------------------------- una institucion, un patrocinio por edicion
 
     @Test
     @DisplayName("la institucion que ya patrocina la edicion no puede patrocinarla de nuevo")
     void institucionRepetida() {
+        // Datos de prueba: una edicion sin patrocinios
         assertFalse(edicion.tienePatrocinioDe("UTEC"));
 
+        // Ejecucion
         edicion.agregarPatrocinio(patrocinio("UTEC-2027", utec));
 
+        // Resultado esperado
         assertTrue(edicion.tienePatrocinioDe("UTEC"));
         assertFalse(edicion.tienePatrocinioDe("ANCAP"));
     }
 
-    // ----- El codigo -----
-
     @Test
     @DisplayName("el codigo se encuentra dentro de la edicion que lo tiene")
-    void encuentraElCodigo() {
+    void buscarPorCodigo() {
         edicion.agregarPatrocinio(patrocinio("UTEC-2027", utec));
 
         assertEquals("UTEC-2027", edicion.buscarPatrocinio("UTEC-2027").getCodigo());
-        assertEquals(null, edicion.buscarPatrocinio("NO-EXISTE"));
+        assertNull(edicion.buscarPatrocinio("NO-EXISTE"));
     }
 
-    // ----- De quien es la edicion -----
+    // ----------------------------------------- de quien es la edicion
 
-    @Test
-    @DisplayName("solo el organizador de la edicion la organiza, con o sin espacios")
-    void reconoceAlOrganizador() {
-        assertTrue(edicion.loOrganiza("imm"));
-        assertTrue(edicion.loOrganiza("  imm  "));
+    @ParameterizedTest(name = "\"{0}\" organiza la edicion")
+    @DisplayName("el organizador de la edicion, con o sin espacios de mas")
+    @ValueSource(strings = {"imm", "  imm  ", "imm   "})
+    void reconoceAlOrganizador(String solicitante) {
+        assertTrue(edicion.loOrganiza(solicitante));
+    }
+
+    @ParameterizedTest(name = "\"{0}\" NO organiza la edicion")
+    @DisplayName("otro organizador o la misma palabra escrita distinto, no")
+    @ValueSource(strings = {"antel", "IMM", "imm2", "im", ""})
+    void noReconoceAOtros(String solicitante) {
+        assertFalse(edicion.loOrganiza(solicitante));
     }
 
     @Test
-    @DisplayName("otro organizador, otra capitalizacion o nadie, no")
-    void noReconoceAOtros() {
-        assertFalse(edicion.loOrganiza("antel"));
-        assertFalse(edicion.loOrganiza("IMM"));
+    @DisplayName("valor limite: sin sesion (null) nadie organiza nada")
+    void sinSesion() {
         assertFalse(edicion.loOrganiza(null));
     }
 
-    // ----- El patrocinio que queda armado -----
+    // ------------------------------------- el patrocinio que queda armado
 
     @Test
     @DisplayName("el patrocinio guarda su nivel, su aporte y su tipo de registro")
