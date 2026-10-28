@@ -404,6 +404,18 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     /** Consulta de Tipo de Registro (CU 11). */
+    /**
+     * Los tipos de registro de una edicion, sin depender de que antes se
+     * haya seleccionado un evento.
+     *
+     * Es la version sin estado de listarTiposRegistroDeEdicion(), que en el
+     * Laboratorio 1 solo funcionaba despues de seleccionar el evento. La
+     * necesita cualquier formulario que tenga que ofrecer los tipos de una
+     * edicion: el Alta de Patrocinio y el Registro a Edicion.
+     */
+    Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
+            throws ReglaNegocioException;
+
     DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException;
 

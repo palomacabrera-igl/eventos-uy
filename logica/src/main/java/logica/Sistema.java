@@ -1309,6 +1309,24 @@ public class Sistema implements IControladorSistema {
         manejadorEvento.actualizar(edicion.getEvento());
     }
 
+    @Override
+    public Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
+            throws ReglaNegocioException {
+
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Hay que indicar una edicion.");
+        }
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        // A diferencia de listarTiposRegistroDeEdicion(), esta NO se guarda la
+        // edicion en un campo: no deja estado que la proxima llamada pueda
+        // arrastrar, que es lo que el sitio necesita.
+        return edicion.obtenerTiposRegistro();
+    }
+
     /** El nivel que llega como texto desde la pantalla, o un error entendible. */
     private static NivelPatrocinio nivelDe(String texto) throws ReglaNegocioException {
         try {

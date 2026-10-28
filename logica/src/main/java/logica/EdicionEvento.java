@@ -161,7 +161,8 @@ public class EdicionEvento extends EntidadBase {
     public DTEdicionEvento obtenerDT() {
         return new DTEdicionEvento(nombre, sigla, ciudad, pais,
                 DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta),
-                estado, tieneImagen());
+                estado, tieneImagen(),
+                evento == null ? null : evento.getNombre());
     }
 
     public Set<DTPatrocinio> obtenerPatrocinios() {
