@@ -1023,13 +1023,71 @@ public class Sistema implements IControladorSistema {
     public void altaEdicion(String solicitante, String nombreEvento, DTEdicionEvento datos,
                             DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Edicion: todavia no implementado.");
+        // Solo un organizador con sesion: y el organizador de la edicion es
+        // siempre quien la da de alta, no se elige.
+        Usuario usuario = find(limpiar(solicitante));
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede dar de alta ediciones.");
+        }
+        Evento evento = buscarEventoExistente(nombreEvento);
+        if (datos == null) {
+            throw new ReglaNegocioException("Faltan los datos de la edicion.");
+        }
+
+        String nombre = limpiar(datos.getNombre());
+        LocalDate inicio = datos.getFechaInicio() == null ? null : datos.getFechaInicio().aLocalDate();
+        LocalDate fin = datos.getFechaFin() == null ? null : datos.getFechaFin().aLocalDate();
+        EdicionEvento.validarDatos(nombre, datos.getSigla(), datos.getCiudad(), datos.getPais(),
+                inicio, fin);
+
+        // Una edicion no puede repetir nombre en NINGUN evento (regla del Lab 1).
+        if (manejadorEvento.buscarEdicion(nombre) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe una edicion con el nombre \"" + nombre + "\".");
+        }
+
+        // La fecha de alta la pone el sistema: se ignora la del DT si viniera.
+        // El estado no se pasa: toda edicion nace INGRESADA.
+        DTEdicionEvento limpio = new DTEdicionEvento(nombre, limpiar(datos.getSigla()),
+                limpiar(datos.getCiudad()), limpiar(datos.getPais()),
+                DTFecha.desde(inicio), DTFecha.desde(fin), DTFecha.desde(LocalDate.now()));
+        EdicionEvento nueva = evento.altaEdicion(limpio, organizador);
+
+        // La imagen es opcional: si no viene, la edicion queda sin imagen.
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            nueva.asignarImagen(crearImagen(imagen));
+        }
+        // JPA: la edicion nueva viaja por el cascade del @OneToMany de Evento.
+        manejadorEvento.actualizar(evento);
     }
 
     @Override
     public DTEdicionCompleto consultarEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        if (!edicion.puedeVerla(solicitante)) {
+            throw new ReglaNegocioException("La edicion \"" + edicion.getNombre()
+                    + "\" todavia no esta publicada. Solo puede verla su organizador.");
+        }
+        return edicion.obtenerDTCompletoPara(solicitante);
+    }
+
+    /**
+     * Busca una edicion por nombre en TODOS los eventos, sin depender de un
+     * evento "seleccionado" antes: las operaciones de la web no recuerdan nada
+     * entre llamadas. Los nombres de edicion son unicos en la plataforma.
+     */
+    private EdicionEvento buscarEdicionExistente(String nombreEdicion)
+            throws ReglaNegocioException {
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre de la edicion.");
+        }
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+        }
+        return edicion;
     }
 
     @Override
@@ -1039,7 +1097,9 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException {
-        return obtenerDTImagen(buscarEdicionDelEvento(nombreEdicion).getImagen());
+        // Sin estado: buscarEdicionDelEvento exigia un evento seleccionado antes
+        // y desde la web fallaba siempre.
+        return obtenerDTImagen(buscarEdicionExistente(nombreEdicion).getImagen());
     }
 
     @Override
@@ -1053,7 +1113,7 @@ public class Sistema implements IControladorSistema {
     @Override
     public void asignarImagenEdicion(String nombreEdicion, DTImagen imagen)
             throws ReglaNegocioException {
-        EdicionEvento edicion = buscarEdicionDelEvento(nombreEdicion);
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.asignarImagen(crearImagen(imagen));
         manejadorEvento.actualizar(edicion.getEvento());
     }

@@ -12,6 +12,8 @@
     List<DTEdicionEvento> ediciones = (List<DTEdicionEvento>) request.getAttribute("ediciones");
     String ctx = request.getContextPath();
     String categorias = String.join(", ", evento.getCategorias());
+    logica.DTUsuario actual = servlets.SesionWeb.actual(request);
+    boolean organizador = actual != null && actual.esOrganizador();
 %>
 <!doctype html>
 <html lang="es">
@@ -66,6 +68,11 @@
             <span class="ev-estado ev-estado--aceptada">Aceptada</span>
         </a>
             <% } %>
+        <% } %>
+        <%-- Un organizador puede crearle una edicion nueva (CU 8). Solo es el
+             enlace: quien puede hacerlo lo vuelve a controlar la logica. --%>
+        <% if (organizador) { %>
+        <a class="ev-back d-inline-block mt-2" href="<%= ctx %>/edicion/alta?evento=<%= Texto.paraUrl(evento.getNombre()) %>">+ Agregar edición</a>
         <% } %>
     </main>
     <jsp:include page="/WEB-INF/jsp/plantilla/pie.jsp" />
