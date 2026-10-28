@@ -381,7 +381,7 @@ public class EdicionEvento extends EntidadBase {
             throws ReglaNegocioException {
         if (estaVacio(nombre) || estaVacio(sigla) || estaVacio(ciudad) || estaVacio(pais)) {
             throw new ReglaNegocioException(
-                    "El nombre, la sigla, la ciudad y el pais son obligatorios.");
+                    "El nombre, la sigla, la ciudad y el país son obligatorios.");
         }
         if (fechaIni == null || fechaFin == null) {
             throw new ReglaNegocioException("Las fechas de inicio y de fin son obligatorias.");

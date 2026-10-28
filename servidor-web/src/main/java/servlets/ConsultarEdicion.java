@@ -74,7 +74,7 @@ public class ConsultarEdicion extends HttpServlet {
             request.setAttribute("esSuOrganizador", esSuOrganizador);
             request.setAttribute("puedeRegistrarse", puedeRegistrarse);
             if (request.getParameter("creada") != null) {
-                request.setAttribute("aviso", "La edicion se creo. Queda Ingresada hasta que "
+                request.setAttribute("aviso", "La edición se creó. Queda Ingresada hasta que "
                         + "el administrador la acepte; mientras tanto solo la ves vos.");
             }
 

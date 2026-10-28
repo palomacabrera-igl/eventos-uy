@@ -88,7 +88,7 @@ public class AltaEdicion extends HttpServlet {
             conservarCampos(request);
             mostrarFormulario(request, response);
         } catch (IllegalStateException error) {
-            request.setAttribute("error", "La imagen es demasiado grande. El maximo son 5 MB.");
+            request.setAttribute("error", "La imagen es demasiado grande. El máximo son 5 MB.");
             conservarCampos(request);
             mostrarFormulario(request, response);
         }
@@ -130,7 +130,7 @@ public class AltaEdicion extends HttpServlet {
         try {
             return DTFecha.desde(LocalDate.parse(valor));
         } catch (DateTimeParseException e) {
-            throw new ReglaNegocioException("La fecha de " + nombre + " no es valida.");
+            throw new ReglaNegocioException("La fecha de " + nombre + " no es válida.");
         }
     }
 
@@ -149,7 +149,7 @@ public class AltaEdicion extends HttpServlet {
         }
         String tipo = parte.getContentType();
         if (!Set.of("image/jpeg", "image/png", "image/webp").contains(tipo)) {
-            throw new ReglaNegocioException("Solo se permiten imagenes JPEG, PNG o WebP.");
+            throw new ReglaNegocioException("Solo se permiten imágenes JPEG, PNG o WebP.");
         }
         try (var entrada = parte.getInputStream()) {
             return new DTImagen(entrada.readAllBytes(), tipo);

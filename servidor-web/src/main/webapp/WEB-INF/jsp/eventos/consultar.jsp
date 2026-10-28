@@ -27,6 +27,7 @@
         <section class="ev-pagehead">
             <a class="ev-back" href="<%= ctx %>/eventos">&larr; Volver a la cartelera</a>
         </section>
+        <jsp:include page="/WEB-INF/jsp/plantilla/aviso.jsp" />
 
         <div class="row g-4">
             <div class="col-12 col-lg-5">

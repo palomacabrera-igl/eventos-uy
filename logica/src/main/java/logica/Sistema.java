@@ -317,7 +317,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
         if (ed == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         this.edicionSeleccionada = ed;
 
@@ -1016,7 +1016,41 @@ public class Sistema implements IControladorSistema {
     public void altaEvento(String solicitante, String nombre, String descripcion, String sigla,
                            List<String> nombresCategorias, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Evento: todavia no implementado.");
+        // Solo un organizador con sesion puede crear eventos.
+        if (!(find(limpiar(solicitante)) instanceof Organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede dar de alta eventos.");
+        }
+        Evento.validarDatos(nombre, descripcion, sigla, nombresCategorias);
+
+        String nombreLimpio = limpiar(nombre);
+        if (findEvento(nombreLimpio) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un evento con el nombre \"" + nombreLimpio + "\".");
+        }
+
+        // Cada categoria tiene que existir; si la eligieron dos veces, va una vez.
+        List<Categoria> categorias = new ArrayList<>();
+        for (String nombreCategoria : nombresCategorias) {
+            if (nombreCategoria == null || nombreCategoria.isBlank()) {
+                continue;
+            }
+            Categoria categoria = findCategoria(nombreCategoria.trim());
+            if (categoria == null) {
+                throw new ReglaNegocioException(
+                        "La categoría \"" + nombreCategoria + "\" no existe en la plataforma.");
+            }
+            if (!categorias.contains(categoria)) {
+                categorias.add(categoria);
+            }
+        }
+
+        // La fecha de alta es la de hoy: la pone el sistema, no el formulario.
+        Evento evento = new Evento(nombreLimpio, limpiar(descripcion), LocalDate.now(),
+                limpiar(sigla), categorias);
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            evento.asignarImagen(crearImagen(imagen));
+        }
+        manejadorEvento.agregar(evento);
     }
 
     @Override
@@ -1031,7 +1065,7 @@ public class Sistema implements IControladorSistema {
         }
         Evento evento = buscarEventoExistente(nombreEvento);
         if (datos == null) {
-            throw new ReglaNegocioException("Faltan los datos de la edicion.");
+            throw new ReglaNegocioException("Faltan los datos de la edición.");
         }
 
         String nombre = limpiar(datos.getNombre());
@@ -1043,7 +1077,7 @@ public class Sistema implements IControladorSistema {
         // Una edicion no puede repetir nombre en NINGUN evento (regla del Lab 1).
         if (manejadorEvento.buscarEdicion(nombre) != null) {
             throw new ReglaNegocioException(
-                    "Ya existe una edicion con el nombre \"" + nombre + "\".");
+                    "Ya existe una edición con el nombre \"" + nombre + "\".");
         }
 
         // La fecha de alta la pone el sistema: se ignora la del DT si viniera.
@@ -1066,8 +1100,8 @@ public class Sistema implements IControladorSistema {
             throws ReglaNegocioException {
         EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         if (!edicion.puedeVerla(solicitante)) {
-            throw new ReglaNegocioException("La edicion \"" + edicion.getNombre()
-                    + "\" todavia no esta publicada. Solo puede verla su organizador.");
+            throw new ReglaNegocioException("La edición \"" + edicion.getNombre()
+                    + "\" todavía no está publicada. Solo puede verla su organizador.");
         }
         return edicion.obtenerDTCompletoPara(solicitante);
     }
@@ -1080,12 +1114,12 @@ public class Sistema implements IControladorSistema {
     private EdicionEvento buscarEdicionExistente(String nombreEdicion)
             throws ReglaNegocioException {
         if (nombreEdicion == null || nombreEdicion.isBlank()) {
-            throw new ReglaNegocioException("Falta el nombre de la edicion.");
+            throw new ReglaNegocioException("Falta el nombre de la edición.");
         }
         EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         return edicion;
     }
@@ -1133,7 +1167,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         if (!edicion.getOrganizador().getNickname().equals(usuario.getNickname())) {
             throw new ReglaNegocioException(
@@ -1168,7 +1202,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         if (!edicion.estaAceptada()) {
             throw new ReglaNegocioException(
@@ -1298,7 +1332,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
 
         // La letra: el organizador ve "las ediciones de ese evento que EL
@@ -1379,7 +1413,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         // A diferencia de listarTiposRegistroDeEdicion(), esta NO se guarda la
         // edicion en un campo: no deja estado que la proxima llamada pueda
@@ -1453,12 +1487,12 @@ public class Sistema implements IControladorSistema {
     private EdicionEvento buscarEdicionPorNombre(String nombreEdicion)
             throws ReglaNegocioException {
         if (nombreEdicion == null || nombreEdicion.isBlank()) {
-            throw new ReglaNegocioException("Falta el nombre de la edicion.");
+            throw new ReglaNegocioException("Falta el nombre de la edición.");
         }
         EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         return edicion;
     }
