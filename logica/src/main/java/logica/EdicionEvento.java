@@ -318,4 +318,81 @@ public class EdicionEvento extends EntidadBase {
                 pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen());
     }
+
+    // ===== Consulta de Edicion (CU 9) =====
+
+    /**
+     * Quien puede ver esta edicion (letra, seccion 4): una Aceptada la ve
+     * cualquiera, incluso un visitante; una Ingresada o Rechazada, solo su
+     * organizador.
+     */
+    public boolean puedeVerla(String solicitante) {
+        return estaAceptada() || loOrganiza(solicitante);
+    }
+
+    /**
+     * La edicion completa, recortada segun quien pregunta (requisito R14):
+     * el listado de registros y los codigos de patrocinio son solo para su
+     * organizador. A cualquier otro le llegan sin registros y con los
+     * patrocinios sin codigo. Que la regla este aca, y no en la JSP, es lo
+     * que impide que una pagina la olvide.
+     */
+    public DTEdicionCompleto obtenerDTCompletoPara(String solicitante) {
+        boolean esSuOrganizador = loOrganiza(solicitante);
+
+        Set<DTTipoRegistro> dtTipos = new HashSet<>();
+        for (TipoRegistro t : tipoRegistros) {
+            dtTipos.add(t.obtenerDT());
+        }
+
+        Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
+        for (Patrocinio p : patrocinios) {
+            DTPatrocinio dt = p.obtenerDT();
+            if (!esSuOrganizador) {
+                // Mismo patrocinio, pero el codigo no viaja.
+                dt = new DTPatrocinio(null, dt.getFecha(), dt.getMonto(), dt.getNivel(),
+                        dt.getCantRegistrosGratis(), dt.getInstitucion(), dt.getTipoRegistro());
+            }
+            dtPatrocinios.add(dt);
+        }
+
+        Set<DTRegistro> dtRegistros = new HashSet<>();
+        if (esSuOrganizador) {
+            for (Registro r : registros) {
+                dtRegistros.add(r.obtenerDT());
+            }
+        }
+
+        return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
+                pais, ciudad, organizador.obtenerDT(), dtTipos, dtRegistros, dtPatrocinios,
+                estado, tieneImagen(), evento == null ? null : evento.getNombre());
+    }
+
+    // ===== Alta de Edicion (CU 8) =====
+
+    /**
+     * Revisa los datos de una edicion nueva antes de crearla. Todos los campos
+     * son obligatorios y la fecha de fin no puede ser anterior a la de inicio
+     * (puede ser el mismo dia: una edicion de un dia). El nombre repetido lo
+     * controla Sistema, porque hay que buscar en la base.
+     */
+    public static void validarDatos(String nombre, String sigla, String ciudad, String pais,
+                                    LocalDate fechaIni, LocalDate fechaFin)
+            throws ReglaNegocioException {
+        if (estaVacio(nombre) || estaVacio(sigla) || estaVacio(ciudad) || estaVacio(pais)) {
+            throw new ReglaNegocioException(
+                    "El nombre, la sigla, la ciudad y el país son obligatorios.");
+        }
+        if (fechaIni == null || fechaFin == null) {
+            throw new ReglaNegocioException("Las fechas de inicio y de fin son obligatorias.");
+        }
+        if (fechaFin.isBefore(fechaIni)) {
+            throw new ReglaNegocioException(
+                    "La fecha de fin no puede ser anterior a la de inicio.");
+        }
+    }
+
+    private static boolean estaVacio(String texto) {
+        return texto == null || texto.isBlank();
+    }
 }
