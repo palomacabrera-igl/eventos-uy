@@ -59,6 +59,16 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.4</version>
                 </plugin>
+                <plugin>
+                    <!--
+                        Cubrimiento de sentencias de la capa logica (letra, 7.5).
+                        La 0.8.13 es la primera que lee las clases de Java 25:
+                        con la 0.8.12 el informe sale vacio.
+                    -->
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.13</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

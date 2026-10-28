@@ -64,6 +64,48 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+
+            <!--
+                Mide que porcentaje de las sentencias de la logica ejecutan
+                las pruebas. La letra, en 7.5, pide 80%.
+
+                prepare-agent engancha un vigilante a la JVM que corre las
+                pruebas; report arma el informe cuando terminan. Queda en:
+                    logica/target/site/jacoco/index.html
+
+                Se corre con:  ./mvnw -pl logica test
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!--
+                            Los datos de prueba no son logica de negocio: son
+                            el juego de datos con el que se carga la base. La
+                            letra pide el cubrimiento de la CAPA LOGICA, y
+                            contarlos aca solo esconderia el numero real.
+                        -->
+                        <exclude>logica/DatosDePrueba.class</exclude>
+                        <exclude>persistencia/CargarDatos.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>preparar-agente</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>informe</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
