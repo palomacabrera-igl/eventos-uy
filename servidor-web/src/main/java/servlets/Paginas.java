@@ -22,6 +22,9 @@ public final class Paginas {
     public static final String PERFIL = "/WEB-INF/jsp/usuarios/perfil.jsp";
     public static final String PERFIL_EDITAR = "/WEB-INF/jsp/usuarios/editar.jsp";
     public static final String PATROCINIO_ALTA = "/WEB-INF/jsp/patrocinios/alta.jsp";
+    public static final String ALTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/alta.jsp";
+    public static final String CONSULTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/consultar.jsp";
+    public static final String ALTA_INSTITUCION = "/WEB-INF/jsp/instituciones/alta.jsp";
     public static final String NO_ENCONTRADA = "/WEB-INF/jsp/error/404.jsp";
 
     private Paginas() {
