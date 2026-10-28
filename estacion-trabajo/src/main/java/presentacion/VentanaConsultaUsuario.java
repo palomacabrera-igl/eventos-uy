@@ -95,8 +95,9 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                 super.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
 
+                // Se ven las ediciones en los tres estados, con el estado al lado.
                 if (value instanceof DTEdicionEvento edicion) {
-                    setText(edicion.getNombre());
+                    setText(edicion.getNombre() + " (" + Estados.texto(edicion.getEstado()) + ")");
                 }
 
                 return this;
@@ -249,6 +250,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             areaDetalle.setText(
                     "Edición: " + edicion.getNombre()
                             + "\nSigla: " + edicion.getSigla()
+                            + "\nEstado: " + Estados.texto(edicion.getEstado())
                             + "\nFecha de alta: " + edicion.getFechaAlta()
                             + "\nInicio: " + edicion.getFechaIni()
                             + "\nFin: " + edicion.getFechaFin()

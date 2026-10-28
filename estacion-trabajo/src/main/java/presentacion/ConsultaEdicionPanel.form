@@ -52,7 +52,7 @@
           </component>
         </children>
       </grid>
-      <grid id="5aafd" binding="DatosPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="6" vgap="6">
+      <grid id="5aafd" binding="DatosPanel" layout-manager="GridLayoutManager" row-count="5" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="6" vgap="6">
         <margin top="8" left="8" bottom="8" right="8"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -189,6 +189,22 @@
           <component id="137cb" class="javax.swing.JTextField" binding="OrganizadorTxt">
             <constraints>
               <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="5" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="180" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="es001" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Estado"/>
+            </properties>
+          </component>
+          <component id="es002" class="javax.swing.JTextField" binding="EstadoTxt">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="5" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="180" height="-1"/>
               </grid>
             </constraints>
