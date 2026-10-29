@@ -51,6 +51,9 @@ public class ConsultarEvento extends HttpServlet {
             // 4. Todo al request.
             request.setAttribute("evento", evento);
             request.setAttribute("ediciones", ediciones);
+            if (request.getParameter("creado") != null) {
+                request.setAttribute("aviso", "El evento se creó. Ya está publicado en la cartelera.");
+            }
 
             // 5 y 6. La vista.
             Paginas.forward(request, response, Paginas.EVENTO);

@@ -22,6 +22,9 @@ public class DTEdicionCompleto {
     /** Si hay que dibujar un <img> o el poster de color. Los bytes no viajan aca. */
     private boolean tieneImagen;
 
+    /** Nombre del evento de la edicion, para volver a el desde la pagina. */
+    private String nombreEvento;
+
     public DTEdicionCompleto(String nombre, String sigla, LocalDate fechaAlta,
                              LocalDate fechaIni, LocalDate fechaFin, String pais, String ciudad,
                              DTOrganizador organizador, Set<DTTipoRegistro> tiposRegistro,
@@ -40,6 +43,26 @@ public class DTEdicionCompleto {
         this.patrocinios = patrocinios;
         this.estado = estado;
         this.tieneImagen = tieneImagen;
+    }
+
+    /**
+     * Igual al de arriba, mas el nombre del evento al que pertenece la edicion:
+     * la pagina de Consulta de Edicion (CU 9) lo usa para volver al evento. El
+     * constructor anterior queda como estaba, asi la Estacion de Trabajo no cambia.
+     */
+    public DTEdicionCompleto(String nombre, String sigla, LocalDate fechaAlta,
+                             LocalDate fechaIni, LocalDate fechaFin, String pais, String ciudad,
+                             DTOrganizador organizador, Set<DTTipoRegistro> tiposRegistro,
+                             Set<DTRegistro> registros, Set<DTPatrocinio> patrocinios,
+                             EstadoEdicion estado, boolean tieneImagen, String nombreEvento) {
+        this(nombre, sigla, fechaAlta, fechaIni, fechaFin, pais, ciudad, organizador,
+                tiposRegistro, registros, patrocinios, estado, tieneImagen);
+        this.nombreEvento = nombreEvento;
+    }
+
+    /** El evento al que pertenece. Puede ser null si se armo con el constructor viejo. */
+    public String getNombreEvento() {
+        return nombreEvento;
     }
 
     // Getters

@@ -165,4 +165,28 @@ public class Evento extends EntidadBase {
         }
         return resultado;
     }
+
+    // ===== Alta de Evento (CU 6) =====
+
+    /**
+     * Revisa los datos de un evento nuevo antes de crearlo: nombre,
+     * descripcion y sigla son obligatorios, y la letra pide al menos una
+     * categoria. Que el nombre no este repetido y que las categorias existan
+     * lo controla Sistema, porque hay que buscar en la base.
+     */
+    public static void validarDatos(String nombre, String descripcion, String sigla,
+                                    List<String> categorias) throws ReglaNegocioException {
+        if (estaVacio(nombre) || estaVacio(descripcion) || estaVacio(sigla)) {
+            throw new ReglaNegocioException(
+                    "El nombre, la descripción y la sigla son obligatorios.");
+        }
+        if (categorias == null || categorias.stream().allMatch(Evento::estaVacio)) {
+            throw new ReglaNegocioException(
+                    "Hay que elegir al menos una categoría para el evento.");
+        }
+    }
+
+    private static boolean estaVacio(String texto) {
+        return texto == null || texto.isBlank();
+    }
 }
