@@ -19,13 +19,10 @@ public final class Paginas {
     public static final String EVENTO = "/WEB-INF/jsp/eventos/consultar.jsp";
     public static final String LOGIN = "/WEB-INF/jsp/sesion/login.jsp";
     public static final String REGISTRO = "/WEB-INF/jsp/sesion/registro.jsp";
-<<<<<<< Updated upstream
-=======
     public static final String PERFIL = "/WEB-INF/jsp/usuarios/perfil.jsp";
     public static final String PERFIL_EDITAR = "/WEB-INF/jsp/usuarios/editar.jsp";
     public static final String REGISTRO_EDICION = "/WEB-INF/jsp/registros/alta.jsp";
     public static final String PATROCINIO_ALTA = "/WEB-INF/jsp/patrocinios/alta.jsp";
->>>>>>> Stashed changes
     public static final String ALTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/alta.jsp";
     public static final String CONSULTA_TIPO_REGISTRO = "/WEB-INF/jsp/tipos-registro/consultar.jsp";
     public static final String ALTA_INSTITUCION = "/WEB-INF/jsp/instituciones/alta.jsp";
