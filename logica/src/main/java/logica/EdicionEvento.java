@@ -237,6 +237,48 @@ public class EdicionEvento extends EntidadBase {
     }
 
     /**
+     * Los registros de la edicion (CU 13). Son solo para su organizador: a
+     * cualquier otro le llega un error, no una lista vacia, para que la
+     * pagina no muestre "nadie se registro" cuando en realidad no le toca verlo.
+     */
+    public Set<DTRegistro> obtenerRegistrosPara(String solicitante)
+            throws ReglaNegocioException {
+        if (!loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(
+                    "Solo el organizador de la edición puede ver sus registros.");
+        }
+        Set<DTRegistro> resultado = new HashSet<>();
+        for (Registro r : registros) {
+            resultado.add(r.obtenerDT());
+        }
+        return resultado;
+    }
+
+    /**
+     * El registro de un asistente en esta edicion (CU 13). Lo pueden ver el
+     * asistente duenio del registro y el organizador de la edicion, nadie mas.
+     *
+     * El permiso se mira ANTES de buscar, y el mensaje es el mismo si no
+     * existe o si no le corresponde: asi nadie averigua si otra persona esta
+     * registrada probando nicknames.
+     */
+    public DTRegistro obtenerRegistroPara(String nickname, String solicitante)
+            throws ReglaNegocioException {
+        String noEncontrado = "No encontramos ese registro, o no te corresponde verlo.";
+        boolean esElAsistente = solicitante != null && nickname != null
+                && solicitante.trim().equals(nickname.trim());
+        if (!esElAsistente && !loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(noEncontrado);
+        }
+        for (Registro r : registros) {
+            if (r.getAsistente().getNickname().equals(nickname.trim())) {
+                return r.obtenerDT();
+            }
+        }
+        throw new ReglaNegocioException(noEncontrado);
+    }
+
+    /**
      * true si el asistente (identificado por su nickname) ya tiene un registro
      * en esta edicion.
      */
@@ -416,4 +458,4 @@ public class EdicionEvento extends EntidadBase {
     private static boolean estaVacio(String texto) {
         return texto == null || texto.isBlank();
     }
-}
+}

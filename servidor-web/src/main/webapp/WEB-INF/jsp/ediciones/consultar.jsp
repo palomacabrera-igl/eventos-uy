@@ -73,7 +73,7 @@
                 </dl>
                 <% if (puedeRegistrarse) { %>
                 <div class="d-flex gap-2 mt-3">
-                    <a class="btn btn-accent" href="<%= ctx %>/registro?edicion=<%= nombreUrl %>">Registrarme</a>
+                    <a class="btn btn-accent" href="<%= ctx %>/registro/alta?edicion=<%= nombreUrl %>">Registrarme</a>
                 </div>
                 <% } %>
             </div>
@@ -114,7 +114,7 @@
         <p class="text-secondary">Todavía nadie se registró a esta edición.</p>
             <% } %>
             <% for (DTRegistro r : registros) { %>
-        <a class="ev-row" href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(r.getNickname()) %>">
+        <a class="ev-row" href="<%= ctx %>/registro?edicion=<%= nombreUrl %>&amp;asistente=<%= Texto.paraUrl(r.getNickname()) %>">
             <span>
                 <span class="ev-rowname">@<%= Texto.escapar(r.getNickname()) %></span><br>
                 <span class="ev-rowmeta"><%= Texto.escapar(r.getTipoRegistro()) %> · <%= Texto.fecha(r.getFechaRegistro()) %><%= r.getUsoCodigo() ? " · con código de patrocinio" : "" %></span>

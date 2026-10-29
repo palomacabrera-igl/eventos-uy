@@ -136,7 +136,7 @@
         <p class="text-secondary">Todavía no te registraste a ninguna edición.</p>
         <% } else {
                for (DTRegistro reg : registros) { %>
-        <div class="ev-row">
+        <a class="ev-row" href="<%= ctx %>/registro?edicion=<%= Texto.paraUrl(reg.getNombreEdicion()) %>&amp;asistente=<%= Texto.paraUrl(reg.getNickname()) %>">
             <span>
                 <span class="ev-rowname"><%= Texto.escapar(reg.getNombreEdicion()) %></span><br>
                 <span class="ev-rowmeta">
@@ -146,7 +146,7 @@
                 </span>
             </span>
             <span class="ev-estado"><%= Texto.importe(reg.getCosto()) %></span>
-        </div>
+        </a>
         <%     }
            } %>
         <% } %>

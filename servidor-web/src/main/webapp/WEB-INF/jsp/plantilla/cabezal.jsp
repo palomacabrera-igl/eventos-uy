@@ -29,6 +29,7 @@
                 <a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="<%= ctx %>/edicion/alta">Alta de edición</a>
                 <a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="<%= ctx %>/institucion/alta">Alta de institución</a>
                 <% } %>
+                <a class="btn btn-link btn-sm text-decoration-none text-secondary px-1" href="<%= ctx %>/registro"><%= actual.esOrganizador() ? "Registros" : "Mis registros" %></a>
                 <span class="ev-who"><%= Texto.escapar(actual.getNickname()) %><small><%= actual.esOrganizador() ? "Organizador" : "Asistente" %></small></span>
                 <a class="btn btn-outline-secondary btn-sm" href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(actual.getNickname()) %>">Mi perfil</a>
                 <%-- Salir va por POST y no por un enlace, porque cambia algo: cierra la sesion. --%>

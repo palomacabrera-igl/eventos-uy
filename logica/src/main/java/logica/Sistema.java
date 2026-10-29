@@ -1307,13 +1307,16 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTRegistro> listarRegistrosDeEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Registros de una edicion: todavia no implementado.");
+        return buscarEdicionExistente(nombreEdicion).obtenerRegistrosPara(solicitante);
     }
 
     @Override
     public DTRegistro consultarRegistro(String nombreEdicion, String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Registro: todavia no implementado.");
+        if (nickname == null || nickname.isBlank()) {
+            throw new ReglaNegocioException("Falta el nickname del asistente.");
+        }
+        return buscarEdicionExistente(nombreEdicion).obtenerRegistroPara(nickname, solicitante);
     }
 
     // ----- Patrocinios (CU 15 y 16) -----
