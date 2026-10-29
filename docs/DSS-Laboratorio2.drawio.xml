@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" pages="2">
+<mxfile host="app.diagrams.net" pages="9">
   <diagram name="InicioDeSesion" id="InicioDeSesion">
-    <mxGraphModel dx="870" dy="525" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="410" math="0" shadow="0">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="410" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -41,7 +41,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="AceptarRechazarEdicion" id="AceptarRechazarEdicion">
-    <mxGraphModel dx="1088" dy="657" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="620" math="0" shadow="0">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="620" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -110,6 +110,410 @@
         </mxCell>
         <mxCell id="c24" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarEventos() : Set&amp;lt;DTEvento&amp;gt;&lt;br&gt;&lt;b&gt;Pre-Condición:&lt;/b&gt;&amp;nbsp;-&lt;div&gt;&lt;div&gt;&lt;b&gt;Post-Condición:&lt;/b&gt;&lt;br&gt;- Se retorna un Set&amp;lt;DTEvento&amp;gt; con todos los eventos existentes&lt;br&gt;------------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; listarEdicionesIngresadas(nombreEvento: string) : Set&amp;lt;DTEdicionEvento&amp;gt;&lt;br&gt;&lt;b&gt;Pre-Condición:&lt;/b&gt;&lt;br&gt;- Debe existir un Evento con nombre = &#39;nombreEvento&#39;&lt;br&gt;&lt;b&gt;Post-Condición:&lt;/b&gt;&lt;br&gt;- Se retorna un Set&amp;lt;DTEdicionEvento&amp;gt; con las ediciones de ese&lt;br&gt;&amp;nbsp; evento cuyo estado es INGRESADA. Las ACEPTADA y las&lt;br&gt;&amp;nbsp; RECHAZADA no se incluyen&lt;br&gt;------------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; aceptarEdicion(nombreEdicion: string)&lt;br&gt;&lt;b&gt;Pre-Condición:&lt;/b&gt;&lt;br&gt;- Debe existir una EdicionEvento con nombre = &#39;nombreEdicion&#39;&lt;br&gt;&lt;b&gt;Post-Condición:&lt;/b&gt;&lt;br&gt;- Si la edición está INGRESADA, pasa a estado ACEPTADA&lt;br&gt;- Si no lo está, el sistema informa el error y el estado no cambia&lt;br&gt;------------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; rechazarEdicion(nombreEdicion: string)&lt;br&gt;&lt;b&gt;Pre-Condición:&lt;/b&gt;&lt;br&gt;- Debe existir una EdicionEvento con nombre = &#39;nombreEdicion&#39;&lt;br&gt;&lt;b&gt;Post-Condición:&lt;/b&gt;&lt;br&gt;- Si la edición está INGRESADA, pasa a estado RECHAZADA&lt;br&gt;- Si no lo está, el sistema informa el error y el estado no cambia&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Caso de uso nuevo del Laboratorio 2 y único lugar del sistema donde&lt;br&gt;una edición cambia de estado. Una vez ACEPTADA o RECHAZADA no vuelve&lt;br&gt;a cambiar.&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="470" width="430" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="AltaUsuario" id="AltaUsuario">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="460" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n1" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Alta de Usuario" vertex="1">
+          <mxGeometry height="30" width="220" x="245" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Administrador" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n4" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n5" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n6" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="instituciones := listarNombresInstituciones() : Set&amp;lt;String&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="315" x="197.5" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n8" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="altaUsuario(datos: DTUsuario, tipo: TipoUsuario, password: String,&lt;br&gt;confirmacion: String, nombreInstitucion: String, imagen: DTImagen)" vertex="1">
+          <mxGeometry height="34" width="405" x="152.5" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="n10" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarNombresInstituciones() : Set&amp;lt;String&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; -&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retorna un Set&amp;lt;String&amp;gt; con los nombres de todas las Instituciones&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; altaUsuario(datos: DTUsuario, tipo: TipoUsuario,&lt;br&gt;password: String, confirmacion: String, nombreInstitucion: String,&lt;br&gt;imagen: DTImagen)&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- tipo corresponde a asistente u organizador&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si existe un Usuario cuyo nickname sea igual a datos.nickname, o&lt;br&gt;&amp;nbsp; cuyo correo sea igual a datos.correo, el sistema informa el error&lt;br&gt;&amp;nbsp; y no se crea el usuario&lt;br&gt;- Si password es vacía o no coincide con confirmacion, el sistema&lt;br&gt;&amp;nbsp; informa el error y no se crea el usuario&lt;br&gt;- Si nombreInstitucion no es vacío y no existe una Institucion con ese&lt;br&gt;&amp;nbsp; nombre, el sistema informa el error y no se crea el usuario&lt;br&gt;- En otro caso se crea una instancia de Asistente u Organizador según&lt;br&gt;&amp;nbsp; tipo, con los datos recibidos&lt;br&gt;- La contraseña se guarda con hash y sal, nunca en texto plano&lt;br&gt;- Si nombreInstitucion no es vacío, el Asistente queda asociado a esa&lt;br&gt;&amp;nbsp; Institucion&lt;br&gt;- Si imagen no es nula, queda asociada al Usuario creado&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;En el Laboratorio 1 el alta eran tres llamadas encadenadas y el&lt;br&gt;sistema recordaba los datos entre una y otra. Ahora es una sola&lt;br&gt;operación, sin estado intermedio.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="435" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="ModificarUsuario" id="ModificarUsuario">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="530" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n11" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Modificar Usuario" vertex="1">
+          <mxGeometry height="30" width="600" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n12" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Administrador" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n13" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n14" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n15" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n16" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="usuarios := listarUsuarios() : Set&amp;lt;DTUsuario&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n18" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="u := seleccionarUsuario(nickname: String) : DTUsuario" vertex="1">
+          <mxGeometry height="34" width="305" x="202.5" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="n20" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="300" as="sourcePoint" />
+            <mxPoint x="555" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="modificarUsuario(solicitante: String, datos: DTUsuario,&lt;br&gt;nuevaPassword: String, confirmacion: String, imagen: DTImagen)" vertex="1">
+          <mxGeometry height="34" width="375" x="170" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="n22" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarUsuarios() : Set&amp;lt;DTUsuario&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; -&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retorna un Set&amp;lt;DTUsuario&amp;gt; con todos los usuarios&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; seleccionarUsuario(nickname: String) : DTUsuario&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- Existe un Usuario cuyo nickname es igual a nickname&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retorna un DTUsuario con sus datos. La contraseña no viaja en el DT&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; modificarUsuario(solicitante: String, datos: DTUsuario,&lt;br&gt;nuevaPassword: String, confirmacion: String, imagen: DTImagen)&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- Existe un Usuario cuyo nickname es igual a solicitante&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- El nickname y el correo NO se modifican, aunque vengan en datos&lt;br&gt;- Se modifican el nombre y los datos propios del tipo de usuario&lt;br&gt;- Si nuevaPassword es vacía, la contraseña no cambia&lt;br&gt;- Si nuevaPassword no es vacía y coincide con confirmacion, la&lt;br&gt;&amp;nbsp; contraseña se reemplaza y la anterior deja de servir&lt;br&gt;- Si nuevaPassword no coincide con confirmacion, el sistema informa el&lt;br&gt;&amp;nbsp; error y no se modifica nada&lt;br&gt;- Si imagen no es nula, reemplaza a la anterior; si es nula, se&lt;br&gt;&amp;nbsp; conserva la que ya tenía&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;solicitante es quien pide el cambio. En el sitio sale de la sesión,&lt;br&gt;para que nadie modifique los datos de otro. En la Estación de Trabajo no&lt;br&gt;hay sesión y el administrador puede modificar a cualquiera, así que se&lt;br&gt;pasa el nickname del usuario que se está editando.&lt;/i&gt;&lt;br&gt;&lt;i&gt;La letra, 6.1: el administrador puede cambiar la contraseña y la&lt;br&gt;imagen, además de los datos ya previstos.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="495" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="AltaEvento" id="AltaEvento">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="460" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n23" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Alta Evento" vertex="1">
+          <mxGeometry height="30" width="600" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n24" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Administrador" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n25" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n26" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n27" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n28" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n29" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="categorias := listarCategoriasArbol() : Set&amp;lt;DTCategoria&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n30" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ingresarDatosEvento(nombre: String, descripcion: String,&lt;br&gt;fechaAlta: DTFecha, sigla: String, nombresCategorias: List&amp;lt;String&amp;gt;)" vertex="1">
+          <mxGeometry height="34" width="365" x="172.5" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="n32" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarCategoriasArbol() : Set&amp;lt;DTCategoria&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; -&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retorna un Set&amp;lt;DTCategoria&amp;gt; con las categorías raíz, y dentro de&lt;br&gt;&amp;nbsp; cada una sus categorías hijas&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; ingresarDatosEvento(nombre: String, descripcion: String,&lt;br&gt;fechaAlta: DTFecha, sigla: String, nombresCategorias: List&amp;lt;String&amp;gt;)&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; -&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si existe un Evento cuyo nombre es igual a nombre, el sistema informa&lt;br&gt;&amp;nbsp; el error y no se crea el evento&lt;br&gt;- Si nombresCategorias está vacía, o alguna de esas categorías no&lt;br&gt;&amp;nbsp; existe, el sistema informa el error y no se crea el evento&lt;br&gt;- En otro caso se crea un Evento con nombre, descripcion y sigla, y&lt;br&gt;&amp;nbsp; queda asociado a las categorías indicadas&lt;br&gt;- La fecha de alta la asigna el sistema con la fecha del día&lt;br&gt;- Se le puede asociar una imagen, de forma opcional&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;La letra, 6.1: en Alta de Evento se puede asociar una imagen de forma&lt;br&gt;opcional. Y en la sección 6: salvo que un caso de uso diga otra cosa, la&lt;br&gt;fecha de alta la asigna el sistema con la fecha del día.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="345" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="AltaEdicion" id="AltaEdicion">
+    <mxGraphModel dx="1238" dy="644" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="670" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n33" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Alta de Edicion de evento" vertex="1">
+          <mxGeometry height="30" width="600" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n34" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Administrador" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n35" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n36" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n37" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n38" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n39" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="eventos := listarEventos() : Set&amp;lt;DTEvento&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n40" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n41" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="e := seleccionarEvento(nombre: String) : DTEvento" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="n42" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="300" as="sourcePoint" />
+            <mxPoint x="555" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n43" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="organizadores := listarOrganizadores() : Set&amp;lt;DTOrganizador&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="n44" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="370" as="sourcePoint" />
+            <mxPoint x="555" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n45" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="o := seleccionarOrganizador(nickname: String) : DTOrganizador" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="n46" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="440" as="sourcePoint" />
+            <mxPoint x="555" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n47" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ingresarDatosEdicion(dt: DTEdicionEvento)" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="n48" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarEventos() : Set&amp;lt;DTEvento&amp;gt;&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; se retornan todos los eventos&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; seleccionarEvento(nombre: String) : DTEvento&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Evento con ese nombre&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; el sistema recuerda el evento elegido para el alta&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; listarOrganizadores() : Set&amp;lt;DTOrganizador&amp;gt;&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; se retornan todos los organizadores&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; seleccionarOrganizador(nickname: String) : DTOrganizador&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Organizador con ese nickname&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; el sistema recuerda el organizador elegido&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; ingresarDatosEdicion(dt: DTEdicionEvento)&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- El sistema recuerda un evento y un organizador elegidos&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si existe una EdicionEvento cuyo nombre es igual a dt.nombre, el&lt;br&gt;&amp;nbsp; sistema informa el error y no se crea la edición&lt;br&gt;- Si la fecha de fin es anterior a la de inicio, el sistema informa el&lt;br&gt;&amp;nbsp; error y no se crea la edición&lt;br&gt;- En otro caso se crea una EdicionEvento con los datos de dt, asociada&lt;br&gt;&amp;nbsp; al evento y al organizador recordados&lt;br&gt;- &lt;b&gt;La edición queda en estado INGRESADA&lt;/b&gt;&lt;br&gt;- La fecha de alta la asigna el sistema con la fecha del día&lt;br&gt;- Se le puede asociar una imagen, de forma opcional&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;La letra, 6.1: el caso de uso Alta de Edición de Evento deja la&lt;br&gt;edición en estado Ingresada. Es la diferencia con el Laboratorio 1,&lt;br&gt;donde la edición nacía ya publicada.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="480" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="RegistroAEdicion" id="RegistroAEdicion">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n49" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Registro a Edicion de evento" vertex="1">
+          <mxGeometry height="30" width="600" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n50" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Asistente" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n51" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n52" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n53" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n54" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n55" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="eventos := listarEventos() : Set&amp;lt;DTEvento&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n56" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n57" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ediciones := listarEdicionesAceptadas(nombreEvento: String)&lt;br&gt;: Set&amp;lt;DTEdicionEvento&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="340" x="185" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="n58" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="300" as="sourcePoint" />
+            <mxPoint x="555" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n59" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="tipos := listarTiposDeRegistro(nombreEdicion: String)&lt;br&gt;: Set&amp;lt;DTTipoRegistro&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="325" x="197.5" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="n60" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="370" as="sourcePoint" />
+            <mxPoint x="555" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n61" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="altaRegistro(nickname: String, nombreEdicion: String,&lt;br&gt;nombreTipo: String, codigoPatrocinio: String)" vertex="1">
+          <mxGeometry height="34" width="307.5" x="201.25" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="n62" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; listarEdicionesAceptadas(nombreEvento: String) :&lt;br&gt;Set&amp;lt;DTEdicionEvento&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Evento con ese nombre&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retornan &lt;b&gt;solo&lt;/b&gt; las ediciones de ese evento en estado ACEPTADA&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; listarTiposDeRegistro(nombreEdicion: String) :&lt;br&gt;Set&amp;lt;DTTipoRegistro&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe una EdicionEvento con ese nombre&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; se retornan sus tipos de registro&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; altaRegistro(nickname: String, nombreEdicion: String,&lt;br&gt;nombreTipo: String, codigoPatrocinio: String)&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- Existe un Asistente con ese nickname y una EdicionEvento con ese nombre&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; el sistema informa el error y no se crea el&lt;br&gt;registro si:&lt;br&gt;&amp;nbsp; 1. el código es de otra Institucion que la del asistente&lt;br&gt;&amp;nbsp; 2. el código es de otro tipo de registro&lt;br&gt;&amp;nbsp; 3. al código no le quedan registros gratuitos sin usar&lt;br&gt;&amp;nbsp; 4. se alcanzó el cupo del tipo de registro&lt;br&gt;&amp;nbsp; 5. el asistente ya está registrado en esa edición&lt;br&gt;- En otro caso se crea un Registro con la fecha del día&lt;br&gt;- Si se usó un código válido el costo es cero; si no, es el del tipo&lt;br&gt;&amp;nbsp; de registro elegido&lt;br&gt;- Un asistente sin Institucion solo puede registrarse de forma general&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Cambio respecto del Laboratorio 1: solo se puede uno registrar a una&lt;br&gt;edición ACEPTADA. Los cinco rechazos son los que enumera la letra en 7.5.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="450" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="ConsultaUsuario" id="ConsultaUsuario">
+    <mxGraphModel dx="1176" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="530" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n63" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" value="Consulta de Usuario" vertex="1">
+          <mxGeometry height="30" width="600" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="n64" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Visitante, Asistente u Organizador" vertex="1">
+          <mxGeometry height="60" width="30" x="140" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n65" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n66" parent="1" style="html=1;whiteSpace=wrap;" value=":Sistema" vertex="1">
+          <mxGeometry height="50" width="110" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n67" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n68" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n69" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="u := consultarUsuario(nickname: String, solicitante: String)&lt;br&gt;: DTUsuario" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="n70" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="230" as="sourcePoint" />
+            <mxPoint x="555" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n71" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ediciones := listarEdicionesDeOrganizador(nickname: String,&lt;br&gt;solicitante: String) : Set&amp;lt;DTEdicionEvento&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="n72" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="300" as="sourcePoint" />
+            <mxPoint x="555" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n73" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="registros := listarRegistrosDeAsistente(nickname: String,&lt;br&gt;solicitante: String) : Set&amp;lt;DTRegistro&amp;gt;" vertex="1">
+          <mxGeometry height="34" width="280" x="215" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="n74" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" value="&lt;b&gt;Firma:&lt;/b&gt; consultarUsuario(nickname: String, solicitante: String) :&lt;br&gt;DTUsuario&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Usuario con ese nickname&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Se retorna un DTUsuario con sus datos, su tipo y si tiene imagen&lt;br&gt;- La contraseña nunca viaja en el DT&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; listarEdicionesDeOrganizador(nickname: String,&lt;br&gt;solicitante: String) : Set&amp;lt;DTEdicionEvento&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Organizador con ese nickname&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si solicitante es igual a nickname, se retornan sus ediciones en los&lt;br&gt;&amp;nbsp; tres estados: INGRESADA, ACEPTADA y RECHAZADA&lt;br&gt;- En otro caso se retornan &lt;b&gt;solo&lt;/b&gt; las ACEPTADA&lt;br&gt;--------------------------------------------------------------&lt;br&gt;&lt;b&gt;Firma:&lt;/b&gt; listarRegistrosDeAsistente(nickname: String,&lt;br&gt;solicitante: String) : Set&amp;lt;DTRegistro&amp;gt;&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt; existe un Asistente con ese nickname&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si solicitante es igual a nickname, se retornan sus registros&lt;br&gt;- En otro caso se retorna el conjunto vacío, y no un error: el perfil&lt;br&gt;&amp;nbsp; sí se puede consultar, lo único que no se ve son los registros&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;solicitante es el nickname de quien consulta, o nulo si es un&lt;br&gt;visitante sin sesión iniciada. La letra, CU 4: el organizador puede abrir&lt;br&gt;desde su perfil el detalle de sus ediciones Ingresada y Rechazada; ese&lt;br&gt;detalle no está disponible para el resto de los usuarios.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="420" width="470" x="680" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="ConsultaEdicion" id="ConsultaEdicion">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1250" pageHeight="390" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n75" value="ConsultaEdicion" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="60" y="10" width="600" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="n76" value="Visitante, Asistente u Organizador" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="40" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n77" style="endArrow=none;dashed=1;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="120" as="sourcePoint" />
+            <mxPoint x="155" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n78" value="Sistema:" style="html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="500" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="n79" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="90" as="sourcePoint" />
+            <mxPoint x="555" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n80" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="160" as="sourcePoint" />
+            <mxPoint x="555" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n81" value="ed := consultarEdicion(nombreEdicion: String,&lt;br&gt;solicitante: String) : DTEdicionCompleto" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="215" y="124" width="280" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="n82" value="&lt;b&gt;Firma:&lt;/b&gt; consultarEdicion(nombreEdicion: String, solicitante: String)&lt;br&gt;: DTEdicionCompleto&lt;br&gt;&lt;b&gt;Precondición:&lt;/b&gt;&lt;br&gt;- Existe una EdicionEvento cuyo nombre es igual a nombreEdicion&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt;&lt;br&gt;- Si la edición no está ACEPTADA y solicitante no es su organizador, el&lt;br&gt;&amp;nbsp; sistema informa que no se encuentra y no se retornan sus datos&lt;br&gt;- En otro caso se retorna un DTEdicionCompleto con ciudad, país, sigla,&lt;br&gt;&amp;nbsp; fechas, organizador, imagen si tiene, tipos de registro y&lt;br&gt;&amp;nbsp; patrocinios&lt;br&gt;- El listado de registros solo se incluye si solicitante es el&lt;br&gt;&amp;nbsp; organizador de esa edición&lt;br&gt;- El código de patrocinio solo se incluye si solicitante es el&lt;br&gt;&amp;nbsp; organizador de esa edición&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;La letra, CU 9: una edición no Aceptada solo la ve su organizador; si&lt;br&gt;quien consulta es el organizador ve también el listado de registros. Y el&lt;br&gt;CU 16: el código de patrocinio no se publica en la consulta.&lt;/i&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;verticalAlign=top;size=14;" vertex="1" parent="1">
+          <mxGeometry x="680" y="60" width="470" height="285" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

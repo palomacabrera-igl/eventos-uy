@@ -221,13 +221,6 @@ public class ModificarUsuarioPanel {
             }
         }
 
-        // PENDIENTE: cuando Paloma implemente modificarUsuario(...) en Sistema,
-        // la llamada de abajo pasa a ser esta, que ademas guarda la contrasena
-        // y la imagen (la Estacion de Trabajo es el administrador: solicitante null):
-        //   controlador.modificarUsuario(null, dtModificado, nuevaPassword,
-        //                                confirmacion, imagenNueva);
-        // Hasta entonces se usa la de antes, que no cambia contrasena ni imagen.
-
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             DTUsuario dtModificado;
@@ -245,7 +238,12 @@ public class ModificarUsuarioPanel {
                         nombre, usuarioActual.getCorreo(),
                         campoDescripcion.getText().trim(), campoSitioWeb.getText().trim());
             }
-            controlador.modificarDatosUsuario(dtModificado);
+            // El primer parametro es quien pide el cambio. En el sitio sale
+            // de la sesion, para que nadie modifique los datos de otro; aca
+            // no hay sesion y el administrador puede modificar a cualquiera,
+            // asi que se pasa el nickname del usuario que se esta editando.
+            controlador.modificarUsuario(usuarioActual.getNickname(), dtModificado,
+                    nuevaPassword, confirmacion, imagenNueva);
             Mensajes.exito(mainPanel, TITULO, "Datos actualizados correctamente.");
             accionCerrar.run();
         } catch (Exception ex) {
