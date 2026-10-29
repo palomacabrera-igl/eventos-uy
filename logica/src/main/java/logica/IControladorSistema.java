@@ -126,9 +126,7 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     /**
-     * Precondicion: se ejecuto listarDatosRegistro() previamente (recuerda la
-     * Edicion seleccionada); existen un Asistente con ese nickname y un
-     * TipoRegistro con ese nombre en la edicion.
+     * Registra al asistente indicado en una edición ACEPTADA.
      */
     void altaRegistro(String nickname, String nombreEdicion, String nombreTipo)
             throws ReglaNegocioException;
@@ -430,10 +428,8 @@ public interface IControladorSistema {
 
     // ----- Registro a Edicion de Evento (CU 12) -----
     //
-    //  No lleva operaciones nuevas: altaRegistro(nickname, edicion, tipo,
-    //  codigo) ya recibe todo de una vez y valida cupo, registro duplicado y
-    //  codigo de patrocinio. Lo que falta es dentro: exigir que la edicion
-    //  este ACEPTADA y que el asistente sea quien tiene la sesion.
+    //  altaRegistro valida cupo, duplicado y codigo de patrocinio, y exige
+    //  que la edicion este ACEPTADA. El servlet toma el asistente de la sesion.
 
     // ----- Consulta de Registro (CU 13) -----
 

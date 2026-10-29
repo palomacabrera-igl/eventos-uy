@@ -312,6 +312,11 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
                              String codigoPatrocinio) throws ReglaNegocioException {
+        altaRegistroBase(nickname, nombreEdicion, nombreTipo, codigoPatrocinio);
+    }
+
+    private void altaRegistroBase(String nickname, String nombreEdicion, String nombreTipo,
+                                  String codigoPatrocinio) throws ReglaNegocioException {
         // La edicion se resuelve por el nombre que llega como parametro, no por
         // la que quedo retenida de un llamado anterior.
         EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
@@ -320,6 +325,11 @@ public class Sistema implements IControladorSistema {
                     "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
         }
         this.edicionSeleccionada = ed;
+
+        if (!ed.estaAceptada()) {
+            throw new ReglaNegocioException(
+                    "Solo se puede realizar el registro a una edición ACEPTADA.");
+        }
 
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
         if (tr == null) {
