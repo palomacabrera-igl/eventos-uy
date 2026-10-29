@@ -337,6 +337,35 @@ public class EdicionEvento extends EntidadBase {
      * patrocinios sin codigo. Que la regla este aca, y no en la JSP, es lo
      * que impide que una pagina la olvide.
      */
+    /**
+     * Los patrocinios de la edicion (CU 16). El codigo de patrocinio viaja
+     * solo si quien pregunta es su organizador; para el resto llega en null.
+     */
+    public Set<DTPatrocinio> obtenerPatrociniosPara(String solicitante) {
+        boolean conCodigo = loOrganiza(solicitante);
+        Set<DTPatrocinio> resultado = new HashSet<>();
+        for (Patrocinio p : patrocinios) {
+            resultado.add(p.obtenerDTPara(conCodigo));
+        }
+        return resultado;
+    }
+
+    /**
+     * El patrocinio de una institucion en esta edicion (CU 16), con la misma
+     * regla del codigo. Una institucion tiene a lo sumo un patrocinio por
+     * edicion, asi que la institucion lo identifica.
+     */
+    public DTPatrocinio obtenerPatrocinioPara(String nombreInstitucion, String solicitante)
+            throws ReglaNegocioException {
+        for (Patrocinio p : patrocinios) {
+            if (p.getInstitucion().getNombre().equals(nombreInstitucion)) {
+                return p.obtenerDTPara(loOrganiza(solicitante));
+            }
+        }
+        throw new ReglaNegocioException("La institución \"" + nombreInstitucion
+                + "\" no patrocina la edición \"" + nombre + "\".");
+    }
+
     public DTEdicionCompleto obtenerDTCompletoPara(String solicitante) {
         boolean esSuOrganizador = loOrganiza(solicitante);
 
@@ -345,16 +374,8 @@ public class EdicionEvento extends EntidadBase {
             dtTipos.add(t.obtenerDT());
         }
 
-        Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
-        for (Patrocinio p : patrocinios) {
-            DTPatrocinio dt = p.obtenerDT();
-            if (!esSuOrganizador) {
-                // Mismo patrocinio, pero el codigo no viaja.
-                dt = new DTPatrocinio(null, dt.getFecha(), dt.getMonto(), dt.getNivel(),
-                        dt.getCantRegistrosGratis(), dt.getInstitucion(), dt.getTipoRegistro());
-            }
-            dtPatrocinios.add(dt);
-        }
+        // Mismos patrocinios, pero el codigo solo viaja para su organizador.
+        Set<DTPatrocinio> dtPatrocinios = obtenerPatrociniosPara(solicitante);
 
         Set<DTRegistro> dtRegistros = new HashSet<>();
         if (esSuOrganizador) {

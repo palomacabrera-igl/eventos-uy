@@ -1437,14 +1437,33 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Patrocinios de una edicion: todavia no implementado.");
+        return edicionVisiblePara(nombreEdicion, solicitante).obtenerPatrociniosPara(solicitante);
     }
 
     @Override
     public DTPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion,
                                             String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Patrocinio: todavia no implementado.");
+        if (nombreInstitucion == null || nombreInstitucion.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre de la institución.");
+        }
+        return edicionVisiblePara(nombreEdicion, solicitante)
+                .obtenerPatrocinioPara(nombreInstitucion.trim(), solicitante);
+    }
+
+    /**
+     * La edicion, si quien pregunta la puede ver: una edicion que no esta
+     * Aceptada solo la ve su organizador. Es la misma regla que Consulta de
+     * Edicion, asi un patrocinio no deja ver una edicion que no se publico.
+     */
+    private EdicionEvento edicionVisiblePara(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException {
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        if (!edicion.puedeVerla(solicitante)) {
+            throw new ReglaNegocioException("La edición \"" + edicion.getNombre()
+                    + "\" todavía no está publicada. Solo puede verla su organizador.");
+        }
+        return edicion;
     }
 
     // ----- Aceptar/Rechazar Edicion de Evento (Estacion de Trabajo) -----
@@ -1467,7 +1486,7 @@ public class Sistema implements IControladorSistema {
      */
     @Override
     public void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        EdicionEvento edicion = buscarEdicionPorNombre(nombreEdicion);
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.aceptar();
         manejadorEvento.actualizar(edicion.getEvento());
     }
@@ -1475,26 +1494,9 @@ public class Sistema implements IControladorSistema {
     /** Rechaza una edicion. Solo se puede desde INGRESADA, igual que aceptar. */
     @Override
     public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        EdicionEvento edicion = buscarEdicionPorNombre(nombreEdicion);
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.rechazar();
         manejadorEvento.actualizar(edicion.getEvento());
-    }
-
-    /**
-     * Busca una edicion por su nombre, que es unico en todo el sistema, sin
-     * depender de un evento seleccionado antes.
-     */
-    private EdicionEvento buscarEdicionPorNombre(String nombreEdicion)
-            throws ReglaNegocioException {
-        if (nombreEdicion == null || nombreEdicion.isBlank()) {
-            throw new ReglaNegocioException("Falta el nombre de la edición.");
-        }
-        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
-        if (edicion == null) {
-            throw new ReglaNegocioException(
-                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
-        }
-        return edicion;
     }
 
     // ----- Mantenimiento -----

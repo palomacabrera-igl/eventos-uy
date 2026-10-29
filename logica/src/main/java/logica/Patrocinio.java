@@ -128,4 +128,19 @@ public class Patrocinio extends EntidadBase {
         return new DTPatrocinio(codigo, DTFecha.desde(fechaIni), monto, nivelPatro.name(),
                 cantRegistrosGratis, institucion.getNombre(), tipoRegistro.getNombre());
     }
+
+    /**
+     * El mismo DT, pero sin el codigo: es lo que ve cualquiera que no sea el
+     * organizador de la edicion (CU 16). El codigo permite registrarse gratis,
+     * asi que la letra no lo publica.
+     */
+    public DTPatrocinio obtenerDTSinCodigo() {
+        return new DTPatrocinio(null, DTFecha.desde(fechaIni), monto, nivelPatro.name(),
+                cantRegistrosGratis, institucion.getNombre(), tipoRegistro.getNombre());
+    }
+
+    /** obtenerDT() o obtenerDTSinCodigo(), segun quien pregunta. */
+    public DTPatrocinio obtenerDTPara(boolean conCodigo) {
+        return conCodigo ? obtenerDT() : obtenerDTSinCodigo();
+    }
 }
