@@ -3,6 +3,7 @@ package presentacion;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import logica.DTImagen;
 import logica.Fabrica;
 import logica.IControladorSistema;
 import logica.ReglaNegocioException;
@@ -22,6 +23,11 @@ public class VentanaAltaInstitucion extends JInternalFrame {
     private JTextField sitioWeb;
     private JButton aceptarButton;
     private JButton cancelarButton;
+    private JButton elegirImagenButton;
+    private JLabel lblImagen;
+
+    /** Imagen elegida con "Elegir imagen...", o null si no se eligio ninguna (es opcional). */
+    private transient DTImagen imagenElegida;
 
     private final IControladorSistema controlador;
 
@@ -33,6 +39,7 @@ public class VentanaAltaInstitucion extends JInternalFrame {
         // Configuración de listeners
         aceptarButton.addActionListener(e -> aceptar());
         cancelarButton.addActionListener(e -> dispose());
+        elegirImagenButton.addActionListener(e -> elegirImagen());
 
         setContentPane(mainPanel);
         pack();
@@ -55,6 +62,11 @@ public class VentanaAltaInstitucion extends JInternalFrame {
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             controlador.altaInstitucion(nombreInstitucion, descripcion, web);
+            // La imagen va aparte: el alta del Laboratorio 1 no la recibe, y
+            // asignarImagenInstitucion se la pone a la institucion recien creada.
+            if (imagenElegida != null) {
+                controlador.asignarImagenInstitucion(nombreInstitucion, imagenElegida);
+            }
             Mensajes.exito(mainPanel, TITULO, "Institución dada de alta correctamente.");
             dispose();
         } catch (ReglaNegocioException ex) {
@@ -62,6 +74,15 @@ public class VentanaAltaInstitucion extends JInternalFrame {
             Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
+    }
+
+    /** "Elegir imagen...": la guarda en memoria hasta que se confirma el alta. */
+    private void elegirImagen() {
+        SelectorImagen.Eleccion eleccion = SelectorImagen.elegir(mainPanel, TITULO);
+        if (eleccion != null) {
+            imagenElegida = eleccion.imagen();
+            lblImagen.setText(eleccion.nombreArchivo());
         }
     }
 
@@ -81,12 +102,12 @@ public class VentanaAltaInstitucion extends JInternalFrame {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(5, 2, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(6, 2, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Nombre:");
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        mainPanel.add(spacer1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(spacer1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         nombre = new JTextField();
         nombre.setText("");
         mainPanel.add(nombre, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
@@ -102,10 +123,22 @@ public class VentanaAltaInstitucion extends JInternalFrame {
         mainPanel.add(sitioWeb, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         aceptarButton = new JButton();
         aceptarButton.setText("Aceptar");
-        mainPanel.add(aceptarButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(aceptarButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelarButton = new JButton();
         cancelarButton.setText("Cancelar");
-        mainPanel.add(cancelarButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cancelarButton, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Imagen (opcional)");
+        mainPanel.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), 10, -1));
+        mainPanel.add(panel1, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        elegirImagenButton = new JButton();
+        elegirImagenButton.setText("Elegir imagen...");
+        panel1.add(elegirImagenButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblImagen = new JLabel();
+        lblImagen.setText("Sin imagen");
+        panel1.add(lblImagen, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -115,4 +148,4 @@ public class VentanaAltaInstitucion extends JInternalFrame {
         return mainPanel;
     }
 
-}
+}

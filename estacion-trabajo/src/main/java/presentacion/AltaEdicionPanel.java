@@ -33,6 +33,11 @@ public class AltaEdicionPanel {
     private JSpinner spinnerAnioAlta;
     private JButton botonAceptar;
     private JButton botonCancelar;
+    private JButton elegirImagenButton;
+    private JLabel lblImagen;
+
+    /** Imagen elegida con "Elegir imagen...", o null si no se eligio ninguna (es opcional). */
+    private transient DTImagen imagenElegida;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -59,6 +64,7 @@ public class AltaEdicionPanel {
         comboOrganizadores.addActionListener(e -> seleccionarOrganizador());
         botonAceptar.addActionListener(e -> aceptar());
         botonCancelar.addActionListener(e -> accionCerrar.run());
+        elegirImagenButton.addActionListener(e -> elegirImagen());
     }
 
     public JPanel getMainPanel() {
@@ -171,6 +177,11 @@ public class AltaEdicionPanel {
                     fechaInicio, fechaFin, fechaAlta);
 
             controlador.ingresarDatosEdicion(dt);
+            // La imagen va aparte: el alta del Laboratorio 1 no la recibe, y
+            // asignarImagenEdicion se la pone a la edicion que se acaba de crear.
+            if (imagenElegida != null) {
+                controlador.asignarImagenEdicion(nombre, imagenElegida);
+            }
             Mensajes.exito(mainPanel, TITULO, "Edición de evento dada de alta correctamente.");
             accionCerrar.run();
 
@@ -184,6 +195,15 @@ public class AltaEdicionPanel {
 
     private static DTFecha fechaDe(JSpinner dia, JSpinner mes, JSpinner anio) {
         return new DTFecha((int) dia.getValue(), (int) mes.getValue(), (int) anio.getValue());
+    }
+
+    /** "Elegir imagen...": la guarda en memoria hasta que se confirma el alta. */
+    private void elegirImagen() {
+        SelectorImagen.Eleccion eleccion = SelectorImagen.elegir(mainPanel, TITULO);
+        if (eleccion != null) {
+            imagenElegida = eleccion.imagen();
+            lblImagen.setText(eleccion.nombreArchivo());
+        }
     }
 
     {
@@ -202,12 +222,12 @@ public class AltaEdicionPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(12, 3, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(13, 3, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Evento:");
         mainPanel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        mainPanel.add(spacer1, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(spacer1, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Organizador:");
         mainPanel.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -275,15 +295,24 @@ public class AltaEdicionPanel {
         panel3.add(spinnerAnioAlta, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         botonAceptar = new JButton();
         botonAceptar.setText("Aceptar");
-        mainPanel.add(botonAceptar, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(botonAceptar, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         botonCancelar = new JButton();
         botonCancelar.setText("Cancelar");
-        mainPanel.add(botonCancelar, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(botonCancelar, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        mainPanel.add(spacer2, new GridConstraints(11, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(spacer2, new GridConstraints(12, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
         label10.setText("Alta Edicion de Evento");
         mainPanel.add(label10, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label11 = new JLabel();
+        label11.setText("Imagen (opcional)");
+        mainPanel.add(label11, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        elegirImagenButton = new JButton();
+        elegirImagenButton.setText("Elegir imagen...");
+        mainPanel.add(elegirImagenButton, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblImagen = new JLabel();
+        lblImagen.setText("Sin imagen");
+        mainPanel.add(lblImagen, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -293,4 +322,4 @@ public class AltaEdicionPanel {
         return mainPanel;
     }
 
-}
+}

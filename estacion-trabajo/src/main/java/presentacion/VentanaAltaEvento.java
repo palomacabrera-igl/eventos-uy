@@ -35,6 +35,11 @@ public class VentanaAltaEvento extends JInternalFrame {
     private JSpinner spinnerDia;
     private JSpinner spinnerMes;
     private JSpinner spinnerAnio;
+    private JButton elegirImagenButton;
+    private JLabel lblImagen;
+
+    /** Imagen elegida con "Elegir imagen...", o null si no se eligio ninguna (es opcional). */
+    private transient DTImagen imagenElegida;
 
     private final IControladorSistema controlador;
 
@@ -51,6 +56,7 @@ public class VentanaAltaEvento extends JInternalFrame {
 
         aceptarButton.addActionListener(e -> aceptar());
         cancelarButton.addActionListener(e -> dispose());
+        elegirImagenButton.addActionListener(e -> elegirImagen());
 
         setContentPane(mainPanel);
         pack();
@@ -131,12 +137,26 @@ public class VentanaAltaEvento extends JInternalFrame {
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             controlador.ingresarDatosEvento(nombre, descripcion, fechaAlta, sigla, nombresCategorias);
+            // La imagen va aparte: el alta del Laboratorio 1 no la recibe, y
+            // asignarImagenEvento le pone la imagen al evento que se acaba de crear.
+            if (imagenElegida != null) {
+                controlador.asignarImagenEvento(nombre, imagenElegida);
+            }
             Mensajes.exito(mainPanel, TITULO, "Evento dado de alta correctamente.");
             dispose();
         } catch (ReglaNegocioException ex) {
             Mensajes.error(mainPanel, TITULO, ex.getMessage());
         } catch (Exception ex) {
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
+        }
+    }
+
+    /** "Elegir imagen...": la guarda en memoria hasta que se confirma el alta. */
+    private void elegirImagen() {
+        SelectorImagen.Eleccion eleccion = SelectorImagen.elegir(mainPanel, TITULO);
+        if (eleccion != null) {
+            imagenElegida = eleccion.imagen();
+            lblImagen.setText(eleccion.nombreArchivo());
         }
     }
 
@@ -156,12 +176,12 @@ public class VentanaAltaEvento extends JInternalFrame {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(7, 2, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(8, 2, new Insets(15, 15, 15, 15), 10, 10));
         final JLabel label1 = new JLabel();
         label1.setText("Nombre del evento");
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        mainPanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(spacer1, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         nombretxt = new JTextField();
         nombretxt.setText("");
         mainPanel.add(nombretxt, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
@@ -185,7 +205,7 @@ public class VentanaAltaEvento extends JInternalFrame {
         mainPanel.add(siglatxt, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         aceptarButton = new JButton();
         aceptarButton.setText("Aceptar");
-        mainPanel.add(aceptarButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(aceptarButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -201,7 +221,19 @@ public class VentanaAltaEvento extends JInternalFrame {
         scrollPane1.setViewportView(catTree);
         cancelarButton = new JButton();
         cancelarButton.setText("Cancelar");
-        mainPanel.add(cancelarButton, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cancelarButton, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label6 = new JLabel();
+        label6.setText("Imagen (opcional)");
+        mainPanel.add(label6, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), 10, -1));
+        mainPanel.add(panel2, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        elegirImagenButton = new JButton();
+        elegirImagenButton.setText("Elegir imagen...");
+        panel2.add(elegirImagenButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblImagen = new JLabel();
+        lblImagen.setText("Sin imagen");
+        panel2.add(lblImagen, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

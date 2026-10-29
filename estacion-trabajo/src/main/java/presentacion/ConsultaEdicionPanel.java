@@ -32,6 +32,7 @@ public class ConsultaEdicionPanel {
     private JPanel mainPanel;
     private JPanel SeleccionPanel;
     private JPanel DatosPanel;
+    private VistaImagen imagenEdicion;
     private JTabbedPane ColeccionesTPane;
     private JPanel BotonesPanel;
     private JComboBox EventosCBox;
@@ -228,6 +229,7 @@ public class ConsultaEdicionPanel {
             AltaTxt.setText(formatear(ed.getFechaAlta()));
             OrganizadorTxt.setText(ed.getOrganizador().getNickname());
             EstadoTxt.setText(Estados.texto(ed.getEstado()));
+            imagenEdicion.mostrar(controlador.obtenerImagenEdicion(ed.getNombre()));
 
             TiposList.setListData(ed.getTiposRegistro().stream()
                     .sorted(Comparator.comparing(DTTipoRegistro::getNombre))
@@ -293,6 +295,7 @@ public class ConsultaEdicionPanel {
         AltaTxt.setText("");
         OrganizadorTxt.setText("");
         EstadoTxt.setText("");
+        imagenEdicion.limpiar();
     }
 
     private void limpiarDetalleTipo() {
@@ -359,9 +362,11 @@ public class ConsultaEdicionPanel {
         EdicionesCBox.setModel(defaultComboBoxModel1);
         SeleccionPanel.add(EdicionesCBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(300, -1), null, 0, false));
         DatosPanel = new JPanel();
-        DatosPanel.setLayout(new GridLayoutManager(5, 4, new Insets(8, 8, 8, 8), 6, 6));
+        DatosPanel.setLayout(new GridLayoutManager(5, 5, new Insets(8, 8, 8, 8), 6, 6));
         mainPanel.add(DatosPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         DatosPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Datos de la Edición", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        imagenEdicion = new VistaImagen();
+        DatosPanel.add(imagenEdicion, new GridConstraints(0, 4, 5, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("Nombre");
         DatosPanel.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

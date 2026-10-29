@@ -39,6 +39,8 @@ public class ConsultaEvento {
     private JTextField EstadoEdicionTxt;
     private JButton cerrarButton;
     private JTextField CategoriasTxt;
+    private VistaImagen imagenEvento;
+    private VistaImagen imagenEdicion;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -96,6 +98,7 @@ public class ConsultaEvento {
             DescripcionTxt.setText(evento.getDescripcion());
             CategoriasTxt.setText(String.join(", ", evento.getCategorias()));
             FechaAltaTxt.setText(formatearFecha(evento.getFechaAlta()));
+            imagenEvento.mostrar(controlador.obtenerImagenEvento(nombreEvento));
 
             // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento>
             Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
@@ -129,6 +132,7 @@ public class ConsultaEvento {
             FechaFinTxt.setText(formatearFecha(edicion.getFechaFin()));
             FechaAltaEdicionTxt.setText(formatearFecha(edicion.getFechaAlta()));
             EstadoEdicionTxt.setText(Estados.texto(edicion.getEstado()));
+            imagenEdicion.mostrar(controlador.obtenerImagenEdicion(nombreEdicion));
         } catch (Exception ex) {
             limpiarDetalleEdicion();
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
@@ -145,6 +149,7 @@ public class ConsultaEvento {
         DescripcionTxt.setText("");
         CategoriasTxt.setText("");
         FechaAltaTxt.setText("");
+        imagenEvento.limpiar();
     }
 
     private void limpiarDetalleEdicion() {
@@ -156,6 +161,7 @@ public class ConsultaEvento {
         FechaFinTxt.setText("");
         FechaAltaEdicionTxt.setText("");
         EstadoEdicionTxt.setText("");
+        imagenEdicion.limpiar();
     }
 
     {
@@ -174,7 +180,11 @@ public class ConsultaEvento {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(17, 2, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(17, 3, new Insets(15, 15, 15, 15), 10, 10));
+        imagenEvento = new VistaImagen();
+        mainPanel.add(imagenEvento, new GridConstraints(1, 2, 6, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        imagenEdicion = new VistaImagen();
+        mainPanel.add(imagenEdicion, new GridConstraints(7, 2, 9, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Consulta de Evento");
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

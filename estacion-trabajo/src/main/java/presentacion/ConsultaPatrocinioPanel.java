@@ -28,6 +28,7 @@ public class ConsultaPatrocinioPanel {
     private JComboBox comboEdiciones;
     private JComboBox comboPatrocinios;
     private JPanel panelDetalle;
+    private VistaImagen imagenInstitucion;
     private JTextField campoCodigo;
     private JTextField campoInstitucion;
     private JTextField campoTipoRegistro;
@@ -174,6 +175,7 @@ public class ConsultaPatrocinioPanel {
             DTPatrocinio detalle = controlador.mostrarPatrocinio(seleccionado.getCodigoPatrocinio());
             campoCodigo.setText(String.valueOf(detalle.getCodigoPatrocinio()));
             campoInstitucion.setText(detalle.getInstitucion());
+            imagenInstitucion.mostrar(controlador.obtenerImagenInstitucion(detalle.getInstitucion()));
             campoTipoRegistro.setText(detalle.getTipoRegistro());
             campoNivel.setText(detalle.getNivel());
             campoMonto.setText(String.valueOf(detalle.getMonto()));
@@ -194,6 +196,7 @@ public class ConsultaPatrocinioPanel {
         campoMonto.setText("");
         campoCantRegistrosGratis.setText("");
         campoFecha.setText("");
+        imagenInstitucion.limpiar();
     }
 
     {
@@ -229,8 +232,10 @@ public class ConsultaPatrocinioPanel {
         comboPatrocinios = new JComboBox();
         mainPanel.add(comboPatrocinios, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panelDetalle = new JPanel();
-        panelDetalle.setLayout(new GridLayoutManager(8, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelDetalle.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panelDetalle, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        imagenInstitucion = new VistaImagen();
+        panelDetalle.add(imagenInstitucion, new GridConstraints(0, 2, 7, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panelDetalle.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-3025959)), "Detalle del Patrocinio:", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, this.$$$getFont$$$(null, -1, -1, panelDetalle.getFont()), new Color(-15329250)));
         final JLabel label4 = new JLabel();
         label4.setText("Codigo:");
@@ -310,4 +315,4 @@ public class ConsultaPatrocinioPanel {
         return mainPanel;
     }
 
-}
+}

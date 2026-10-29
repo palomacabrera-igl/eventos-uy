@@ -38,6 +38,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     private JLabel Usuario;
     private JPanel panelDetalle;
     private JLabel etiquetaDetalle;
+    private VistaImagen imagenDetalle;
     private final IControladorSistema controlador;
     private CardLayout cardLayout;
 
@@ -160,6 +161,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
 
         try {
             DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
+            imagenDetalle.mostrar(controlador.obtenerImagenUsuario(usuario.getNickname()));
 
             if (datos instanceof DTOrganizador organizador) {
                 areaDetalle.setText(
@@ -205,6 +207,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         } catch (Exception ex) {
             // Estado consistente: vaciamos detalle y listas en vez de dejarlas a medias.
             areaDetalle.setText("");
+            imagenDetalle.limpiar();
             listaEdiciones.setListData(new DTEdicionEvento[0]);
             listaRegistros.setListData(new DTRegistro[0]);
             Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
@@ -223,6 +226,8 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         try {
             DTEdicionCompleto edicion =
                     controlador.seleccionarEdicion(item.getNombre());
+            // El recuadro muestra la imagen de lo que se esta viendo: ahora, la edicion.
+            imagenDetalle.mostrar(controlador.obtenerImagenEdicion(item.getNombre()));
 
             DTOrganizador org = edicion.getOrganizador();
             String organizador = org == null
@@ -357,8 +362,10 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         comboUsuarios = new JComboBox();
         panelSeleccion.add(comboUsuarios, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panelDetalle = new JPanel();
-        panelDetalle.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panelDetalle.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         panelPrincipal.add(panelDetalle, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        imagenDetalle = new VistaImagen();
+        panelDetalle.add(imagenDetalle, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane3 = new JScrollPane();
         panelDetalle.add(scrollPane3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         areaDetalle = new JTextArea();
@@ -374,4 +381,4 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
-}
+}
