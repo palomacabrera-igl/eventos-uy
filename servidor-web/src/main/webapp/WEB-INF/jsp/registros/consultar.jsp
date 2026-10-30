@@ -56,7 +56,7 @@
             <dt>Edición</dt>
             <dd><a href="<%= ctx %>/edicion?nombre=<%= edicionUrl %>"><%= Texto.escapar(registro.getNombreEdicion()) %></a></dd>
             <dt>Asistente</dt>
-            <dd><a href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(registro.getNickname()) %>">@<%= Texto.escapar(registro.getNickname()) %></a></dd>
+            <dd><a href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(registro.getNickname()) %>&amp;desdeRegistro=<%= edicionUrl %>">@<%= Texto.escapar(registro.getNickname()) %></a></dd>
             <dt>Fecha de registro</dt><dd><%= Texto.fecha(registro.getFechaRegistro()) %></dd>
             <dt>Tipo de registro</dt>
             <dd><a href="<%= ctx %>/tipo-registro?edicion=<%= edicionUrl %>&amp;nombre=<%= Texto.paraUrl(registro.getTipoRegistro()) %>"><%= Texto.escapar(registro.getTipoRegistro()) %></a></dd>

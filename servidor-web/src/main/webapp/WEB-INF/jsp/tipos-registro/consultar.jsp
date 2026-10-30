@@ -17,7 +17,7 @@
     <main class="container pt-4">
         <section class="ev-pagehead">
             <a class="ev-back" href="<%= ctx %>/edicion?nombre=<%= Texto.paraUrl(edicion) %>">
-                &larr; Volver a la edicion
+                &larr; <%= Texto.escapar(edicion) %>
             </a>
             <p class="ev-kicker mt-2">Tipo de registro</p>
             <h1 class="ev-pagetitle"><%= Texto.escapar(tipo.getNombre()) %></h1>

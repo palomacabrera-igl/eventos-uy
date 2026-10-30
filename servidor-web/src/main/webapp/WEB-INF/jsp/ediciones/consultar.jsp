@@ -69,7 +69,7 @@
                     <dt>Fin</dt><dd><%= Texto.fecha(ed.getFechaFin()) %></dd>
                     <dt>Alta</dt><dd><%= Texto.fecha(ed.getFechaAlta()) %></dd>
                     <dt>Organizador</dt>
-                    <dd><a href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(ed.getOrganizador().getNickname()) %>"><%= Texto.escapar(ed.getOrganizador().getNombre()) %></a></dd>
+                    <dd><a href="<%= ctx %>/perfil?nickname=<%= Texto.paraUrl(ed.getOrganizador().getNickname()) %>&amp;desdeEdicion=<%= nombreUrl %>"><%= Texto.escapar(ed.getOrganizador().getNombre()) %></a></dd>
                 </dl>
                 <% if (puedeRegistrarse) { %>
                 <div class="d-flex gap-2 mt-3">

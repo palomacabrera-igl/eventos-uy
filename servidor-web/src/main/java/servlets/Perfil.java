@@ -23,6 +23,10 @@ import logica.ReglaNegocioException;
  *   /perfil?nickname=vale23   el perfil de esa persona
  *   /perfil                   el propio, si hay sesion iniciada
  *
+ * Opcional, solo para el enlace de vuelta de la pagina:
+ *   &desdeEdicion=JIAP+2026   se llego desde esa edicion
+ *   &desdeRegistro=JIAP+2026  se llego desde el registro del perfil en ella
+ *
  * El servlet no decide que se puede ver y que no: le pasa a la logica quien
  * esta preguntando y la logica devuelve lo que corresponde. Si aca hubiera un
  * "if" eligiendo que esconder, seria una regla de negocio metida en el
@@ -77,6 +81,14 @@ public class Perfil extends HttpServlet {
             if (request.getParameter("guardado") != null) {
                 request.setAttribute("aviso", "Tus datos quedaron guardados.");
             }
+
+            // De donde se llego, para que el enlace de arriba vuelva ahi.
+            // El mismo organizador aparece en varias ediciones, asi que la
+            // pagina sola no puede saberlo: se lo dice quien la enlaza. Los
+            // dos traen el nombre de una edicion y se excluyen entre si.
+            // Si no viene ninguno, se vuelve a la cartelera.
+            request.setAttribute("desdeEdicion", request.getParameter("desdeEdicion"));
+            request.setAttribute("desdeRegistro", request.getParameter("desdeRegistro"));
 
             request.setAttribute("titulo", perfil.getNombre());
             Paginas.forward(request, response, Paginas.PERFIL);

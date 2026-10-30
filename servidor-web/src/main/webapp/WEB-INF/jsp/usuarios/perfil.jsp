@@ -21,6 +21,11 @@
     @SuppressWarnings("unchecked")
     List<DTRegistro> registros = (List<DTRegistro>) request.getAttribute("registros");
 
+    // De donde se llego (ver Perfil.java). Vacio = se entro de otro lado,
+    // por ejemplo desde "Mi perfil" del cabezal, y se vuelve a la cartelera.
+    String desdeEdicion = (String) request.getAttribute("desdeEdicion");
+    String desdeRegistro = (String) request.getAttribute("desdeRegistro");
+
     DTAsistente asistente = (perfil instanceof DTAsistente a) ? a : null;
     DTOrganizador organizador = (perfil instanceof DTOrganizador o) ? o : null;
 
@@ -38,7 +43,13 @@
     <jsp:include page="/WEB-INF/jsp/plantilla/cabezal.jsp" />
     <main class="container pt-4">
         <section class="ev-pagehead">
+            <% if (desdeRegistro != null && !desdeRegistro.isEmpty()) { %>
+            <a class="ev-back" href="<%= ctx %>/registro?edicion=<%= Texto.paraUrl(desdeRegistro) %>&amp;asistente=<%= Texto.paraUrl(perfil.getNickname()) %>">&larr; Registro de @<%= Texto.escapar(perfil.getNickname()) %></a>
+            <% } else if (desdeEdicion != null && !desdeEdicion.isEmpty()) { %>
+            <a class="ev-back" href="<%= ctx %>/edicion?nombre=<%= Texto.paraUrl(desdeEdicion) %>">&larr; <%= Texto.escapar(desdeEdicion) %></a>
+            <% } else { %>
             <a class="ev-back" href="<%= ctx %>/eventos">&larr; Volver a la cartelera</a>
+            <% } %>
         </section>
 
         <jsp:include page="/WEB-INF/jsp/plantilla/aviso.jsp" />
