@@ -74,6 +74,23 @@ public class Asistente extends Usuario {
         this.apellido = apellido;
     }
 
+    /**
+     * Una persona no puede haber nacido despues de hoy. Una fecha de
+     * nacimiento futura no describe a nadie, y hasta ahora el unico
+     * control era que no viniera vacia.
+     *
+     * Esta aca, y como metodo aparte, por los mismos motivos que el tope
+     * del patrocinio: es una regla del asistente y no del caso de uso, y
+     * asi se puede probar sola, pasandole el "hoy" que uno quiera, sin
+     * depender de la fecha de la maquina ni de la base.
+     *
+     * Nacer hoy si vale: el limite es el dia de hoy, incluido.
+     */
+    public static boolean fechaDeNacimientoEnElFuturo(LocalDate fechaNacimiento,
+                                                      LocalDate hoy) {
+        return fechaNacimiento != null && hoy != null && fechaNacimiento.isAfter(hoy);
+    }
+
     public LocalDate getFechaNacimiento() {
         return fechaNacimiento;
     }

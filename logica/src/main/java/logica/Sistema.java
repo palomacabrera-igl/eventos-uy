@@ -765,6 +765,11 @@ public class Sistema implements IControladorSistema {
                 throw new ReglaNegocioException(
                         "El apellido y la fecha de nacimiento son obligatorios.");
             }
+            if (Asistente.fechaDeNacimientoEnElFuturo(
+                    asistente.getFechaNacimiento().aLocalDate(), LocalDate.now())) {
+                throw new ReglaNegocioException(
+                        "La fecha de nacimiento no puede ser posterior a hoy.");
+            }
             Asistente nuevo = new Asistente(nickname, nombre, correo,
                     asistente.getApellido().trim(),
                     asistente.getFechaNacimiento().aLocalDate(),
@@ -901,6 +906,11 @@ public class Sistema implements IControladorSistema {
                     || asistente.getFechaNacimiento() == null) {
                 throw new ReglaNegocioException(
                         "El apellido y la fecha de nacimiento son obligatorios.");
+            }
+            if (Asistente.fechaDeNacimientoEnElFuturo(
+                    asistente.getFechaNacimiento().aLocalDate(), LocalDate.now())) {
+                throw new ReglaNegocioException(
+                        "La fecha de nacimiento no puede ser posterior a hoy.");
             }
             // Sin institucion es una opcion valida, asi que se distingue entre
             // "no la nombraron" y "la sacaron": las dos llegan como vacio y

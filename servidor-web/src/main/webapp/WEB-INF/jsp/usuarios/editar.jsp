@@ -79,6 +79,7 @@
                 <label class="form-label" for="fnac">Fecha de nacimiento</label>
                 <%-- El input type=date quiere aaaa-mm-dd, no el formato de pantalla. --%>
                 <input class="form-control" id="fnac" name="fnac" type="date" required
+                           max="<%= java.time.LocalDate.now() %>"
                        value="<%= valor(pageContext, "fnac",
                                String.format("%04d-%02d-%02d",
                                        asistente.getFechaNacimiento().getAnio(),

@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +32,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  *  CI  modificar los datos de otra persona
  *  CI  contrasena y confirmacion distintas
  *  CI  institucion que no existe
+ *  CI  fecha de nacimiento posterior a hoy
  *  Valor limite: sin sesion, sin datos, nombre vacio, apellido vacio
  * </pre>
  */
@@ -150,6 +153,20 @@ class ModificarUsuarioIntegracionTest extends PruebaConBase {
         assertThrows(ReglaNegocioException.class,
                 () -> sistema.modificarUsuario(NICK, datos("Antes", "Apellido", null),
                         "Nueva1!", "Otra2!", null));
+    }
+
+    @Test
+    @DisplayName("rechaza una fecha de nacimiento posterior a hoy")
+    void nacimientoEnElFuturo() {
+        LocalDate maniana = LocalDate.now().plusDays(1);
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.modificarUsuario(NICK,
+                        new DTAsistente(NICK, "Antes", CORREO, "Apellido",
+                                new DTFecha(maniana.getDayOfMonth(),
+                                        maniana.getMonthValue(),
+                                        maniana.getYear()),
+                                null),
+                        "", "", null));
     }
 
     @Test

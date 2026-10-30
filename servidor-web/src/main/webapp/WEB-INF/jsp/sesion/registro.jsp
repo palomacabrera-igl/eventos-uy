@@ -98,6 +98,7 @@
                 <div class="mb-3">
                     <label class="form-label" for="fnac">Fecha de nacimiento</label>
                     <input class="form-control" id="fnac" name="fnac" type="date" required
+                           max="<%= java.time.LocalDate.now() %>"
                            value="<%= previo(pageContext, "fnac") %>">
                 </div>
                 <div class="mb-3">
