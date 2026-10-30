@@ -12,17 +12,22 @@
     <description>Plataforma eventos.uy - Programacion de Aplicaciones</description>
 
     <!--
-        POM padre: no genera ningun archivo, solo agrupa los tres modulos y
-        fija lo que comparten (Java 25, UTF-8 y las versiones de los plugins).
+        POM padre del Servidor Central: no genera ningun archivo, solo
+        agrupa los dos modulos y fija lo que comparten (Java 25, UTF-8 y las
+        versiones de los plugins).
 
           logica            -> JAR con la logica y la persistencia (JPA)
           estacion-trabajo  -> JAR con las ventanas Swing (depende de logica)
-          servidor-web      -> WAR con servlets y JSP (lleva logica adentro)
+
+        El sitio web NO esta aca: vive en su propio repositorio
+        (eventos-uy-web) y recibe la logica ya compilada, como un JAR que le
+        deja scripts/publicar-logica.ps1. Es lo que pide el diagrama de
+        distribucion de la letra: el Servidor Central viaja embebido adentro
+        del Servidor Web, no se compila junto con el.
     -->
     <modules>
         <module>logica</module>
         <module>estacion-trabajo</module>
-        <module>servidor-web</module>
     </modules>
 
     <properties>
@@ -43,11 +48,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.4.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

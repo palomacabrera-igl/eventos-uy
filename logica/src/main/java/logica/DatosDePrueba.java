@@ -1,9 +1,7 @@
 package logica;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -59,7 +57,7 @@ public final class DatosDePrueba {
                 "https://utec.edu.uy"
         );
         utec.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
+                "imagenes/instituciones/avatarInstitucion.png"
         ));
 
         Institucion udelar = new Institucion(
@@ -68,7 +66,7 @@ public final class DatosDePrueba {
                 "https://udelar.edu.uy"
         );
         udelar.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
+                "imagenes/instituciones/avatarInstitucion.png"
         ));
 
         Institucion ancap = new Institucion(
@@ -77,7 +75,7 @@ public final class DatosDePrueba {
                 "https://ancap.com.uy"
         );
         ancap.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
+                "imagenes/instituciones/avatarInstitucion.png"
         ));
 
         manejadorInstitucion.agregar(utec);
@@ -98,7 +96,7 @@ public final class DatosDePrueba {
         );
         vale23.setInstitucion(utec);
         vale23.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png"
+                "imagenes/usuarios/avatarFemenino.png"
         ));
 
         Asistente jperez = new Asistente(
@@ -110,7 +108,7 @@ public final class DatosDePrueba {
                 "Juan2026!"
         );
         jperez.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/usuarios/avatarMasculino.png"
+                "imagenes/usuarios/avatarMasculino.png"
         ));
 
         Asistente lgomez = new Asistente(
@@ -123,7 +121,7 @@ public final class DatosDePrueba {
         );
         lgomez.setInstitucion(utec);
         lgomez.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png"
+                "imagenes/usuarios/avatarFemenino.png"
         ));
 
         manejadorUsuario.agregar(vale23);
@@ -143,7 +141,7 @@ public final class DatosDePrueba {
                 "Imm2026!"
         );
         imm.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
+                "imagenes/instituciones/avatarInstitucion.png"
         ));
 
         Organizador antel = new Organizador(
@@ -155,7 +153,7 @@ public final class DatosDePrueba {
                 "Antel2026!"
         );
         antel.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png"
+                "imagenes/instituciones/avatarInstitucion.png"
         ));
 
         manejadorUsuario.agregar(imm);
@@ -173,7 +171,7 @@ public final class DatosDePrueba {
                 Arrays.asList(tecnologia)
         );
         jiap.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/eventoIng.png"
+                "imagenes/eventos/JIAP/eventoIng.png"
         ));
 
         EdicionEvento jiap2026 = new EdicionEvento(
@@ -187,7 +185,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2026.png"
+                "imagenes/eventos/JIAP/ediciones/edicionIng2026.png"
         ));
         try {
             jiap2026.aceptar();
@@ -206,7 +204,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2027.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2027.png"
+                "imagenes/eventos/JIAP/ediciones/edicionIng2027.png"
         ));
         // Queda INGRESADA, que es el estado inicial.
 
@@ -221,7 +219,7 @@ public final class DatosDePrueba {
                 imm
         );
         jiap2025.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2025.png"
+                "imagenes/eventos/JIAP/ediciones/edicionIng2025.png"
         ));
         try {
             jiap2025.rechazar();
@@ -306,7 +304,7 @@ public final class DatosDePrueba {
                 Arrays.asList(cultura)
         );
         feriaLibro.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/eventoLibro.png"
+                "imagenes/eventos/FeriaDelLibro/eventoLibro.png"
         ));
 
         EdicionEvento libro2026 = new EdicionEvento(
@@ -320,7 +318,7 @@ public final class DatosDePrueba {
                 antel
         );
         libro2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
+                "imagenes/eventos/FeriaDelLibro/ediciones/edicionLib2026.png"
         ));
         try {
             libro2026.aceptar();
@@ -364,7 +362,7 @@ public final class DatosDePrueba {
                 Arrays.asList(deporte)
         );
         maraton.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/maraton.png"
+                "imagenes/eventos/MaratonDeMontevideo/maraton.png"
         ));
 
         EdicionEvento maraton2026 = new EdicionEvento(
@@ -378,7 +376,7 @@ public final class DatosDePrueba {
                 imm
         );
         maraton2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png"
+                "imagenes/eventos/MaratonDeMontevideo/ediciones/maraton2026.png"
         ));
         try {
             maraton2026.aceptar();
@@ -397,7 +395,7 @@ public final class DatosDePrueba {
                 imm
         );
         maraton2025.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png"
+                "imagenes/eventos/MaratonDeMontevideo/ediciones/maraton2025.png"
         ));
         try {
             maraton2025.aceptar();
@@ -458,7 +456,7 @@ public final class DatosDePrueba {
                 Arrays.asList(musica)
         );
         rock.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/rock.png"
+                "imagenes/eventos/MontevideoRock/rock.png"
         ));
 
         EdicionEvento rock2026 = new EdicionEvento(
@@ -472,7 +470,7 @@ public final class DatosDePrueba {
                 antel
         );
         rock2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/ediciones/rock2026.webp"
+                "imagenes/eventos/MontevideoRock/ediciones/rock2026.webp"
         ));
         try {
             rock2026.aceptar();
@@ -524,7 +522,7 @@ public final class DatosDePrueba {
                 Arrays.asList(negocios, tecnologia)
         );
         expoNegocios.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/negocios.png"
+                "imagenes/eventos/ExpoNegociosUY/negocios.png"
         ));
 
         EdicionEvento expo2026 = new EdicionEvento(
@@ -538,7 +536,7 @@ public final class DatosDePrueba {
                 antel
         );
         expo2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png"
+                "imagenes/eventos/ExpoNegociosUY/ediciones/negocios2026.png"
         ));
         // Queda INGRESADA.
 
@@ -559,7 +557,7 @@ public final class DatosDePrueba {
                 Arrays.asList(cultura)
         );
         comics.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/eventoComic.png"
+                "imagenes/eventos/MontevideoComics/eventoComic.png"
         ));
 
         EdicionEvento comics2026 = new EdicionEvento(
@@ -573,7 +571,7 @@ public final class DatosDePrueba {
                 imm
         );
         comics2026.asignarImagen(imagenes.get(
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
+                "imagenes/eventos/MontevideoComics/ediciones/comic2026.jpg"
         ));
         try {
             comics2026.aceptar();
@@ -621,38 +619,47 @@ public final class DatosDePrueba {
         }
     }
 
-    private static Map<String, Imagen>
+    /**
+     * Carga todas las imagenes de los datos de prueba, antes de guardar nada:
+     * si falta una, se corta sin dejar la base a medio llenar.
+     *
+     * <p>No es privado para que DatosDePruebaTest pueda llamarlo y comprobar
+     * que las 18 imagenes siguen estando dentro del jar. Antes vivian en la
+     * carpeta del servidor web, y al separar los repositorios desaparecieron
+     * sin que nada avisara hasta que alguien vaciaba la base.
+     */
+    static Map<String, Imagen>
     cargarImagenesAntesDePersistir() {
 
         Map<String, Imagen> imagenes =
                 new LinkedHashMap<>();
 
         String[] rutas = {
-                "servidor-web/src/main/webapp/public/images/instituciones/avatarInstitucion.png",
-                "servidor-web/src/main/webapp/public/images/usuarios/avatarFemenino.png",
-                "servidor-web/src/main/webapp/public/images/usuarios/avatarMasculino.png",
+                "imagenes/instituciones/avatarInstitucion.png",
+                "imagenes/usuarios/avatarFemenino.png",
+                "imagenes/usuarios/avatarMasculino.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/eventoIng.png",
-                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/eventoLibro.png",
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/maraton.png",
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/rock.png",
-                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/negocios.png",
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/eventoComic.png",
+                "imagenes/eventos/JIAP/eventoIng.png",
+                "imagenes/eventos/FeriaDelLibro/eventoLibro.png",
+                "imagenes/eventos/MaratonDeMontevideo/maraton.png",
+                "imagenes/eventos/MontevideoRock/rock.png",
+                "imagenes/eventos/ExpoNegociosUY/negocios.png",
+                "imagenes/eventos/MontevideoComics/eventoComic.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2026.png",
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2027.png",
-                "servidor-web/src/main/webapp/public/images/eventos/JIAP/ediciones/edicionIng2025.png",
+                "imagenes/eventos/JIAP/ediciones/edicionIng2026.png",
+                "imagenes/eventos/JIAP/ediciones/edicionIng2027.png",
+                "imagenes/eventos/JIAP/ediciones/edicionIng2025.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/FeriaDelLibro/ediciones/edicionLib2026.png",
+                "imagenes/eventos/FeriaDelLibro/ediciones/edicionLib2026.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2026.png",
-                "servidor-web/src/main/webapp/public/images/eventos/MaratonDeMontevideo/ediciones/maraton2025.png",
+                "imagenes/eventos/MaratonDeMontevideo/ediciones/maraton2026.png",
+                "imagenes/eventos/MaratonDeMontevideo/ediciones/maraton2025.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoRock/ediciones/rock2026.webp",
+                "imagenes/eventos/MontevideoRock/ediciones/rock2026.webp",
 
-                "servidor-web/src/main/webapp/public/images/eventos/ExpoNegociosUY/ediciones/negocios2026.png",
+                "imagenes/eventos/ExpoNegociosUY/ediciones/negocios2026.png",
 
-                "servidor-web/src/main/webapp/public/images/eventos/MontevideoComics/ediciones/comic2026.jpg"
+                "imagenes/eventos/MontevideoComics/ediciones/comic2026.jpg"
         };
 
         for (String ruta : rutas) {
@@ -662,54 +669,60 @@ public final class DatosDePrueba {
         return imagenes;
     }
 
-    private static Imagen leerImagenObligatoria(String ruta) {
-        Path archivo = Paths.get(ruta);
+    /**
+     * Lee una imagen de las que viajan DENTRO del jar de la logica, en
+     * src/main/resources/imagenes.
+     *
+     * <p>Antes se leian del disco, con una ruta relativa que entraba en la
+     * carpeta del servidor web. Eso tenia dos problemas: ataba el Servidor
+     * Central a archivos de otro componente, justo al reves de como va la
+     * dependencia, y solo funcionaba si el programa se corria parado en la
+     * raiz del proyecto. Desde el classpath anda igual corriendolo desde
+     * IntelliJ, desde Maven o desde el jar ya empaquetado.
+     */
+    private static Imagen leerImagenObligatoria(String recurso) {
+        byte[] contenido;
 
-        if (!Files.isRegularFile(archivo)) {
-            throw new IllegalStateException(
-                    "No se encontró la imagen obligatoria: "
-                            + archivo.toAbsolutePath()
-            );
-        }
+        try (InputStream entrada = DatosDePrueba.class
+                .getClassLoader()
+                .getResourceAsStream(recurso)) {
 
-        try {
-            byte[] contenido = Files.readAllBytes(archivo);
-
-            if (contenido.length == 0) {
+            if (entrada == null) {
                 throw new IllegalStateException(
-                        "La imagen está vacía: "
-                                + archivo.toAbsolutePath()
+                        "No se encontró la imagen obligatoria: " + recurso
                 );
             }
 
-            String nombre = archivo.getFileName()
-                    .toString()
-                    .toLowerCase();
-
-            String tipo;
-
-            if (nombre.endsWith(".png")) {
-                tipo = "image/png";
-            } else if (nombre.endsWith(".jpg")
-                    || nombre.endsWith(".jpeg")) {
-                tipo = "image/jpeg";
-            } else if (nombre.endsWith(".webp")) {
-                tipo = "image/webp";
-            } else {
-                throw new IllegalStateException(
-                        "Formato de imagen no permitido: "
-                                + archivo.toAbsolutePath()
-                );
-            }
-
-            return new Imagen(contenido, tipo);
+            contenido = entrada.readAllBytes();
 
         } catch (IOException e) {
             throw new IllegalStateException(
-                    "No se pudo leer la imagen: "
-                            + archivo.toAbsolutePath(),
-                    e
+                    "No se pudo leer la imagen: " + recurso, e
             );
         }
+
+        if (contenido.length == 0) {
+            throw new IllegalStateException(
+                    "La imagen está vacía: " + recurso
+            );
+        }
+
+        String nombre = recurso.toLowerCase();
+        String tipo;
+
+        if (nombre.endsWith(".png")) {
+            tipo = "image/png";
+        } else if (nombre.endsWith(".jpg")
+                || nombre.endsWith(".jpeg")) {
+            tipo = "image/jpeg";
+        } else if (nombre.endsWith(".webp")) {
+            tipo = "image/webp";
+        } else {
+            throw new IllegalStateException(
+                    "Formato de imagen no permitido: " + recurso
+            );
+        }
+
+        return new Imagen(contenido, tipo);
     }
 }

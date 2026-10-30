@@ -43,6 +43,15 @@ function Paso($texto)  { Write-Host ""; Write-Host "==> $texto" -ForegroundColor
 function Listo($texto) { Write-Host $texto -ForegroundColor Green }
 function Error2($texto){ Write-Host $texto -ForegroundColor Red }
 
+# Un repositorio de Maven guarda, al lado de cada archivo, su checksum. Sin
+# el, Maven compila igual pero escribe un aviso con pinta de error en cada
+# compilacion del sitio. Se genera aca, que es donde sabemos que el archivo
+# esta entero.
+function Firmar($archivo) {
+    $sha = (Get-FileHash -Algorithm SHA1 -Path $archivo).Hash.ToLower()
+    [System.IO.File]::WriteAllText("$archivo.sha1", $sha)
+}
+
 if (-not (Test-Path $Destino)) {
     Error2 "No existe la carpeta del repositorio del sitio:"
     Write-Host "  $Destino"
@@ -92,6 +101,7 @@ New-Item -ItemType Directory -Force $carpeta | Out-Null
 
 Paso "Copiando el JAR"
 Copy-Item $jarOrigen (Join-Path $carpeta "logica-$version.jar") -Force
+Firmar (Join-Path $carpeta "logica-$version.jar")
 Listo ("  logica-$version.jar  (" + [math]::Round((Get-Item $jarOrigen).Length / 1KB) + " KB)")
 
 # ------------------------------------------------------------- 3. la ficha
@@ -141,6 +151,7 @@ $($lineas -join "`n")
 "@
 
 Set-Content -Path (Join-Path $carpeta "logica-$version.pom") -Value $ficha -Encoding UTF8
+Firmar (Join-Path $carpeta "logica-$version.pom")
 Listo "  logica-$version.pom   ($($deps.Count) dependencias)"
 
 foreach ($d in $deps) {
@@ -152,6 +163,6 @@ Paso "Publicado"
 Write-Host "  en: $carpeta"
 Write-Host ""
 Write-Host "Ahora, en el repositorio del sitio:" -ForegroundColor Yellow
-Write-Host "  1. commitea los dos archivos de lib/"
+Write-Host "  1. commitea los cuatro archivos de lib/ (el jar, la ficha y sus .sha1)"
 Write-Host "  2. .\scripts\servidor.ps1 -Reiniciar   para verlo andando"
 Write-Host ""
