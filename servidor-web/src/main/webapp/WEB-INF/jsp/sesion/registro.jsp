@@ -165,5 +165,6 @@
             mostrar();
         })();
     </script>
+    <script src="<%= ctx %>/assets/js/validacion.js"></script>
 </body>
 </html>

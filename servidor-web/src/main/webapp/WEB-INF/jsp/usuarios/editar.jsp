@@ -144,5 +144,6 @@
         </form>
     </main>
     <jsp:include page="/WEB-INF/jsp/plantilla/pie.jsp" />
+    <script src="<%= ctx %>/assets/js/validacion.js"></script>
 </body>
 </html>
