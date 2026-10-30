@@ -32,8 +32,7 @@ public class AltaTipoRegistro extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (!esOrganizador(request)) {
-            Paginas.redirect(request, response, "/iniciar-sesion");
+        if (!exigirOrganizador(request, response)) {
             return;
         }
         mostrarFormulario(request, response);
@@ -42,8 +41,7 @@ public class AltaTipoRegistro extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (!esOrganizador(request)) {
-            Paginas.redirect(request, response, "/iniciar-sesion");
+        if (!exigirOrganizador(request, response)) {
             return;
         }
 
@@ -85,9 +83,28 @@ public class AltaTipoRegistro extends HttpServlet {
         }
     }
 
-    private static boolean esOrganizador(HttpServletRequest request) {
+    /**
+     * true cuando la persona puede seguir. Si no, esta respuesta ya quedo
+     * contestada: sin sesion se la manda a iniciarla, y con sesion pero sin
+     * ser organizador se le dice por que no.
+     *
+     * Antes los dos casos iban a /iniciar-sesion, y como esa pantalla rebota
+     * a la cartelera cuando ya hay sesion, un asistente terminaba en la
+     * cartelera sin entender que habia pasado.
+     */
+    private static boolean exigirOrganizador(HttpServletRequest request,
+                                             HttpServletResponse response)
+            throws ServletException, IOException {
         DTUsuario usuario = SesionWeb.actual(request);
-        return usuario != null && usuario.esOrganizador();
+        if (usuario == null) {
+            Paginas.redirect(request, response, "/iniciar-sesion");
+            return false;
+        }
+        if (!usuario.esOrganizador()) {
+            Paginas.prohibida(request, response, "El alta de tipo de registro es para organizadores.");
+            return false;
+        }
+        return true;
     }
 
     private static String texto(HttpServletRequest request, String campo) {

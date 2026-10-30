@@ -162,10 +162,8 @@ public class RegistroAEdicion extends HttpServlet {
             return null;
         }
         if (!sesion.esAsistente()) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            request.setAttribute("mensaje",
+            Paginas.prohibida(request, response,
                     "El registro a una edición es para asistentes.");
-            Paginas.forward(request, response, Paginas.NO_ENCONTRADA);
             return null;
         }
         return sesion;

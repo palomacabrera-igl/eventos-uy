@@ -54,6 +54,21 @@ public final class Paginas {
         response.sendRedirect(request.getContextPath() + ruta);
     }
 
+    /**
+     * Hay sesion, pero a esta persona no le corresponde la pantalla.
+     *
+     * No es lo mismo que mandarla a iniciar sesion: ya inicio sesion, y
+     * volver a pedirsela la deja girando en el aire (si ya hay sesion,
+     * /iniciar-sesion la rebota a la cartelera sin decirle nada).
+     */
+    public static void prohibida(HttpServletRequest request, HttpServletResponse response,
+                                 String mensaje) throws ServletException, IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        request.setAttribute("titulo", "No tenés permiso para entrar acá");
+        request.setAttribute("mensaje", mensaje);
+        forward(request, response, NO_ENCONTRADA);
+    }
+
     public static void noEncontrada(HttpServletRequest request, HttpServletResponse response,
                                     String mensaje) throws ServletException, IOException {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);

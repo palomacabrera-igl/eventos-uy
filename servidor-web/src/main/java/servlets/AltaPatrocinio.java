@@ -164,9 +164,8 @@ public class AltaPatrocinio extends HttpServlet {
             return null;
         }
         if (!sesion.esOrganizador()) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            request.setAttribute("mensaje", "El alta de patrocinio es para organizadores.");
-            Paginas.forward(request, response, Paginas.NO_ENCONTRADA);
+            Paginas.prohibida(request, response,
+                    "El alta de patrocinio es para organizadores.");
             return null;
         }
         return sesion;
