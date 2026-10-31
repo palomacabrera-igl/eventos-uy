@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,6 +69,16 @@ class AltaUsuarioIntegracionTest extends PruebaConBase {
         assertEquals(ASIS, creado.getNickname());
         assertTrue(creado.esAsistente());
         assertEquals("UTEC", ((DTAsistente) sistema.consultarUsuario(ASIS, ASIS)).getInstitucion());
+    }
+
+    @Test
+    @DisplayName("la fecha de alta la pone el sistema con la de hoy, y queda guardada")
+    void fechaAltaDeHoy() throws ReglaNegocioException {
+        sistema.altaUsuario(asistente(ASIS, "test-it@mail.com"), TipoUsuario.ASISTENTE,
+                "Clave1!", "Clave1!", null, null);
+
+        assertEquals(LocalDate.now(),
+                sistema.consultarUsuario(ASIS, null).getFechaAlta().aLocalDate());
     }
 
     @Test

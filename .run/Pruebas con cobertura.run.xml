@@ -6,6 +6,11 @@
       El patron limita la medicion a los paquetes logica y persistencia: no
       tiene sentido contar la Estacion de Trabajo ni los servlets, que la
       letra deja expresamente afuera.
+
+      DatosDePrueba y CargarDatos quedan excluidas (INCLUDE = false): son el
+      juego de datos con el que se carga la base, no logica de negocio. Es la
+      misma exclusion que hace JaCoCo en logica/pom.xml, asi IntelliJ y Maven
+      dan el mismo numero.
   -->
   <configuration default="false" name="Pruebas con cobertura" type="JUnit" factoryName="JUnit">
     <module name="logica" />
@@ -17,6 +22,16 @@
       <pattern>
         <option name="PATTERN" value="persistencia.*" />
         <option name="ENABLED" value="true" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="logica.DatosDePrueba" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="persistencia.CargarDatos" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
       </pattern>
     </extension>
     <option name="PACKAGE_NAME" value="logica" />

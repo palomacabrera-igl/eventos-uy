@@ -17,6 +17,9 @@ public class DTUsuario {
     /** Si hay que dibujar un <img> o el circulo con la inicial. */
     private boolean tieneImagen;
 
+    /** null si el usuario se guardo antes de que existiera la fecha de alta. */
+    private DTFecha fechaAlta;
+
     public DTUsuario(String nickname, String nombre, String correo) {
         this.nickname = nickname;
         this.nombre = nombre;
@@ -40,6 +43,13 @@ public class DTUsuario {
     public String getCorreo() {return correo;}
     public TipoUsuario getTipo() {return tipo;}
     public boolean getTieneImagen() {return tieneImagen;}
+    public DTFecha getFechaAlta() {return fechaAlta;}
+
+    /**
+     * Sin public: solo la completa la entidad al armar su DT. Los que llegan
+     * desde un formulario de alta no la traen, porque la pone el sistema.
+     */
+    void setFechaAlta(DTFecha fechaAlta) {this.fechaAlta = fechaAlta;}
 
     /** Para que la pagina pregunte sin tener que conocer el enum. */
     public boolean esAsistente() {return tipo == TipoUsuario.ASISTENTE;}
