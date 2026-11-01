@@ -164,4 +164,53 @@ class EdicionIntegracionTest extends PruebaConBase {
         assertThrows(ReglaNegocioException.class,
                 () -> sistema.consultarEdicion("No existe", "imm"));
     }
+
+    // ----- aceptarEdicion y rechazarEdicion (Tabla 1 de la letra) -----
+    //
+    // La letra, 7.5: "Entran, como minimo, la contrasena, las transiciones de
+    // estado de la edicion, ...". AceptarRechazarEdicionTest ya prueba la
+    // regla sobre la entidad; estas prueban el caso de uso completo, que es
+    // por donde entra el administrador desde la Estacion de Trabajo.
+
+    @Test
+    @DisplayName("aceptar: pasa a Aceptada y recien ahi se lista al publico")
+    void aceptarLaPublica() throws ReglaNegocioException {
+        sistema.altaEdicion("imm", "JIAP", datos(NUEVA, INICIO, INICIO.plusDays(1)), null);
+
+        sistema.aceptarEdicion(NUEVA);
+
+        assertEquals(EstadoEdicion.ACEPTADA, sistema.consultarEdicion(NUEVA, "imm").getEstado());
+        assertTrue(sistema.listarEdicionesAceptadas("JIAP").stream()
+                .anyMatch(ed -> ed.getNombre().equals(NUEVA)));
+    }
+
+    @Test
+    @DisplayName("rechazar: pasa a Rechazada y sigue sin listarse")
+    void rechazarLaDejaOculta() throws ReglaNegocioException {
+        sistema.altaEdicion("imm", "JIAP", datos(NUEVA, INICIO, INICIO.plusDays(1)), null);
+
+        sistema.rechazarEdicion(NUEVA);
+
+        assertEquals(EstadoEdicion.RECHAZADA, sistema.consultarEdicion(NUEVA, "imm").getEstado());
+        assertFalse(sistema.listarEdicionesAceptadas("JIAP").stream()
+                .anyMatch(ed -> ed.getNombre().equals(NUEVA)));
+    }
+
+    @Test
+    @DisplayName("valor limite: una vez aceptada o rechazada, el estado no vuelve a cambiar")
+    void elEstadoNoVuelveAtras() throws ReglaNegocioException {
+        sistema.altaEdicion("imm", "JIAP", datos(NUEVA, INICIO, INICIO.plusDays(1)), null);
+        sistema.aceptarEdicion(NUEVA);
+
+        assertThrows(ReglaNegocioException.class, () -> sistema.rechazarEdicion(NUEVA));
+        assertThrows(ReglaNegocioException.class, () -> sistema.aceptarEdicion(NUEVA));
+        assertEquals(EstadoEdicion.ACEPTADA, sistema.consultarEdicion(NUEVA, "imm").getEstado());
+    }
+
+    @Test
+    @DisplayName("CI: una edicion que no existe no se puede aceptar ni rechazar")
+    void noSePuedeCambiarUnaEdicionInexistente() {
+        assertThrows(ReglaNegocioException.class, () -> sistema.aceptarEdicion("No existe 2099"));
+        assertThrows(ReglaNegocioException.class, () -> sistema.rechazarEdicion("No existe 2099"));
+    }
 }

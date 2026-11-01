@@ -30,12 +30,35 @@ abstract class PruebaConBase {
     static void exigirLaBase() {
         Assumptions.assumeTrue(hayBase(),
                 "PostgreSQL no responde: se saltean las pruebas de integracion");
+
+        // Estas pruebas se apoyan en los datos de prueba para el decorado: el
+        // organizador "imm", el evento "JIAP", las instituciones UTEC y ANCAP.
+        // Cada una se crea lo suyo, pero no vuelve a crear todo el escenario.
+        //
+        // Si la base esta vacia, sin esta linea fallarian con errores raros
+        // ("no existe el usuario imm") que no dicen que hay que hacer. Asi se
+        // saltean y el motivo queda escrito.
+        Assumptions.assumeTrue(hayDatosDePrueba(),
+                "La base esta vacia: corre persistencia.CargarDatos "
+                        + "(o .\\mvnw.cmd -pl logica exec:java) y volve a correr las pruebas");
     }
 
     private static boolean hayBase() {
         try {
             return Persistencia.getEntityManager().isOpen();
         } catch (RuntimeException sinBase) {
+            return false;
+        }
+    }
+
+    /** El decorado minimo que todas dan por hecho. */
+    private static boolean hayDatosDePrueba() {
+        try {
+            return Persistencia.getEntityManager()
+                    .createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.nickname = 'imm'",
+                            Long.class)
+                    .getSingleResult() == 1L;
+        } catch (RuntimeException sinDatos) {
             return false;
         }
     }
