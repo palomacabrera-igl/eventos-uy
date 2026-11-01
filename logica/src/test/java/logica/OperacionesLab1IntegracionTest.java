@@ -92,6 +92,11 @@ class OperacionesLab1IntegracionTest extends PruebaConBase {
         sistema.altaInstitucion(INSTITUCION, "Institucion de prueba", "https://test.uy");
         altaEvento();
         altaEdicion();
+        // En el Laboratorio 1 no habia estados y se podia registrar a cualquier
+        // edicion. Ahora nace Ingresada, asi que el escenario completo incluye
+        // aceptarla. Los otros altaEdicion() de esta clase no se aceptan: son
+        // para el alta de tipo de registro, que si vale sobre una Ingresada.
+        sistema.aceptarEdicion(EDICION);
         sistema.seleccionarEdicionEvento(EDICION);
         sistema.ingresarDatosTipoRegistro(TIPO, "Entrada de prueba", 1000.0, 10);
     }

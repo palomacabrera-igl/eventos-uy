@@ -54,12 +54,21 @@ import persistencia.Persistencia;
  *         asistente sin institucion solo puede registrarse de forma
  *         general»)
  *  CI  codigo que no existe en esa edicion
+ *  CI  7. la edicion no esta Aceptada  (letra, CU 12: «el asistente elige
+ *         uno y ve las ediciones en estado Aceptada»)
  * </pre>
  */
-@DisplayName("Registro a Edicion: el caso valido y los cinco rechazos (CU 12)")
+@DisplayName("Registro a Edicion: los casos validos y los rechazos (CU 12)")
 class RegistroAEdicionIntegracionTest extends PruebaConBase {
 
     private static final String EDICION = "Test IT 2027";
+
+    /** Una segunda edicion que se queda Ingresada, para el rechazo CI 7. */
+    private static final String EDICION_INGRESADA = "Test IT 2028";
+
+    /** Las dos, para que la limpieza no se olvide de ninguna. */
+    private static final String LAS_EDICIONES =
+            "nombre IN ('" + EDICION + "', '" + EDICION_INGRESADA + "')";
     private static final String CODIGO = "TEST-IT-COD";
     private static final String GENERAL = "General";
     private static final String ESTUDIANTE = "Estudiante";
@@ -75,7 +84,7 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
     // ------------------------------------------------- el escenario
 
     @BeforeEach
-    void armarElEscenario() {
+    void armarElEscenario() throws ReglaNegocioException {
         sinRastros();
         Persistencia.enTransaccion(em -> {
             Institucion utec = em.createQuery(
@@ -118,6 +127,11 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
             em.persist(asistente(SIN_INSTITUCION, "Cuatro", null));
         });
         Persistencia.refrescar();
+
+        // La edicion nace Ingresada y a una Ingresada no se puede registrar
+        // nadie. Se acepta por el caso de uso, que es lo que pasa de verdad:
+        // el administrador la acepta desde la Estacion de Trabajo.
+        sistema.aceptarEdicion(EDICION);
     }
 
     private static Asistente asistente(String nickname, String nombre, Institucion institucion) {
@@ -130,12 +144,12 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
     @AfterEach
     void sinRastros() {
         // El orden importa: primero lo que apunta, despues lo apuntado.
-        borrar("registro", "edicion_id IN (SELECT id FROM edicion_evento WHERE nombre = '"
-                + EDICION + "')");
+        borrar("registro", "edicion_id IN (SELECT id FROM edicion_evento WHERE "
+                + LAS_EDICIONES + ")");
         borrar("patrocinio", "codigo = '" + CODIGO + "'");
-        borrar("tipo_registro", "edicion_id IN (SELECT id FROM edicion_evento WHERE nombre = '"
-                + EDICION + "')");
-        borrar("edicion_evento", "nombre = '" + EDICION + "'");
+        borrar("tipo_registro", "edicion_id IN (SELECT id FROM edicion_evento WHERE "
+                + LAS_EDICIONES + ")");
+        borrar("edicion_evento", LAS_EDICIONES);
         // La tabla de union con las categorias apunta al evento: va antes.
         borrar("evento_categoria",
                 "evento_id IN (SELECT id FROM evento WHERE nombre = 'Test IT Evento')");
@@ -270,6 +284,38 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
 
         assertThrows(ReglaNegocioException.class,
                 () -> sistema.altaRegistro(DE_UTEC, EDICION, "No Existe"));
+    }
+
+    @Test
+    @DisplayName("CI 7 · a una edicion que no esta Aceptada no se registra nadie")
+    void edicionQueNoEstaAceptada() throws ReglaNegocioException {
+        // El escenario deja la edicion Aceptada. Se arma otra, que queda
+        // Ingresada, que es como nacen todas.
+        Persistencia.enTransaccion(em -> {
+            Organizador org = em.createQuery(
+                    "SELECT o FROM Organizador o WHERE o.nickname = 'test-it-orgreg'",
+                    Organizador.class).getSingleResult();
+            Evento evento = em.createQuery(
+                    "SELECT e FROM Evento e WHERE e.nombre = 'Test IT Evento'",
+                    Evento.class).getSingleResult();
+
+            EdicionEvento ingresada = new EdicionEvento(EDICION_INGRESADA, "TIE28",
+                    LocalDate.of(2028, 6, 1), LocalDate.of(2028, 6, 3),
+                    LocalDate.now(), "Montevideo", "Uruguay", org);
+            evento.agregarEdicion(ingresada);
+            org.agregarEdicion(ingresada);
+            ingresada.crearTipoRegistro(GENERAL, "Entrada general", 1500.0, 10);
+        });
+        Persistencia.refrescar();
+
+        // El sitio no la ofrece, porque lista solo las Aceptadas. Pero la
+        // regla tiene que valer igual cuando el pedido no pasa por el listado.
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.altaRegistro(DE_UTEC, EDICION_INGRESADA, GENERAL));
+
+        // Y una vez aceptada, el mismo registro entra sin problema.
+        sistema.aceptarEdicion(EDICION_INGRESADA);
+        sistema.altaRegistro(DE_UTEC, EDICION_INGRESADA, GENERAL);
     }
 
     // ------------------------- las reglas tal como se ven en la edicion

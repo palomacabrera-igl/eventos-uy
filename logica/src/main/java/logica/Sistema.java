@@ -319,6 +319,19 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
+        // Solo se registra a una edicion Aceptada. La letra, CU 12: "el
+        // asistente elige uno y ve las ediciones en estado Aceptada".
+        //
+        // El listado del sitio ya muestra solo esas, pero eso es presentacion:
+        // si el pedido no pasa por ese listado -por ejemplo armado a mano-, la
+        // regla tiene que seguir valiendo. Vale para los dos clientes: una
+        // edicion que todavia no se acepto, o que se rechazo, no admite
+        // registros aunque los pida el administrador desde la Estacion.
+        if (!ed.estaAceptada()) {
+            throw new ReglaNegocioException("La edicion " + ed.getNombre()
+                    + " no esta aceptada: no admite registros.");
+        }
+
         this.edicionSeleccionada = ed;
 
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
