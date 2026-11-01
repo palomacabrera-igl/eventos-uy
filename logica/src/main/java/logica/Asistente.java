@@ -109,10 +109,12 @@ public class Asistente extends Usuario {
 
     @Override
     public DTUsuario obtenerDT() {
-        return new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
+        DTAsistente dt = new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
                 apellido, DTFecha.desde(fechaNacimiento),
                 institucion == null ? null : institucion.getNombre(),
                 tieneImagen());
+        dt.setFechaAlta(obtenerFechaAltaDT());
+        return dt;
     }
 
     @Override

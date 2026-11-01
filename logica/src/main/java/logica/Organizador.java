@@ -74,8 +74,10 @@ public class Organizador extends Usuario {
 
     @Override
     public DTOrganizador obtenerDT() {
-        return new DTOrganizador(getNickname(), getNombre(), getCorreoElectronico(),
+        DTOrganizador dt = new DTOrganizador(getNickname(), getNombre(), getCorreoElectronico(),
                 descripcion, sitioWeb, tieneImagen());
+        dt.setFechaAlta(obtenerFechaAltaDT());
+        return dt;
     }
 
     @Override

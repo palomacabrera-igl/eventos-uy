@@ -168,6 +168,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                         "Nickname: " + organizador.getNickname()
                                 + "\nNombre: " + organizador.getNombre()
                                 + "\nCorreo: " + organizador.getCorreo()
+                                + "\nFecha de alta: " + textoFechaAlta(organizador)
                                 + "\nDescripción: " + organizador.getDescripcion()
                                 + "\nSitio web: "
                                 + (organizador.getSitioWeb() == null
@@ -188,6 +189,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                                 + "\nNombre: " + asistente.getNombre()
                                 + "\nApellido: " + asistente.getApellido()
                                 + "\nCorreo: " + asistente.getCorreo()
+                                + "\nFecha de alta: " + textoFechaAlta(asistente)
                                 + "\nFecha de nacimiento: "
                                 + asistente.getFechaNacimiento().aLocalDate()
                                 + "\nInstitución: "
@@ -212,6 +214,13 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             listaRegistros.setListData(new DTRegistro[0]);
             Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
         }
+    }
+
+    /** Los usuarios guardados antes de existir la fecha de alta no la tienen. */
+    private static String textoFechaAlta(DTUsuario datos) {
+        return datos.getFechaAlta() == null
+                ? "(sin registrar)"
+                : datos.getFechaAlta().aLocalDate().toString();
     }
 
     private void mostrarEdicion() {

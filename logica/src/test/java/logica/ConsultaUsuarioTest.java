@@ -175,4 +175,25 @@ class ConsultaUsuarioTest {
                         || m.getName().toLowerCase().contains("contrasena"))
                 .count());
     }
+
+    // ------------------------------------------------ fecha de alta
+
+    /*
+     * Letra, seccion 6: «la fecha de alta ... la asigna el sistema con la
+     * fecha del dia». No hay clases de entrada: el dato no lo elige nadie.
+     * Se prueba un organizador y un asistente porque cada uno arma su DT.
+     */
+    @Test
+    @DisplayName("el organizador queda con la fecha de hoy, y viaja en su DT")
+    void fechaAltaDelOrganizador() {
+        assertEquals(LocalDate.now(), organizador.getFechaAlta());
+        assertEquals(LocalDate.now(), organizador.obtenerDT().getFechaAlta().aLocalDate());
+    }
+
+    @Test
+    @DisplayName("el asistente queda con la fecha de hoy, y viaja en su DT")
+    void fechaAltaDelAsistente() {
+        assertEquals(LocalDate.now(), asistente.getFechaAlta());
+        assertEquals(LocalDate.now(), asistente.obtenerDT().getFechaAlta().aLocalDate());
+    }
 }
