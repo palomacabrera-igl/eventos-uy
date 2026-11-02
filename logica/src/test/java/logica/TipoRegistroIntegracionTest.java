@@ -82,19 +82,33 @@ class TipoRegistroIntegracionTest extends PruebaConBase {
     }
 
     @Test
-    @DisplayName("CU 11 · la consulta publica necesita que la edicion este Aceptada")
-    void laConsultaPideEdicionAceptada() throws ReglaNegocioException {
+    @DisplayName("CU 11 · mientras esta Ingresada la ve su organizador, nadie mas")
+    void mientrasEstaIngresadaSoloLaVeSuOrganizador() throws ReglaNegocioException {
         crearLaEdicion();
         sistema.altaTipoRegistro("imm", EDICION, TIPO, "Entrada general", 1500.0, 50);
 
-        // Mientras esta Ingresada, la consulta publica no la muestra. La letra,
-        // CU 11: "ve las ediciones en estado Aceptada".
-        assertThrows(ReglaNegocioException.class,
-                () -> sistema.consultarTipoRegistro(EDICION, TIPO));
+        // La letra, CU 9: el organizador abre el detalle de sus ediciones
+        // Ingresada y Rechazada, y "desde un tipo de registro o un patrocinio
+        // se llega a la consulta correspondiente". Si esto fallara, seria un
+        // callejon sin salida en su propia edicion.
+        DTTipoRegistro suyo = sistema.consultarTipoRegistro(EDICION, TIPO, "imm");
+        assertEquals(TIPO, suyo.getNombre());
 
+        // Para el resto no esta publicada todavia.
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.consultarTipoRegistro(EDICION, TIPO, "vale23"));
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.consultarTipoRegistro(EDICION, TIPO, null));
+    }
+
+    @Test
+    @DisplayName("CU 11 · una vez Aceptada la consulta cualquiera, con todos sus datos")
+    void aceptadaLaVeCualquiera() throws ReglaNegocioException {
+        crearLaEdicion();
+        sistema.altaTipoRegistro("imm", EDICION, TIPO, "Entrada general", 1500.0, 50);
         sistema.aceptarEdicion(EDICION);
 
-        DTTipoRegistro dt = sistema.consultarTipoRegistro(EDICION, TIPO);
+        DTTipoRegistro dt = sistema.consultarTipoRegistro(EDICION, TIPO, null);
         assertEquals(TIPO, dt.getNombre());
         assertEquals(1500.0, dt.getCosto());
         assertEquals(50, dt.getCupo());
@@ -156,6 +170,6 @@ class TipoRegistroIntegracionTest extends PruebaConBase {
         sistema.aceptarEdicion(EDICION);
 
         assertThrows(ReglaNegocioException.class,
-                () -> sistema.consultarTipoRegistro(EDICION, "No existe"));
+                () -> sistema.consultarTipoRegistro(EDICION, "No existe", "imm"));
     }
 }

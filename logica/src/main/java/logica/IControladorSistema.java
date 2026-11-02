@@ -416,7 +416,17 @@ public interface IControladorSistema {
     Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
             throws ReglaNegocioException;
 
-    DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+    /**
+     * Consulta de Tipo de Registro (CU 11).
+     *
+     * Recibe quien pregunta por el mismo motivo que consultarPatrocinio: una
+     * edicion que todavia no esta Aceptada la ve solo su organizador, y la
+     * letra (CU 9) dice que desde el detalle de esa edicion "se llega a la
+     * consulta correspondiente". Sin el solicitante, el organizador se topaba
+     * con un callejon sin salida en su propia edicion.
+     */
+    DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo,
+                                         String solicitante)
             throws ReglaNegocioException;
 
     /** Alta de Institucion (CU 14). Solo un organizador puede; la imagen es opcional. */

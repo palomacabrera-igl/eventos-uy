@@ -1220,18 +1220,12 @@ public class Sistema implements IControladorSistema {
     }
 
     @Override
-    public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+    public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo,
+                                               String solicitante)
             throws ReglaNegocioException {
-        EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
-        if (edicion == null) {
-            throw new ReglaNegocioException(
-                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
-        }
-        if (!edicion.estaAceptada()) {
-            throw new ReglaNegocioException(
-                    "La edicion \"" + edicion.getNombre()
-                            + "\" no esta disponible para consulta publica.");
-        }
+        // Quien pregunta importa: una edicion que no esta Aceptada la ve solo
+        // su organizador. Es la misma regla que ya usaban los patrocinios.
+        EdicionEvento edicion = edicionVisiblePara(limpiar(nombreEdicion), solicitante);
 
         TipoRegistro tipo = edicion.buscarTipoRegistro(limpiar(nombreTipo));
         if (tipo == null) {
