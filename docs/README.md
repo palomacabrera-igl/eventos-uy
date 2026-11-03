@@ -1,15 +1,12 @@
 # Documentación de análisis y diseño
 
-Diagramas del proyecto **eventos.uy** (Laboratorio 1 — Programación de Aplicaciones, UTEC).
+Diagramas del proyecto **eventos.uy** — Programación de Aplicaciones, UTEC.
 
-Todos los diagramas están en **dos formatos**, con el mismo contenido. Se puede usar el que resulte más cómodo:
+Hay documentación de las dos iteraciones. Los diagramas del **Laboratorio 2** son los que reflejan el estado actual del sistema; los del **Laboratorio 1** se conservan porque los casos de uso que esta iteración no modificó siguen valiendo.
 
-| Formato | Para qué sirve | Cómo se abre |
-|---|---|---|
-| **PDF** (`.pdf`) | Leerlos o imprimirlos | Con cualquier visor de PDF o con el navegador |
-| **draw.io** (`.drawio.xml`) | Recorrerlos con zoom o modificarlos | Con draw.io, de escritorio o en su versión web ([app.diagrams.net](https://app.diagrams.net)): *File → Open from → Device*, o arrastrando el archivo a la ventana |
+Los archivos `.drawio.xml` se abren con draw.io, de escritorio o en su versión web ([app.diagrams.net](https://app.diagrams.net)): *File → Open from → Device*, o arrastrando el archivo a la ventana.
 
-> Cada archivo tiene **varias hojas**, una por caso de uso. En draw.io son las pestañas de la parte de abajo de la pantalla.
+> Cada archivo tiene **varias hojas**, una por caso de uso. En draw.io son las pestañas de abajo de la pantalla. Si al abrir una hoja solo se ve una parte, **`Ctrl + Shift + H`** encuadra todo.
 
 ---
 
@@ -18,40 +15,54 @@ Todos los diagramas están en **dos formatos**, con el mismo contenido. Se puede
 ```
 docs/
 ├── README.md
-├── ModeloDeDominio.drawio.pdf
-├── ModeloDeDominio.drawio.xml
-├── DSS y diagramas de comunicacion/
-│   ├── Formato pdf/          un PDF por área del sistema
-│   └── Formato xml/          los mismos diagramas, en draw.io
+├── ModeloGeneral.drawio.xml          modelo de dominio y DCD
+├── DSS-Laboratorio2.drawio.xml       los DSS de esta iteración
+├── DSS y diagramas de comunicacion/  los del Laboratorio 1
+│   ├── Formato pdf/
+│   └── Formato xml/
 └── Registro de horas_.xlsx
 ```
 
-Los casos de uso están agrupados por **área del sistema**, igual que los menús de la Estación de Trabajo: para ver cualquiera se abre un solo archivo y se cambia de hoja.
+## Laboratorio 2
+
+Lo que pide la letra en «Se pide», punto 1: el modelo de dominio actualizado y los diagramas de secuencia del sistema de los casos de uso nuevos o modificados.
+
+| Archivo | Hojas | Contenido |
+|---|---|---|
+| [`ModeloGeneral.drawio.xml`](ModeloGeneral.drawio.xml) | 2 | **ModeloDeDominio** — actualizado con la contraseña, el estado de la edición, la imagen y la fecha de alta del usuario<br>**DCD** — diagrama de clases de diseño |
+| [`DSS-Laboratorio2.drawio.xml`](DSS-Laboratorio2.drawio.xml) | 9 | Los casos de uso nuevos y los que cambiaron |
+
+Las nueve hojas del DSS:
+
+| Hoja | Caso de uso |
+|---|---|
+| `InicioDeSesion` | Inicio de Sesión (nuevo) |
+| `AceptarRechazarEdicion` | Aceptar/Rechazar Edición (nuevo, Estación de Trabajo) |
+| `AltaUsuario` | Alta de Usuario (cambia: contraseña e imagen) |
+| `ModificarUsuario` | Modificar Datos de Usuario (cambia: contraseña e imagen) |
+| `AltaEvento` | Alta de Evento (cambia: imagen) |
+| `AltaEdicion` | Alta de Edición (cambia: imagen, nace Ingresada) |
+| `RegistroAEdicion` | Registro a Edición (cambia: solo ediciones Aceptadas) |
+| `ConsultaUsuario` | Consulta de Usuario (cambia: perfil propio y ajeno) |
+| `ConsultaEdicion` | Consulta de Edición (cambia: según quién consulta) |
+
+### Criterios que siguen estos diagramas
+
+- Las flechas van **siempre del actor al sistema**. No hay flechas de vuelta.
+- Lo que el sistema devuelve se escribe en la misma línea de la operación, después de los dos puntos: `listarCategorias() : Set<DTCategoria>`.
+- Al costado va una nota con la **Firma**, la **Pre-Condición** y la **Post-Condición** de cada operación.
+
+## Laboratorio 1
+
+Los 15 casos de uso de la Estación de Trabajo, agrupados por área del sistema igual que sus menús. Cada hoja trae el DSS, los tipos de datos y los diagramas de comunicación, uno por operación.
 
 | Archivo | Hojas | Contenido | Abrir |
 |---|---|---|---|
-| `ModeloDeDominio` | 2 | Modelo de dominio · Diagrama de clases de diseño (DCD) | [PDF](ModeloDeDominio.drawio.pdf) · [draw.io](ModeloDeDominio.drawio.xml) |
-| `Usuario` | 3 | Alta de Usuario · Consulta de Usuario · Modificar Datos de Usuario | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Usuario.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Usuario.drawio.xml) |
-| `EventosYEdiciones` | 4 | Alta de Evento · Consulta de Evento · Alta de Edición · Consulta de Edición | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/EventosYEdiciones.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/EventosYEdiciones.drawio.xml) |
-| `InstitucionYPatrocinio` | 3 | Alta de Institución · Alta de Patrocinio · Consulta de Patrocinio | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/InstitucionYPatrocinio.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/InstitucionYPatrocinio.drawio.xml) |
+| `Usuario` | 3 | Alta · Consulta · Modificar Datos | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Usuario.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Usuario.drawio.xml) |
+| `EventosYEdiciones` | 4 | Alta y Consulta de Evento · Alta y Consulta de Edición | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/EventosYEdiciones.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/EventosYEdiciones.drawio.xml) |
+| `InstitucionYPatrocinio` | 3 | Alta de Institución · Alta y Consulta de Patrocinio | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/InstitucionYPatrocinio.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/InstitucionYPatrocinio.drawio.xml) |
 | `Categoria` | 1 | Alta de Categoría | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Categoria.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Categoria.drawio.xml) |
-| `Registro` | 4 | Alta de Tipo de Registro · Consulta de Tipo de Registro · Registro a Edición · Consulta de Registro | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Registro.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Registro.drawio.xml) |
-
-**15 casos de uso**, uno por cada entrada del menú de la Estación de Trabajo.
-
----
-
-## Qué hay dentro de cada hoja
-
-Cada caso de uso tiene las tres cosas juntas, una al lado de la otra:
-
-| | Qué es |
-|---|---|
-| **Diagrama de secuencia del sistema (DSS)** | El actor *Administrador* y la línea de vida `:Sistema`, con las operaciones del caso de uso en orden y los bloques `OPT` / `LOOP` / `ALT` |
-| **Tipos de datos (DT)** | Los atributos de cada DataType que cruza entre la lógica y la interfaz |
-| **Diagramas de comunicación** | Uno por operación del DSS: qué objetos colaboran, con los mensajes numerados |
-
-> Si al abrir una hoja en draw.io solo se ve una parte, alejar el zoom: **`Ctrl + Shift + H`** encuadra todo.
+| `Registro` | 4 | Alta y Consulta de Tipo de Registro · Registro a Edición · Consulta de Registro | [PDF](DSS%20y%20diagramas%20de%20comunicacion/Formato%20pdf/Registro.drawio.pdf) · [draw.io](DSS%20y%20diagramas%20de%20comunicacion/Formato%20xml/Registro.drawio.xml) |
 
 ---
 
@@ -63,8 +74,9 @@ Cada caso de uso tiene las tres cosas juntas, una al lado de la otra:
 
 ## Diseño de la solución
 
-Las decisiones de diseño (separación en capas, persistencia, manejo de errores) están en el
-[`README.md`](../README.md) de la raíz y en los comentarios del código, sobre todo en:
+El **diseño de la solución web** —separación MVC, biblioteca JAR embebida, sesión, imágenes y estados de la edición— está en [`DisenioSolucionWeb.md`](DisenioSolucionWeb.md).
+
+Las decisiones de la capa lógica y de persistencia están en el [`README.md`](../README.md) de la raíz y en los comentarios del código, sobre todo en:
 
 | Dónde | Qué explica |
 |---|---|
@@ -73,19 +85,17 @@ Las decisiones de diseño (separación en capas, persistencia, manejo de errores
 | `logica/Categoria.java` | La jerarquía de categorías (auto-asociación padre/hijas) |
 | `logica/ManejadorUsuario.java` | Por qué las búsquedas usan JPQL y no `em.find()` |
 | `logica/ManejadorEvento.java` | Por qué `actualizar()` no usa `merge()` |
-| `persistencia/Persistencia.java` | Por qué hay un solo `EntityManager` en toda la aplicación |
+| `persistencia/Persistencia.java` | Por qué el `EntityManager` es uno por proceso |
 | `logica/DatosDePrueba.java` | Por qué el orden de carga importa con JPA |
 
 ---
 
 ## Nota sobre el estado de los diagramas
 
-Los diagramas corresponden a la etapa de **análisis y diseño**. Durante la implementación
-algunas firmas de operaciones cambiaron —principalmente al unificar el manejo de errores en
-`ReglaNegocioException`— y esas diferencias no se reflejaron en todos los diagramas.
+Los diagramas del **Laboratorio 1** corresponden a su etapa de análisis y diseño. Durante la implementación algunas firmas cambiaron —principalmente al unificar el manejo de errores en `ReglaNegocioException`— y esas diferencias no se reflejaron en todos.
 
-**El código es la referencia para las firmas exactas**; los diagramas documentan la estructura
-y las colaboraciones entre objetos, que sí se mantienen.
+El **DCD** también corresponde al Laboratorio 1: muestra el diseño con las operaciones que guardaban estado entre llamadas. Esta iteración agregó operaciones sin estado, porque el sitio recibe cada pedido por separado y no puede apoyarse en lo que pasó antes; eso está explicado en el diseño de la solución web.
 
-Si se modifica un diagrama, hay que volver a exportar su PDF desde draw.io: *File → Export as → PDF*,
-con **All pages** marcado.
+**El código es la referencia para las firmas exactas.** Los diagramas documentan la estructura y las colaboraciones entre objetos, que sí se mantienen.
+
+Si se modifica un diagrama y se quiere su PDF: *File → Export as → PDF*, con **All pages** marcado.

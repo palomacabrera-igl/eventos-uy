@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="app.diagrams.net" pages="2">
   <diagram name="ModeloDeDominio" id="IF2K4LIYzcW1xYga-Udd">
-    <mxGraphModel dx="991" dy="816" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1867" dy="2140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-1" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FF3333);rounded=0;" value="Usuario" vertex="1">
-          <mxGeometry height="104" width="140" x="585" y="20" as="geometry" />
+          <mxGeometry height="156" width="140" x="585" y="-30" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-2" parent="Hbj83ajsOg6-Gi5lDrDr-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- nickname: string" vertex="1">
           <mxGeometry height="26" width="140" y="26" as="geometry" />
@@ -16,6 +16,12 @@
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-4" parent="Hbj83ajsOg6-Gi5lDrDr-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- correo: string" vertex="1">
           <mxGeometry height="26" width="140" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-2" parent="Hbj83ajsOg6-Gi5lDrDr-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- password: string" vertex="1">
+          <mxGeometry height="26" width="140" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-1" parent="Hbj83ajsOg6-Gi5lDrDr-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- imagen: Imagen" vertex="1">
+          <mxGeometry height="26" width="140" y="130" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-5" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;rounded=0;" value="Tipo Registro" vertex="1">
           <mxGeometry height="130" width="140" x="335" y="531" as="geometry" />
@@ -51,7 +57,7 @@
           <mxGeometry height="26" width="160" y="52" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-16" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;rounded=0;" value="Edicion Evento" vertex="1">
-          <mxGeometry height="212" width="140" x="595" y="388" as="geometry" />
+          <mxGeometry height="264" width="140" x="595" y="388" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-17" parent="Hbj83ajsOg6-Gi5lDrDr-16" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="-&amp;nbsp;nombre: string&amp;nbsp;" vertex="1">
           <mxGeometry height="26" width="140" y="26" as="geometry" />
@@ -74,8 +80,14 @@
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-23" parent="Hbj83ajsOg6-Gi5lDrDr-16" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- pais: string&amp;nbsp;" vertex="1">
           <mxGeometry height="26" width="140" y="186" as="geometry" />
         </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-5" parent="Hbj83ajsOg6-Gi5lDrDr-16" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- estado: EstadoEdicion" vertex="1">
+          <mxGeometry height="26" width="140" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-4" parent="Hbj83ajsOg6-Gi5lDrDr-16" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- imagen: Imagen" vertex="1">
+          <mxGeometry height="26" width="140" y="238" as="geometry" />
+        </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-24" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FF3333);rounded=0;" value="Eventos" vertex="1">
-          <mxGeometry height="130" width="140" x="595" y="710" as="geometry" />
+          <mxGeometry height="156" width="140" x="595" y="738" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-25" parent="Hbj83ajsOg6-Gi5lDrDr-24" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="-&amp;nbsp;nombre: string" vertex="1">
           <mxGeometry height="26" width="140" y="26" as="geometry" />
@@ -89,6 +101,9 @@
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-28" parent="Hbj83ajsOg6-Gi5lDrDr-24" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- fechaAlta: DTfecha" vertex="1">
           <mxGeometry height="26" width="140" y="104" as="geometry" />
         </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-3" parent="Hbj83ajsOg6-Gi5lDrDr-24" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- imagen: Imagen" vertex="1">
+          <mxGeometry height="26" width="140" y="130" as="geometry" />
+        </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-29" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;rounded=0;" value="Patrocinio" vertex="1">
           <mxGeometry height="156" width="170" x="40" y="600" as="geometry" />
         </mxCell>
@@ -101,7 +116,7 @@
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-32" parent="Hbj83ajsOg6-Gi5lDrDr-29" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- cantRegistrosGratis: int" vertex="1">
           <mxGeometry height="26" width="170" y="78" as="geometry" />
         </mxCell>
-        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-33" parent="Hbj83ajsOg6-Gi5lDrDr-29" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- codigoPatrocinio: int" vertex="1">
+        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-33" parent="Hbj83ajsOg6-Gi5lDrDr-29" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- codigo: string" vertex="1">
           <mxGeometry height="26" width="170" y="104" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-34" parent="Hbj83ajsOg6-Gi5lDrDr-29" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- nivelPatro: NivelPatrocinio" vertex="1">
@@ -150,10 +165,10 @@
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-42" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;lt; otorga" vertex="1">
           <mxGeometry height="30" width="60" x="142" y="388" as="geometry" />
         </mxCell>
-        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-43" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-78" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="Hbj83ajsOg6-Gi5lDrDr-24" value="">
+        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-43" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-78" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="864.9999999999995" y="774.9999999999995" as="sourcePoint" />
-            <mxPoint x="605" y="802" as="targetPoint" />
+            <mxPoint x="864.9999999999995" y="802.9999999999995" as="sourcePoint" />
+            <mxPoint x="735" y="803" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-44" connectable="0" parent="Hbj83ajsOg6-Gi5lDrDr-43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" value="1..*" vertex="1">
@@ -167,7 +182,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-46" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FF3333);rounded=0;" value="Institucion" vertex="1">
-          <mxGeometry height="104" width="140" x="55" y="240" as="geometry" />
+          <mxGeometry height="130" width="140" x="55" y="240" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-47" parent="Hbj83ajsOg6-Gi5lDrDr-46" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- nombre: string" vertex="1">
           <mxGeometry height="26" width="140" y="26" as="geometry" />
@@ -177,6 +192,9 @@
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-49" parent="Hbj83ajsOg6-Gi5lDrDr-46" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- sitioWeb: string&amp;nbsp;" vertex="1">
           <mxGeometry height="26" width="140" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-6" parent="Hbj83ajsOg6-Gi5lDrDr-46" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;rounded=0;" value="- imagen: Imagen" vertex="1">
+          <mxGeometry height="26" width="140" y="104" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-50" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-47" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Hbj83ajsOg6-Gi5lDrDr-13" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
@@ -227,12 +245,12 @@
             <mxPoint x="665" y="350" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-59" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-16" style="endArrow=none;html=1;rounded=0;entryX=0.506;entryY=0.997;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="Hbj83ajsOg6-Gi5lDrDr-12" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
+        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-59" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-61" style="endArrow=none;html=1;rounded=0;entryX=0.506;entryY=0.997;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.176;exitY=0.985;exitDx=0;exitDy=0;exitPerimeter=0;" target="Hbj83ajsOg6-Gi5lDrDr-12" value="">
+          <mxGeometry height="50" relative="1" width="50" x="0.0205" as="geometry">
             <Array as="points">
               <mxPoint x="875" y="440" />
             </Array>
-            <mxPoint x="765" y="400" as="sourcePoint" />
+            <mxPoint x="740" y="440" as="sourcePoint" />
             <mxPoint x="815" y="350" as="targetPoint" />
           </mxGeometry>
         </mxCell>
@@ -325,11 +343,11 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-77" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;" value="&lt;div&gt;&lt;b&gt;Restricciones:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Unicidad de atributos:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;- nickname identifica a usuario&lt;/div&gt;&lt;div&gt;- correo identifica a usuario&lt;/div&gt;&lt;div&gt;- nombre identifica a evento&lt;/div&gt;&lt;div&gt;- nombre identifica a edicion de evento&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; font-size: 12px;&quot;&gt;- nombre de Institucion es único en la plataforma&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;- nombre de Categoria es único en la plataforma&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;- nombre de TipoRegistro es único dentro de una EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Dominio de Atributos:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;-&amp;nbsp;El nivel de un Patrocinio debe ser Platino, Oro, Plata o Bronce.&lt;/div&gt;&lt;div&gt;Integridad Circular:&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Atributos Calculados:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;-&amp;nbsp; El costo del registro se calcula en base al tipo de registro&lt;br&gt;elegido. &lt;/div&gt;&lt;div&gt;-&amp;nbsp; Si el asistente pertenece a una institución patrocinadora y utiliza el código de&lt;br&gt;patrocinio de su institución para registrarse su costo de registro será cero.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;i&gt;Reglas de Negocio:&lt;/i&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;- El valor de los registros gratuitos no puede superar el 20 % del aporte de la&lt;br&gt;institución.&lt;/div&gt;&lt;div&gt;- Si una institución realiza un aporte económico recibirá un código&lt;br&gt;de patrocinio para que sus integrantes puedan registrarse gratuitamente en esa edición&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-un Asistente no puede registrarse más de una vez&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;en una misma EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-no se puede superar el cupo de un TipoRegistro&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-una Institucion puede tener como máximo un Patrocinio&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;para una misma EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="Hbj83ajsOg6-Gi5lDrDr-77" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;rounded=0;" value="&lt;div&gt;&lt;b&gt;Restricciones:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Unicidad de atributos:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;- nickname identifica a usuario&lt;/div&gt;&lt;div&gt;- correo identifica a usuario&lt;/div&gt;&lt;div&gt;- nombre identifica a evento&lt;/div&gt;&lt;div&gt;- nombre identifica a edicion de evento&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; font-size: 12px;&quot;&gt;- nombre de Institucion es único en la plataforma&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;- nombre de Categoria es único en la plataforma&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;- nombre de TipoRegistro es único dentro de una EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;- codigo de Patrocinio es único en la plataforma&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Dominio de Atributos:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;-&amp;nbsp;El nivel de un Patrocinio debe ser Platino, Oro, Plata o Bronce.&lt;/div&gt;&lt;div&gt;-El estado de una EdicionEvento debe ser INGRESADA, ACEPTADA o RECHAZADA&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&lt;b&gt;Atributos Calculados:&lt;/b&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;-&amp;nbsp; El costo del registro se calcula en base al tipo de registro&lt;br&gt;elegido. &lt;/div&gt;&lt;div&gt;-&amp;nbsp; Si el asistente pertenece a una institución patrocinadora y utiliza el código de&lt;br&gt;patrocinio de su institución para registrarse su costo de registro será cero.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;i&gt;Reglas de Negocio:&lt;/i&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;- El valor de los registros gratuitos no puede superar el 20 % del aporte de la&lt;br&gt;institución.&lt;/div&gt;&lt;div&gt;- Si una institución realiza un aporte económico recibirá un código&lt;br&gt;de patrocinio para que sus integrantes puedan registrarse gratuitamente en esa edición&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-un Asistente no puede registrarse más de una vez&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;en una misma EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-no se puede superar el cupo de un TipoRegistro&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;-una Institucion puede tener como máximo un Patrocinio&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;para una misma EdicionEvento&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;-Una EdicionEvento nueva queda en estado INGRESADA&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- Solo se puede aceptar o rechazar una EdicionEvento que esté INGRESADA, y después no cambia más de estado.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- Solo se puede registrar un asistente a una EdicionEvento ACEPTADA&lt;/span&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="500" width="510" x="1012" y="126.5" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-78" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FF3333);rounded=0;" value="Categoria" vertex="1">
-          <mxGeometry height="60" width="200" x="862" y="745" as="geometry" />
+          <mxGeometry height="60" width="200" x="862" y="773" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-79" parent="Hbj83ajsOg6-Gi5lDrDr-78" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rounded=0;" value="nombre : string" vertex="1">
           <mxGeometry height="30" width="200" y="30" as="geometry" />
@@ -341,10 +359,10 @@
           <mxGeometry height="80" width="170" y="40" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-82" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="tiene" vertex="1">
-          <mxGeometry height="30" width="60" x="662" y="640" as="geometry" />
+          <mxGeometry height="30" width="60" x="675" y="652" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-83" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="tiene" vertex="1">
-          <mxGeometry height="30" width="60" x="769" y="745" as="geometry" />
+          <mxGeometry height="30" width="60" x="769" y="773" as="geometry" />
         </mxCell>
         <mxCell id="Hbj83ajsOg6-Gi5lDrDr-84" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1" vertex="1">
           <mxGeometry height="30" width="60" x="109" y="344" as="geometry" />
@@ -355,9 +373,9 @@
         <mxCell id="Mrb4msgEgDglKtyzhmXh-1" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-78" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;innerLoopWaypoints=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="Hbj83ajsOg6-Gi5lDrDr-78">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1200" y="775" />
-              <mxPoint x="1200" y="840" />
-              <mxPoint x="962" y="840" />
+              <mxPoint x="1200" y="803" />
+              <mxPoint x="1200" y="868" />
+              <mxPoint x="962" y="868" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -367,16 +385,36 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Mrb4msgEgDglKtyzhmXh-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="0..1 Padre" vertex="1">
-          <mxGeometry height="30" width="60" x="1070" y="745" as="geometry" />
+          <mxGeometry height="30" width="60" x="1070" y="773" as="geometry" />
         </mxCell>
         <mxCell id="Mrb4msgEgDglKtyzhmXh-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="0..* hijas" vertex="1">
-          <mxGeometry height="30" width="60" x="970" y="805" as="geometry" />
+          <mxGeometry height="30" width="60" x="970" y="833" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-7" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;rounded=0;" value="&lt;div&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;/div&gt;&lt;div&gt;EstadoEdicion&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="170" x="280" y="41" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-8" parent="Wwi8KcqeuHbPXrYS0VnM-7" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="INGRESADA&lt;div&gt;ACEPTADA&lt;/div&gt;&lt;div&gt;RECHAZADA&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="170" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-9" edge="1" parent="1" source="Hbj83ajsOg6-Gi5lDrDr-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.871;entryY=-0.004;entryDx=0;entryDy=0;entryPerimeter=0;defaultLabelBackgroundColor=page;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="Hbj83ajsOg6-Gi5lDrDr-29">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="325" y="450" />
+              <mxPoint x="188.1" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="0..*" vertex="1">
+          <mxGeometry height="26" width="50" x="285" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="Wwi8KcqeuHbPXrYS0VnM-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="0..1" vertex="1">
+          <mxGeometry height="26" width="50" x="180" y="574" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="QihAxiSbbcak65KzeVo3" name="DCD">
-    <mxGraphModel dx="708" dy="583" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
