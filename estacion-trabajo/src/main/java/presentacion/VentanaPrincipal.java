@@ -3,7 +3,6 @@ package presentacion;
 import com.formdev.flatlaf.FlatLightLaf;
 import logica.Fabrica;
 import logica.IControladorSistema;
-import persistencia.Persistencia;
 
 import javax.swing.*;
 import java.beans.PropertyVetoException;
@@ -185,7 +184,10 @@ public class VentanaPrincipal extends JFrame {
             }
         }
         try {
-            Persistencia.refrescar();
+            // Por el contrato, no por la persistencia: la presentacion no
+            // tiene por que saber que detras hay JPA. Es la misma operacion
+            // que usa el sitio desde su filtro.
+            controlador.refrescarDatos();
             Mensajes.exito(this, "Actualizar datos",
                     "Listo. Las próximas consultas muestran los datos actuales de la base.");
         } catch (Exception ex) {
@@ -214,7 +216,7 @@ public class VentanaPrincipal extends JFrame {
     public static void main(String[] args) {
         // Cierra el EntityManager y la fabrica al terminar la aplicacion,
         // sin importar como se salga (cerrar la ventana, Ctrl+C, System.exit).
-        Runtime.getRuntime().addShutdownHook(new Thread(Persistencia::cerrar));
+        Runtime.getRuntime().addShutdownHook(new Thread(Fabrica::cerrar));
 
         SwingUtilities.invokeLater(() -> {
             try {

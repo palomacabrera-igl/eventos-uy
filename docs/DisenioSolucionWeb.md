@@ -111,9 +111,15 @@ La sesión del usuario autenticado **se conserva en el servidor**, como pide la 
 
 ### Qué se guarda
 
-Al iniciar sesión correctamente, el servidor guarda en la `HttpSession` **el nickname**, no el objeto del usuario.
+Al iniciar sesión correctamente, el servidor guarda en la `HttpSession` el **`DTUsuario`** de quien entró — un dato de transporte, nunca una entidad. Con eso le alcanza al cabezal para mostrar el nombre y el rol sin volver a consultar en cada página.
 
-La diferencia importa: si se guardara el usuario completo, al modificar el perfil la sesión seguiría mostrando los datos viejos hasta cerrarla. Guardando el nickname, cada pedido vuelve a preguntarle a la lógica y siempre ve los datos frescos.
+Guardar el DT tiene un riesgo conocido: queda una copia, y si la persona edita su perfil, esa copia envejece. Por eso **el caso de uso de modificar datos vuelve a abrir la sesión** con los datos recién guardados:
+
+```java
+SesionWeb.iniciar(request, controlador.consultarUsuario(nickname, nickname));
+```
+
+Así no hay dos versiones de la verdad dando vueltas.
 
 La clase `SesionWeb` es el único punto del sitio que toca la sesión: la abre al iniciar, la cierra al salir, y responde quién está conectado y quién es el solicitante que se le pasa a la lógica. Ningún otro servlet la manipula.
 
@@ -209,7 +215,11 @@ El cambio ocurre únicamente en el caso de uso **Aceptar/Rechazar Edición de Ev
 | Visitante, asistente u otro organizador | Solo las ediciones **Aceptada** |
 | El organizador de la edición | Las suyas en los tres estados, desde su propio perfil, y puede abrir el detalle |
 
-Esa regla está en un solo lugar: el método `edicionVisiblePara(nombreEdicion, solicitante)` de la lógica, que todas las consultas de edición usan. Tenerla una sola vez evita que una pantalla la aplique y otra no — que fue exactamente un problema que apareció durante el desarrollo, cuando la consulta del tipo de registro exigía Aceptada para todos y el organizador se topaba con un callejón sin salida en su propia edición.
+Esa regla está escrita **una sola vez**, en el método `puedeVerla(solicitante)` de `EdicionEvento`. Es la edición la que sabe en qué estado está y de quién es, así que es la experta en decidir quién puede verla — el criterio **Experto en Información** otra vez.
+
+Las consultas de la lógica llegan a ese método de dos formas: `consultarEdicion` lo llama directamente, porque ya tiene la edición en la mano; y las consultas de tipo de registro y de patrocinio pasan por `edicionVisiblePara(nombre, solicitante)`, un auxiliar que busca la edición y aplica la misma verificación.
+
+Tener la regla una sola vez evita que una pantalla la aplique y otra no, que fue exactamente un problema que apareció durante el desarrollo: la consulta del tipo de registro exigía Aceptada para todos, y el organizador se topaba con un callejón sin salida en su propia edición.
 
 ### La regla se verifica en la lógica, no en la pantalla
 
@@ -228,8 +238,8 @@ Es el mismo criterio que la Sección 7.3 pide para la validación: lo que el nav
 | Datos a la vista | DT, nunca entidades | La vista no puede modificar ni disparar consultas |
 | JAR embebido | `lib/` como repositorio de Maven | El JAR termina dentro del WAR, como la Figura 1 |
 | Repositorios | Dos, separados | El límite entre componentes es real, no sólo conceptual |
-| Sesión | En el servidor, guardando el nickname | No se puede falsificar y los datos se ven frescos |
+| Sesión | En el servidor, guardando el `DTUsuario` | No se puede falsificar; se reabre al editar el perfil |
 | Cierre de sesión | Por POST | Un enlace permitiría cerrarla desde afuera |
 | Imágenes | En la base, como `bytea` | Un solo respaldo, sin rutas que sincronizar |
 | Estados | En la entidad, con dos puertas y sin `setEstado()` | La edición es la experta en su propio estado |
-| Visibilidad | Un único `edicionVisiblePara` | Que ninguna pantalla aplique una regla distinta |
+| Visibilidad | Un único `puedeVerla` en la entidad | Que ninguna pantalla aplique una regla distinta |
