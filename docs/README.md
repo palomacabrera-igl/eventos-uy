@@ -4,7 +4,14 @@ Diagramas del proyecto **eventos.uy** — Programación de Aplicaciones, UTEC.
 
 Hay documentación de las dos iteraciones. Los diagramas del **Laboratorio 2** son los que reflejan el estado actual del sistema; los del **Laboratorio 1** se conservan porque los casos de uso que esta iteración no modificó siguen valiendo.
 
-Los archivos `.drawio.xml` se abren con draw.io, de escritorio o en su versión web ([app.diagrams.net](https://app.diagrams.net)): *File → Open from → Device*, o arrastrando el archivo a la ventana.
+Cada diagrama está en **dos formatos**, con el mismo contenido:
+
+| Formato | Para qué sirve | Cómo se abre |
+|---|---|---|
+| **PDF** (`.pdf`) | Leerlos o imprimirlos | Con cualquier visor de PDF o con el navegador |
+| **draw.io** (`.drawio.xml`) | Recorrerlos con zoom o modificarlos | Con draw.io, de escritorio o en su versión web ([app.diagrams.net](https://app.diagrams.net)): *File → Open from → Device*, o arrastrando el archivo a la ventana |
+
+> Los diagramas grandes ocupan más de una hoja en el PDF. Para verlos enteros de una vez conviene abrir el `.drawio.xml`.
 
 > Cada archivo tiene **varias hojas**, una por caso de uso. En draw.io son las pestañas de abajo de la pantalla. Si al abrir una hoja solo se ve una parte, **`Ctrl + Shift + H`** encuadra todo.
 
@@ -15,8 +22,10 @@ Los archivos `.drawio.xml` se abren con draw.io, de escritorio o en su versión 
 ```
 docs/
 ├── README.md
-├── ModeloGeneral.drawio.xml          modelo de dominio y DCD
-├── DSS-Laboratorio2.drawio.xml       los DSS de esta iteración
+├── ModeloGeneral.drawio.pdf          modelo de dominio y DCD
+├── ModeloGeneral.drawio.xml
+├── DSS-Laboratorio2.drawio.pdf       los DSS de esta iteración
+├── DSS-Laboratorio2.drawio.xml
 ├── DSS y diagramas de comunicacion/  los del Laboratorio 1
 │   ├── Formato pdf/
 │   └── Formato xml/
@@ -27,10 +36,10 @@ docs/
 
 Lo que pide la letra en «Se pide», punto 1: el modelo de dominio actualizado y los diagramas de secuencia del sistema de los casos de uso nuevos o modificados.
 
-| Archivo | Hojas | Contenido |
-|---|---|---|
-| [`ModeloGeneral.drawio.xml`](ModeloGeneral.drawio.xml) | 2 | **ModeloDeDominio** — actualizado con la contraseña, el estado de la edición, la imagen y la fecha de alta del usuario<br>**DCD** — diagrama de clases de diseño |
-| [`DSS-Laboratorio2.drawio.xml`](DSS-Laboratorio2.drawio.xml) | 9 | Los casos de uso nuevos y los que cambiaron |
+| Archivo | Hojas | Contenido | Abrir |
+|---|---|---|---|
+| `ModeloGeneral` | 2 | **ModeloDeDominio** — actualizado con la contraseña, el estado de la edición, la imagen y la fecha de alta del usuario<br>**DCD** — diagrama de clases de diseño | [PDF](ModeloGeneral.drawio.pdf) · [draw.io](ModeloGeneral.drawio.xml) |
+| `DSS-Laboratorio2` | 9 | Los casos de uso nuevos y los que cambiaron | [PDF](DSS-Laboratorio2.drawio.pdf) · [draw.io](DSS-Laboratorio2.drawio.xml) |
 
 Las nueve hojas del DSS:
 
