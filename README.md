@@ -190,12 +190,13 @@ La letra, en 7.4: *«Toda consulta o modificación de datos del sitio pasa por u
 
 La documentación de análisis y diseño está en [`docs/`](docs/README.md):
 
-- Modelo de dominio y diagrama de clases de diseño.
-- Diagramas de secuencia del sistema (DSS) y diagramas de comunicación.
+- **[Diseño de la solución web](docs/DisenioSolucionWeb.md)** — separación MVC, biblioteca JAR embebida, sesión, imágenes y estados de la edición.
+- Modelo de dominio actualizado y diagrama de clases de diseño.
+- Diagramas de secuencia del sistema de los casos de uso nuevos o modificados, y los del Laboratorio 1 con sus diagramas de comunicación.
 - Registro de horas del equipo.
 
 Los diagramas están en **PDF**, para leerlos directamente, y en formato **draw.io** (`.drawio.xml`), para abrirlos con zoom o editarlos.
 
 ## Equipo
 
-Paloma Cabrera · Martina Delgado · Sebastián De León · Elías Sosa · Leandro Acosta
+Paloma Cabrera · Martina Delgado · Sebastián De León · Leandro Acosta
