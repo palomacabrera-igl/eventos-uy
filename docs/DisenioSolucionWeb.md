@@ -43,7 +43,7 @@ Todos los servlets siguen la misma forma —leer los parámetros, llamar al caso
 | `Paginas` | Dónde está cada JSP, y las respuestas comunes: `forward`, `redirect`, `prohibida`, `noEncontrada` |
 | `SesionWeb` | Quién está conectado. Es el único lugar que toca la sesión |
 | `Texto` | Escapar el HTML y dar formato a fechas e importes |
-| `FiltroUtf8`, `FiltroDatosFrescos` | La codificación de las peticiones y la frescura de los datos leídos |
+| `FiltroUtf8` | La codificación de las peticiones |
 
 ### La dirección de las dependencias
 
@@ -87,9 +87,11 @@ Junto al JAR viaja su **ficha de dependencias** (`logica-1.0-SNAPSHOT.pom`), sin
 
 El script `scripts/publicar-logica.ps1`, en el repositorio de la lógica, compila y deja los cuatro archivos —el JAR, la ficha y sus dos *checksums*— en el repositorio del sitio. La ficha se genera leyendo el `pom.xml` real de la lógica, así que si mañana se agrega una biblioteca aparece sola.
 
-### Dos procesos, un EntityManager cada uno
+### Dos procesos, y un EntityManager por operación
 
 El Servidor Web corre dentro de Tomcat y la Estación de Trabajo es una aplicación de escritorio: son dos JVM distintas. Cada una levanta su propio `EntityManagerFactory` a partir del mismo `persistence.xml`, y las dos escriben en la misma base PostgreSQL. No comparten sesión ni caché de JPA.
+
+Dentro del sitio, **cada llamada a `IControladorSistema` abre su propio `EntityManager` y lo cierra al terminar**. Por eso el sitio no necesita ningún filtro que refresque los datos ni que haga cola: una edición aceptada desde la Estación se ve en la página siguiente, y dos peticiones simultáneas de Tomcat no comparten nada.
 
 Un alta hecha desde el sitio queda disponible en la Estación y viceversa, y cada aplicación funciona con la otra detenida, como pide la Sección 3.
 

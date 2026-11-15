@@ -35,9 +35,13 @@ Ahora:
 
 El repositorio del sitio **no tiene ni una clase** de la lógica ni de la persistencia.
 
-### Son dos procesos, con un EntityManager cada uno
+### Son dos procesos, y cada operación tiene su propio EntityManager
 
 El Servidor Web corre dentro de Tomcat y la Estación de Trabajo es una aplicación de escritorio: son dos JVM distintas. Cada una levanta su propio `EntityManagerFactory` a partir del mismo `persistence.xml`, y las dos escriben en la misma base. No comparten ni sesión ni caché de JPA.
+
+Dentro de cada proceso, **cada operación del controlador abre un `EntityManager` nuevo, lo usa y lo cierra** (commit si salió bien, rollback si falló). Así cada operación lee la base de verdad —un cambio hecho por el otro programa se ve en la operación siguiente, sin botón de «Actualizar»—, no hace falta un candado entre hilos, y lo que se cambió en memoria y no llegó a guardarse se descarta solo.
+
+La Estación de Trabajo vuelve a leer sus listas sola cada 5 segundos.
 
 ## Requisitos
 

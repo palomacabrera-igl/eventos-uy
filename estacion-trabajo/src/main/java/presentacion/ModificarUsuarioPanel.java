@@ -16,7 +16,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Set;
 
-public class ModificarUsuarioPanel {
+public class ModificarUsuarioPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Modificar Datos de Usuario";
@@ -56,6 +56,7 @@ public class ModificarUsuarioPanel {
 
     public ModificarUsuarioPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         campoNickname.setEditable(false);
         campoNickname.setBackground(Color.LIGHT_GRAY);
@@ -92,6 +93,19 @@ public class ModificarUsuarioPanel {
         campoConfirmacion.setText("");
         imagenNueva = null;
         etiquetaImagen.setText("Sin cambios");
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los usuarios.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        // El primer elemento es "(Elegí un usuario)": no viene de la base y no se toca.
+        // Lo que se esta escribiendo en el formulario tampoco: solo cambia la lista.
+        Combos.sincronizar(comboUsuarios,
+                controlador.listarUsuarios().stream().map(DTUsuario::getNickname).toList(),
+                nickname -> nickname, 1);
     }
 
     public JPanel getMainPanel() {

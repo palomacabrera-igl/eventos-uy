@@ -512,35 +512,4 @@ public interface IControladorSistema {
 
     /** Rechaza una edicion. Solo se puede desde INGRESADA. */
     void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException;
-
-    // ----- Mantenimiento -----
-
-    /**
-     * Descarta lo que la logica tiene guardado en memoria para que la proxima
-     * consulta vuelva a leer de la base.
-     *
-     * Hace falta porque el sitio y la Estacion de Trabajo son dos programas
-     * distintos sobre la misma base. En la Estacion de Trabajo la dispara el
-     * boton "Actualizar datos"; en el sitio, un filtro al empezar cada pagina.
-     *
-     * Esta en el contrato para que el modulo web no tenga que conocer la capa
-     * de persistencia: habla solo con IControladorSistema y con los DT.
-     */
-    void refrescarDatos();
-
-    /**
-     * Empieza una unidad de trabajo: espera el turno, refresca y queda listo
-     * para leer. La usa el sitio al empezar cada pagina.
-     *
-     * Hace falta porque la logica tiene un solo EntityManager y Tomcat atiende
-     * cada peticion en un hilo distinto. Sin esto, dos paginas pedidas a la
-     * vez se pisan.
-     */
-    void abrirUnidadDeTrabajo();
-
-    /**
-     * Termina la unidad de trabajo. SIEMPRE se llama desde un finally: si una
-     * pagina falla y no se cierra, el sitio queda colgado para todos.
-     */
-    void cerrarUnidadDeTrabajo();
 }

@@ -45,7 +45,9 @@ abstract class PruebaConBase {
 
     private static boolean hayBase() {
         try {
-            return Persistencia.getEntityManager().isOpen();
+            // Abrir una unidad de trabajo ya intenta conectarse a PostgreSQL.
+            Persistencia.enTransaccion(em -> em.createNativeQuery("SELECT 1").getSingleResult());
+            return true;
         } catch (RuntimeException sinBase) {
             return false;
         }
@@ -54,24 +56,26 @@ abstract class PruebaConBase {
     /** El decorado minimo que todas dan por hecho. */
     private static boolean hayDatosDePrueba() {
         try {
-            return Persistencia.getEntityManager()
-                    .createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.nickname = 'imm'",
-                            Long.class)
-                    .getSingleResult() == 1L;
+            long[] cantidad = new long[1];
+            Persistencia.enTransaccion(em -> cantidad[0] = em.createQuery(
+                    "SELECT COUNT(u) FROM Usuario u WHERE u.nickname = 'imm'", Long.class)
+                    .getSingleResult());
+            return cantidad[0] == 1L;
         } catch (RuntimeException sinDatos) {
             return false;
         }
     }
 
-    /** Borra filas de prueba con SQL directo, sin que la cascada las reviva. */
+    /**
+     * Borra filas de prueba con SQL directo, sin que la cascada las reviva.
+     *
+     * Ya no hace falta "refrescar" despues: un DELETE en SQL pasa por debajo de
+     * JPA, pero cada operacion siguiente abre su propio EntityManager, que
+     * empieza vacio y lee la base de verdad.
+     */
     static void borrar(String tabla, String condicion) {
         Persistencia.enTransaccion(em ->
                 em.createNativeQuery("DELETE FROM " + tabla + " WHERE " + condicion)
                   .executeUpdate());
-
-        // Un DELETE en SQL pasa por debajo de JPA: el EntityManager sigue con
-        // las filas viejas en memoria y la prueba siguiente las ve como si
-        // existieran. Hay que vaciarle la memoria para que las relea.
-        Persistencia.refrescar();
     }
 }

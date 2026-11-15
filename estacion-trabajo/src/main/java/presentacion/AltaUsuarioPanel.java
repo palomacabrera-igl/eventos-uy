@@ -15,7 +15,7 @@ import java.util.Set;
  * Usuario). El diseño esta en AltaUsuarioPanel.form (editable por
  * arrastre); esta clase contiene el comportamiento.
  */
-public class AltaUsuarioPanel {
+public class AltaUsuarioPanel implements Actualizable {
 
     /**
      * Titulo de todos los dialogos de este caso de uso.
@@ -58,6 +58,7 @@ public class AltaUsuarioPanel {
 
     public AltaUsuarioPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         cargarCombos();
         asistenteRadioButton.setSelected(true);
@@ -68,6 +69,17 @@ public class AltaUsuarioPanel {
         confirmarButton.addActionListener(e -> confirmar());
         cancelarButton.addActionListener(e -> accionCerrar.run());
         elegirImagenButton.addActionListener(e -> elegirImagen());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer las instituciones.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        // El primer elemento es "(Ninguna)": no viene de la base y no se toca.
+        Combos.sincronizar(InstitucionCBox, controlador.listarNombresInstituciones(),
+                nombre -> nombre, 1);
     }
 
     public JPanel getMainPanel() {

@@ -6,6 +6,8 @@ import logica.IControladorSistema;
 
 import javax.swing.*;
 import java.beans.PropertyVetoException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Ventana principal de la Estacion de Trabajo (GUI Swing). Contiene el
@@ -18,8 +20,18 @@ import java.beans.PropertyVetoException;
  */
 public class VentanaPrincipal extends JFrame {
 
+    /**
+     * Cada cuantos milisegundos las ventanas abiertas vuelven a leer la base.
+     * Es lo que reemplaza al viejo boton "Actualizar datos": el programa ya no
+     * depende de que alguien se acuerde de apretarlo.
+     */
+    private static final int PERIODO_ACTUALIZACION_MS = 5000;
+
     private final IControladorSistema controlador;
     private final JDesktopPane escritorio;
+
+    /** Las ventanas cuya ultima actualizacion fallo, para anotarlo una sola vez y no cada 5 segundos. */
+    private final Set<JInternalFrame> conFalla = new HashSet<>();
 
     /** Desplazamiento para escalonar cada ventana nueva y que no se apilen. */
     private int offset = 0;
@@ -36,6 +48,11 @@ public class VentanaPrincipal extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
         setLocationRelativeTo(null);
+
+        // javax.swing.Timer dispara su accion en el hilo de Swing (el unico que
+        // puede tocar los componentes), asi que actualizar() no necesita
+        // invokeLater ni sincronizacion.
+        new Timer(PERIODO_ACTUALIZACION_MS, e -> actualizarVentanas()).start();
     }
 
     private JMenuBar construirMenu() {
@@ -45,13 +62,6 @@ public class VentanaPrincipal extends JFrame {
         JMenu menuInstituciones = new JMenu("Instituciones y Patrocinios");
         JMenu menuCategorias = new JMenu("Categorias");
         JMenu menuRegistros = new JMenu("Registros");
-        JMenu menuSistema = new JMenu("Sistema");
-
-        // ===== Actualizar datos =====
-        JMenuItem itemActualizar = new JMenuItem("Actualizar datos");
-        itemActualizar.setAccelerator(KeyStroke.getKeyStroke("F5"));
-        itemActualizar.addActionListener(e -> actualizarDatos());
-        menuSistema.add(itemActualizar);
 
         // ===== Modificar Datos de Usuario =====
         JMenuItem itemModificarUsuario = new JMenuItem("Modificar Datos de Usuario");
@@ -133,7 +143,6 @@ public class VentanaPrincipal extends JFrame {
         itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
         menuInstituciones.add(itemAltaPatrocinio);
 
-        menuBar.add(menuSistema);
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
         menuBar.add(menuInstituciones);
@@ -164,34 +173,34 @@ public class VentanaPrincipal extends JFrame {
     private void abrirAceptarRechazarEdicion() { abrir(new VentanaAceptarRechazarEdicion()); }
 
     /**
-     * Boton "Actualizar datos". La Estacion de Trabajo y el sitio web usan la
-     * misma base, pero cada programa guarda en memoria lo que ya leyo. Esto
-     * descarta esa copia para que la proxima consulta lea la base de nuevo.
-     * Antes cierra las ventanas abiertas, porque refrescar en medio de un
-     * caso de uso deja sin validez lo que esa ventana tenia seleccionado.
+     * Cada 5 segundos le pide a cada ventana abierta que se vuelva a leer de la
+     * base, si es de las que se actualizan solas (ver Actualizable).
+     *
+     * Ya no hay que "refrescar" ni cerrar ventanas: cada operacion del
+     * controlador lee la base de verdad (abre su propio EntityManager), asi que
+     * alcanza con volver a pedir la lista. Lo que la persona eligio o escribio se
+     * conserva (ver Combos.sincronizar).
+     *
+     * Si una actualizacion falla (por ejemplo, la base se cayo un momento) NO se
+     * muestra un cartel: se anota en la consola, una sola vez, y se vuelve a
+     * intentar a los 5 segundos. Un cartel cada 5 segundos no se aguanta.
      */
-    private void actualizarDatos() {
-        JInternalFrame[] abiertas = escritorio.getAllFrames();
-        if (abiertas.length > 0) {
-            int respuesta = JOptionPane.showConfirmDialog(this,
-                    "Para actualizar se van a cerrar las ventanas abiertas.\n¿Continuar?",
-                    "Actualizar datos", JOptionPane.YES_NO_OPTION);
-            if (respuesta != JOptionPane.YES_OPTION) {
-                return;
+    private void actualizarVentanas() {
+        for (JInternalFrame ventana : escritorio.getAllFrames()) {
+            Actualizable pantalla = Actualizable.de(ventana);
+            if (pantalla == null) {
+                continue;
             }
-            for (JInternalFrame ventana : abiertas) {
-                ventana.dispose();
+            try {
+                pantalla.actualizar();
+                conFalla.remove(ventana);
+            } catch (Exception ex) {
+                if (conFalla.add(ventana)) {
+                    System.err.println("No se pudo actualizar \"" + ventana.getTitle()
+                            + "\" (se reintenta cada " + PERIODO_ACTUALIZACION_MS / 1000
+                            + " s): " + ex);
+                }
             }
-        }
-        try {
-            // Por el contrato, no por la persistencia: la presentacion no
-            // tiene por que saber que detras hay JPA. Es la misma operacion
-            // que usa el sitio desde su filtro.
-            controlador.refrescarDatos();
-            Mensajes.exito(this, "Actualizar datos",
-                    "Listo. Las próximas consultas muestran los datos actuales de la base.");
-        } catch (Exception ex) {
-            Mensajes.errorInesperado(this, "Actualizar datos", ex);
         }
     }
 

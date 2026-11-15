@@ -126,7 +126,6 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
             em.persist(asistente(DE_ANCAP, "Tres", ancap));
             em.persist(asistente(SIN_INSTITUCION, "Cuatro", null));
         });
-        Persistencia.refrescar();
 
         // La edicion nace Ingresada y a una Ingresada no se puede registrar
         // nadie. Se acepta por el caso de uso, que es lo que pasa de verdad:
@@ -306,7 +305,6 @@ class RegistroAEdicionIntegracionTest extends PruebaConBase {
             org.agregarEdicion(ingresada);
             ingresada.crearTipoRegistro(GENERAL, "Entrada general", 1500.0, 10);
         });
-        Persistencia.refrescar();
 
         // El sitio no la ofrece, porque lista solo las Aceptadas. Pero la
         // regla tiene que valer igual cuando el pedido no pasa por el listado.

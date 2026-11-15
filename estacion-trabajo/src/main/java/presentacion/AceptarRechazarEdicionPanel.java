@@ -26,7 +26,7 @@ import java.util.Set;
  * o rechazarEdicion(). Es el unico lugar del sistema donde una edicion cambia
  * de estado.
  */
-public class AceptarRechazarEdicionPanel {
+public class AceptarRechazarEdicionPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Aceptar/Rechazar Edición";
@@ -51,6 +51,7 @@ public class AceptarRechazarEdicionPanel {
 
     public AceptarRechazarEdicionPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         cargarEventos();
 
@@ -63,6 +64,45 @@ public class AceptarRechazarEdicionPanel {
         botonAceptar.addActionListener(e -> cambiarEstado(true));
         botonRechazar.addActionListener(e -> cambiarEstado(false));
         botonCerrar.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos y las ediciones Ingresadas del elegido.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() throws Exception {
+        Combos.sincronizar(comboEventos, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 1);
+
+        // Las ediciones Ingresadas del evento elegido: justo lo que cambia cuando
+        // un organizador da de alta una edicion desde el sitio.
+        String evento = eventoElegido();
+        if (evento == null) {
+            return;
+        }
+        List<DTEdicionEvento> ingresadas = controlador.listarEdicionesIngresadas(evento)
+                .stream()
+                .sorted(Comparator.comparing(DTEdicionEvento::getNombre))
+                .toList();
+        List<String> nombres = ingresadas.stream().map(DTEdicionEvento::getNombre).toList();
+        if (nombres.equals(new java.util.ArrayList<>(edicionesMostradas.keySet()))) {
+            return;   // no cambio nada: no se toca la pantalla
+        }
+
+        String elegida = listaEdiciones.getSelectedValue();
+        edicionesMostradas.clear();
+        for (DTEdicionEvento dt : ingresadas) {
+            edicionesMostradas.put(dt.getNombre(), dt);
+        }
+        listaEdiciones.setListData(nombres.toArray(new String[0]));
+        if (elegida != null && edicionesMostradas.containsKey(elegida)) {
+            listaEdiciones.setSelectedValue(elegida, true);
+        } else {
+            etiquetaDetalle.setText(ingresadas.isEmpty()
+                    ? "Este evento no tiene ediciones Ingresadas."
+                    : "Elegí una edición para aceptarla o rechazarla.");
+        }
+        actualizarBotones();
     }
 
     public JPanel getMainPanel() {

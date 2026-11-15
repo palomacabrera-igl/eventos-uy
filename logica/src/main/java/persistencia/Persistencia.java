@@ -5,8 +5,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import java.util.function.Consumer;
 
 /**
@@ -16,159 +14,241 @@ import java.util.function.Consumer;
  * Este paquete es esa tercera capa: es el UNICO lugar del proyecto que conoce
  * al EntityManagerFactory. Ni la GUI ni el Sistema saben que existe Hibernate.
  *
- * Hay UN SOLO EntityManager para toda la aplicacion. Si cada Manejador
+ * <h2>Un EntityManager por operacion (la "unidad de trabajo")</h2>
+ *
+ * Antes habia UN SOLO EntityManager para toda la aplicacion, vivo desde que
+ * arrancaba hasta que se cerraba. Eso traia tres problemas, que parecian
+ * distintos pero tenian la misma causa:
+ *
+ *   1. Un EntityManager se acuerda de todo lo que leyo. Si otro programa
+ *      cambiaba la base (el sitio y la Estacion de Trabajo son dos programas
+ *      sobre la misma base), este seguia viendo lo viejo. Por eso existian el
+ *      boton "Actualizar datos" y el filtro del sitio, que lo vaciaban a mano.
+ *
+ *   2. No se puede usar desde dos hilos a la vez. Por eso existia un candado
+ *      que hacia que Tomcat atendiera las paginas de a una.
+ *
+ *   3. Si una operacion cambiaba objetos en memoria y despues fallaba, esos
+ *      cambios se quedaban en el EntityManager, vivos, aunque nunca llegaran a
+ *      la base. La siguiente operacion los veia (y hasta los guardaba).
+ *
+ * Ahora cada operacion abre SU EntityManager, lo usa, y lo cierra. Se llama
+ * "unidad de trabajo" y funciona asi:
+ *
+ *     abre un EntityManager nuevo y empieza una transaccion
+ *     ejecuta la operacion
+ *     si salio bien  -> commit: lo que se cambio en memoria se guarda
+ *     si algo fallo  -> rollback: no se guarda nada
+ *     cierra el EntityManager (descarta TODO lo que habia en memoria)
+ *
+ * Con eso los tres problemas desaparecen juntos:
+ *   1. Cada operacion empieza con memoria vacia, asi que lee la base de verdad.
+ *   2. Cada hilo tiene el suyo: no se comparten, no hace falta candado.
+ *   3. Si algo falla, el EntityManager se tira entero con todo lo que tenia.
+ *
+ * Importante: TODOS los Manejadores de una misma operacion usan el MISMO
+ * EntityManager (el de la unidad abierta en ese hilo). Si cada Manejador
  * abriera el suyo, un objeto leido por uno quedaria desconectado (detached)
  * para el otro y al guardarlo fallaria con "detached entity passed to
- * persist": pasa, por ejemplo, en Alta de Usuario, donde se busca la
- * Institucion con un Manejador y se guarda el Asistente con otro.
+ * persist". Por eso "uno por operacion, compartido", y no "uno por Manejador".
+ *
+ * Quien abre y cierra la unidad NO son los Manejadores ni el Sistema: es un
+ * unico intermediario (ver logica.ControladorConUnidadDeTrabajo) que envuelve
+ * cada llamada al controlador. Asi el try / commit / rollback esta escrito una
+ * sola vez en todo el proyecto.
  */
 public final class Persistencia {
 
     /** Tiene que coincidir con el persistence-unit name del persistence.xml. */
     private static final String UNIDAD = "eventosuy";
 
-    /**
-     * Candado de la unidad de trabajo.
-     *
-     * Hay UN SOLO EntityManager para toda la aplicacion, y un EntityManager
-     * no se puede usar desde dos hilos a la vez (lo dice la especificacion de
-     * JPA). Tomcat atiende cada peticion en un hilo distinto, asi que sin esto
-     * dos paginas pedidas al mismo tiempo se pisan: una llama a clear()
-     * mientras la otra esta leyendo, y saltan ConcurrentModificationException
-     * y errores de JDBC.
-     *
-     * Es la misma idea que usa la demo del curso, donde los metodos del
-     * Manejador son synchronized. La diferencia es que aca la zona protegida
-     * no es un metodo sino TODA la peticion: desde que se refresca hasta que
-     * se termino de dibujar la pagina. Por eso es un ReentrantLock y no un
-     * bloque synchronized, que no puede abrirse en un metodo y cerrarse en
-     * otro.
-     */
-    private static final ReentrantLock CANDADO = new ReentrantLock();
-
     private static EntityManagerFactory emf;
-    private static EntityManager em;
+
+    /**
+     * El EntityManager de la unidad de trabajo abierta en ESTE hilo.
+     *
+     * ThreadLocal es "una variable con un valor distinto para cada hilo": el
+     * hilo A ve el suyo y el hilo B el suyo, sin pisarse. Es lo que permite
+     * que dos peticiones simultaneas de Tomcat (dos hilos) tengan cada una su
+     * EntityManager sin que los Manejadores tengan que recibirlo por parametro.
+     *
+     * Vale null cuando este hilo no esta dentro de ninguna unidad.
+     */
+    private static final ThreadLocal<EntityManager> UNIDAD_ACTUAL = new ThreadLocal<>();
 
     private Persistencia() {
     }
 
     /**
-     * Devuelve EL EntityManager de la aplicacion (siempre el mismo).
-     *
-     * La primera llamada crea la fabrica, que es cara: lee el persistence.xml,
-     * se conecta a PostgreSQL y valida el mapeo de las 10 entidades. Las
-     * siguientes llamadas reusan todo.
-     *
-     * No hay que cerrarlo: lo cierra cerrar() al terminar la aplicacion.
-     *
-     * synchronized porque en Tomcat esto lo llaman varios hilos a la vez: al
-     * abrir una pagina el navegador pide en paralelo el HTML, el CSS, las
-     * tipografias y cada imagen. Sin esto, diez hilos entran juntos al
-     * if (emf == null), construyen diez fabricas y se pisan actualizando el
-     * esquema. En la Estacion de Trabajo no se nota: hay un solo hilo.
+     * Una tarea para correr dentro de una unidad de trabajo. Recibe el
+     * EntityManager de la unidad y puede lanzar cualquier excepcion (por
+     * ejemplo ReglaNegocioException), que sale tal cual despues del rollback.
      */
-    public static synchronized EntityManager getEntityManager() {
+    @FunctionalInterface
+    public interface Trabajo<T> {
+        T ejecutar(EntityManager em) throws Exception;
+    }
+
+    /**
+     * La fabrica de EntityManagers. Se crea UNA vez por programa.
+     *
+     * Es cara: lee el persistence.xml, se conecta a PostgreSQL y valida el
+     * mapeo de las 10 entidades. Por eso no se crea una por operacion: la
+     * fabrica es una sola y es lo unico que se comparte entre hilos (esta
+     * hecha para eso). Lo barato es crear un EntityManager a partir de ella.
+     *
+     * synchronized porque en Tomcat la llaman varios hilos a la vez: al abrir
+     * una pagina el navegador pide en paralelo el HTML, el CSS, las tipografias
+     * y cada imagen. Sin esto, diez hilos entran juntos al if (emf == null),
+     * construyen diez fabricas y se pisan actualizando el esquema.
+     */
+    private static synchronized EntityManagerFactory fabrica() {
         if (emf == null) {
             emf = Persistence.createEntityManagerFactory(UNIDAD);
         }
-        if (em == null || !em.isOpen()) {
-            em = emf.createEntityManager();
+        return emf;
+    }
+
+    /**
+     * Devuelve el EntityManager de la unidad de trabajo abierta en este hilo.
+     *
+     * Lo usan los Manejadores para consultar. No hay que cerrarlo: lo cierra
+     * quien abrio la unidad, al terminarla.
+     *
+     * Si se llama fuera de una unidad de trabajo es un error de programa, y se
+     * avisa en voz alta en lugar de abrir un EntityManager "por las dudas": uno
+     * abierto por las dudas es uno que nadie cierra, y es justo el tipo de
+     * filtracion de memoria y de datos viejos que esta clase viene a evitar.
+     * Para usarlo desde un test o un programa suelto, envolver el codigo en
+     * enUnidadDeTrabajo(...) o en enTransaccion(...).
+     */
+    public static EntityManager getEntityManager() {
+        EntityManager em = UNIDAD_ACTUAL.get();
+        if (em == null) {
+            throw new IllegalStateException(
+                    "No hay una unidad de trabajo abierta en este hilo. Las operaciones "
+                            + "tienen que pasar por el controlador (Fabrica.getControladorSistema()) "
+                            + "o correr dentro de Persistencia.enUnidadDeTrabajo(...).");
         }
         return em;
     }
 
     /**
-     * Ejecuta una operacion de escritura dentro de una transaccion.
+     * Corre la tarea dentro de una unidad de trabajo: un EntityManager nuevo y
+     * una transaccion que se confirma si todo sale bien y se deshace si no.
      *
-     * Es el patron begin / commit / rollback, escrito una sola vez en lugar de
-     * repetirlo en cada Manejador:
+     * Es el patron begin / commit / rollback / close, escrito una sola vez:
      *
-     *     tx.begin();
-     *     try { ...; tx.commit(); }
-     *     catch (Exception e) { tx.rollback(); throw e; }
+     *     em = nuevo;  tx.begin();
+     *     try { tarea; tx.commit(); }
+     *     catch (...) { tx.rollback(); throw ...; }
+     *     finally { em.close(); }
      *
      * El throw es importante: la excepcion tiene que seguir subiendo hasta el
-     * catch de la pantalla, que la muestra con Mensajes.errorInesperado(). Si
-     * la tapamos aca, el usuario creeria que se guardo y no se guardo.
+     * catch de la pantalla, que la muestra. Si la tapamos aca, el usuario
+     * creeria que se guardo y no se guardo.
      *
-     * Uso desde un Manejador:
+     * El finally tambien: pase lo que pase, el EntityManager se cierra y se
+     * saca del hilo. Los hilos de Tomcat se reutilizan; si quedara uno
+     * colgado, la peticion siguiente que caiga en ese hilo lo heredaria.
+     *
+     * <b>Anidada:</b> si este hilo ya tiene una unidad abierta, la tarea se une
+     * a ella y NO hace commit ni rollback propios: eso lo decide la unidad de
+     * afuera. Es lo que pasa cuando un Manejador llama a enTransaccion(...)
+     * adentro de una operacion del controlador: todo es UNA sola transaccion, y
+     * se guarda todo o no se guarda nada.
+     */
+    public static <T> T enUnidadDeTrabajo(Trabajo<T> trabajo) throws Exception {
+        EntityManager existente = UNIDAD_ACTUAL.get();
+        if (existente != null) {
+            return trabajo.ejecutar(existente);
+        }
+
+        EntityManager em = fabrica().createEntityManager();
+        UNIDAD_ACTUAL.set(em);
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            T resultado = trabajo.ejecutar(em);
+            tx.commit();
+            return resultado;
+        } catch (Throwable fallo) {
+            if (tx.isActive()) {
+                try {
+                    tx.rollback();
+                } catch (RuntimeException alDeshacer) {
+                    // Lo importante es la excepcion original; si ademas fallo
+                    // el rollback (conexion caida), se anota y se sigue.
+                    fallo.addSuppressed(alDeshacer);
+                }
+            }
+            throw fallo;
+        } finally {
+            UNIDAD_ACTUAL.remove();
+            em.close();
+        }
+    }
+
+    /**
+     * Ejecuta una escritura dentro de la unidad de trabajo actual (o abre una
+     * propia si no hay ninguna).
+     *
+     * Es lo que usan los Manejadores:
      *
      *     public void agregar(Institucion institucion) {
      *         Persistencia.enTransaccion(em -> em.persist(institucion));
      *     }
+     *
+     * Dentro de una operacion del controlador NO abre ni cierra transaccion:
+     * se une a la que ya esta abierta y el commit llega al final de la
+     * operacion. Eso es lo que hace que una operacion que falla a la mitad no
+     * deje nada guardado. Fuera de una operacion (un test, o DatosDePrueba si
+     * no la envolvio) se comporta como antes: abre, guarda y cierra.
      */
     public static void enTransaccion(Consumer<EntityManager> accion) {
-        EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         try {
-            accion.accept(em);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
+            enUnidadDeTrabajo(em -> {
+                accion.accept(em);
+                return null;
+            });
+        } catch (RuntimeException | Error sinCambios) {
+            throw sinCambios;
+        } catch (Exception inesperada) {
+            // El Consumer no puede lanzar excepciones chequeadas, asi que no
+            // deberia llegar nunca aca. Se envuelve para no perderla.
+            throw new IllegalStateException(inesperada);
         }
     }
 
     /**
-     * Vuelve a leer de la base en lugar de usar lo que el EntityManager tiene
-     * guardado en memoria.
+     * Devuelve la version de esta entidad que pertenece al EntityManager de la
+     * unidad actual, o null si ya no existe en la base.
      *
-     * Un EntityManager recuerda todo lo que leyo mientras vive. Como el sitio
-     * web y la Estacion de Trabajo son dos procesos distintos sobre la misma
-     * base, cada uno con el suyo, sin esto una edicion aceptada desde la
-     * Estacion de Trabajo se seguiria viendo Ingresada en el sitio hasta
-     * reiniciar Tomcat. La letra (seccion 3) pide lo contrario: un cambio
-     * hecho en una aplicacion tiene que estar disponible en la otra.
+     * Hace falta porque algunas operaciones del Laboratorio 1 son "con estado":
+     * una llamada deja guardada una entidad (por ejemplo la edicion elegida) y
+     * la siguiente la usa. Pero la unidad de trabajo de la primera llamada ya
+     * se cerro, y con ella el EntityManager: esa entidad quedo desconectada
+     * (detached), con los datos de ese momento y sin poder leer sus colecciones.
+     * Esto la vuelve a buscar por su id en el EntityManager nuevo, asi cada
+     * operacion trabaja con datos frescos y conectados.
      *
-     * clear() desconecta todo lo que tenia cargado, asi que la proxima
-     * consulta va a la base de verdad.
-     *
-     * Quien la llama:
-     *   - la Estacion de Trabajo, desde el boton "Actualizar datos";
-     *   - el sitio, al empezar cada pagina, desde el filtro del modulo web.
-     *
-     * No llamarla en medio de una operacion: desconecta las entidades que se
-     * esten usando en ese momento.
+     * Si la entidad nunca llego a la base (no tiene id) o alguien la borro,
+     * devuelve null: es como si no se hubiera elegido nada.
      */
-    public static void refrescar() {
+    public static <T> T reanclar(T entidad, Class<T> tipo) {
+        if (entidad == null) {
+            return null;
+        }
         EntityManager em = getEntityManager();
-        if (em.isOpen()) {
-            em.clear();
+        if (em.contains(entidad)) {
+            return entidad;
         }
-    }
-
-    /**
-     * Empieza una unidad de trabajo: espera el turno y vuelve a leer de la base.
-     *
-     * El refresco va ADENTRO del candado a proposito. Si estuviera afuera,
-     * entre que un hilo refresca y lee, otro podria refrescar y borrarle lo
-     * que acababa de cargar: el error volveria igual.
-     *
-     * Quien la llama tiene que cerrar la unidad en un finally, SIEMPRE. Si una
-     * pagina falla y el candado no se suelta, el sitio queda colgado para
-     * todos hasta reiniciar Tomcat.
-     */
-    public static void abrirUnidadDeTrabajo() {
-        CANDADO.lock();
-        refrescar();
-    }
-
-    /** Termina la unidad de trabajo y le deja el turno al siguiente. */
-    public static void cerrarUnidadDeTrabajo() {
-        if (CANDADO.isHeldByCurrentThread()) {
-            CANDADO.unlock();
-        }
+        Object id = em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entidad);
+        return id == null ? null : em.find(tipo, id);
     }
 
     /** Cierra todo. Se llama una sola vez, al terminar la aplicacion. */
-    public static void cerrar() {
-        if (em != null && em.isOpen()) {
-            em.close();
-        }
-        em = null;
+    public static synchronized void cerrar() {
         if (emf != null && emf.isOpen()) {
             emf.close();
         }

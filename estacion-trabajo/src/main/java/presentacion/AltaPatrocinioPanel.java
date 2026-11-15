@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import javax.swing.*;
 import java.awt.*;
 
-public class AltaPatrocinioPanel {
+public class AltaPatrocinioPanel implements Actualizable {
     private JPanel mainPanel;
     private JComboBox EventoCBox;
     private JComboBox EdicionCBox;
@@ -48,6 +48,7 @@ public class AltaPatrocinioPanel {
 
     public AltaPatrocinioPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         RegistrosSpinner.setModel(new SpinnerNumberModel(0, 0, 100000, 1));
         bronceRadioButton.setSelected(true);
@@ -71,6 +72,17 @@ public class AltaPatrocinioPanel {
         cancelarButton.addActionListener(e -> accionCerrar.run());
 
         actualizarResumen();
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos y las instituciones.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventoCBox, controlador.listarEventos(), DTEvento::getNombre, 0);
+        Combos.sincronizar(InstitucionCBox, controlador.listarNombresInstituciones(),
+                nombre -> nombre, 0);
     }
 
     public JPanel getMainPanel() {

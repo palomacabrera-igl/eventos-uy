@@ -17,7 +17,7 @@ import java.util.Set;
  * ConsultaEvento.form (editable por arrastre); esta clase contiene el
  * comportamiento. Es de solo lectura: no hay boton Confirmar, solo Cerrar.
  */
-public class ConsultaEvento {
+public class ConsultaEvento implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Evento";
@@ -48,12 +48,22 @@ public class ConsultaEvento {
 
     public ConsultaEvento() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         cargarEventos();
 
         EventoCBox.addActionListener(e -> seleccionarEvento());
         EdicionCBox.addActionListener(e -> seleccionarEdicion());
         cerrarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventoCBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
     }
 
     public JPanel getMainPanel() {

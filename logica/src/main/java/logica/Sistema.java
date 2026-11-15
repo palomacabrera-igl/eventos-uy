@@ -11,6 +11,25 @@ import java.util.*;
  *
  * Sistema solo coordina el caso de uso: valida reglas de negocio y guarda
  * las referencias retenidas entre llamados.
+ *
+ * <h2>No hay que "guardar" a mano</h2>
+ *
+ * Cada operacion de esta clase corre dentro de una unidad de trabajo que abre
+ * y cierra ControladorConUnidadDeTrabajo (ver tambien persistencia.Persistencia):
+ * un EntityManager nuevo y una transaccion. Eso significa que:
+ *
+ *   - Una entidad que se LEE de un Manejador queda "conectada": si se le cambia
+ *     algo (edicion.aceptar(), usuario.modificarDatos(...), agregarle un tipo de
+ *     registro a una edicion), JPA lo detecta solo y lo guarda al terminar la
+ *     operacion. No hace falta llamar a ningun "guardar" despues.
+ *   - Una entidad NUEVA si hay que persistirla con manejador.agregar(...).
+ *   - Si la operacion lanza una excepcion (una ReglaNegocioException o cualquier
+ *     otra), se hace rollback y se tira el EntityManager entero: nada de lo que
+ *     se haya cambiado en memoria llega a la base ni queda dando vueltas para
+ *     la proxima operacion.
+ *
+ * Por eso no se ve ningun try / catch ni commit en esta clase: estan una sola
+ * vez, en el intermediario.
  */
 public class Sistema implements IControladorSistema {
 
@@ -19,7 +38,12 @@ public class Sistema implements IControladorSistema {
     private final ManejadorInstitucion manejadorInstitucion;
     private final ManejadorEvento manejadorEvento;
 
-    // Referencias retenidas entre llamados
+    // Referencias retenidas entre llamados. SOLO las operaciones del
+    // Laboratorio 1 (seleccionarXxx / ingresarXxx), que usa la Estacion de
+    // Trabajo, las escriben. Las operaciones "sin estado" del sitio web NO
+    // pueden tocarlas: el sitio atiende varias peticiones a la vez y estos
+    // campos son de todos. Antes de cada operacion se vuelven a conectar a la
+    // base (ver reanclarSeleccion()).
     private Usuario usuarioSeleccionado;
     private Evento eventoSeleccionado;
     private EdicionEvento edicionSeleccionada;
@@ -81,9 +105,9 @@ public class Sistema implements IControladorSistema {
                     "Primero hay que seleccionar el usuario a modificar.");
         }
         // 1: usuarioSeleccionado.modificarDatos(dt)
+        // El usuario esta conectado a la unidad de trabajo: el cambio se guarda
+        // solo al terminar la operacion.
         usuarioSeleccionado.modificarDatos(dt);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorUsuario.actualizar(usuarioSeleccionado);
     }
 
     /** Busqueda de Usuario por nickname (delega en ManejadorUsuario). */
@@ -188,10 +212,8 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "Primero hay que seleccionar el evento y el organizador de la edicion.");
         }
+        // La edicion nueva viaja por el cascade del @OneToMany de Evento.
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
-        // JPA: confirma el cambio en la base. La edicion nueva viaja por el
-        // cascade del @OneToMany de Evento.
-        manejadorEvento.actualizar(eventoSeleccionado);
     }
 
     // ===== Alta de Usuario =====
@@ -234,8 +256,6 @@ public class Sistema implements IControladorSistema {
                     "Primero hay que ingresar los datos del asistente.");
         }
         asistenteRecordado.setInstitucion(i);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorUsuario.actualizar(asistenteRecordado);
     }
 
     @Override
@@ -286,9 +306,8 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException("Ya existe un tipo de registro con el nombre \""
                     + nombre + "\" en la edicion " + edicionSeleccionada.getNombre() + ".");
         }
+        // El tipo nuevo viaja por el cascade de la edicion.
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
-        // JPA: se actualiza por el Evento, que es la raiz del agregado.
-        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
 
     // ===== Registro a Edicion de Evento =====
@@ -314,7 +333,14 @@ public class Sistema implements IControladorSistema {
                              String codigoPatrocinio) throws ReglaNegocioException {
         // La edicion se resuelve por el nombre que llega como parametro, no por
         // la que quedo retenida de un llamado anterior.
-        EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
+        //
+        // Y se la TRABA en la base hasta que termine la operacion: el cupo del
+        // tipo de registro y los registros gratuitos de un patrocinio se
+        // controlan contando los registros que ya hay, y dos personas
+        // registrandose a la vez contarian los dos "queda 1 lugar" y entrarian
+        // las dos. Con la fila trabada, la segunda espera a que termine la
+        // primera y recien ahi cuenta, ya con el registro nuevo incluido.
+        EdicionEvento ed = manejadorEvento.buscarEdicionBloqueandola(nombreEdicion);
         if (ed == null) {
             throw new ReglaNegocioException(
                     "No existe una edición con el nombre \"" + nombreEdicion + "\".");
@@ -332,7 +358,9 @@ public class Sistema implements IControladorSistema {
                     + " no esta aceptada: no admite registros.");
         }
 
-        this.edicionSeleccionada = ed;
+        // OJO: esta operacion la usa el sitio, que atiende varias peticiones a
+        // la vez, asi que NO deja nada "seleccionado" en los campos del Sistema
+        // (antes hacia this.edicionSeleccionada = ed): esos campos son de todos.
 
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
         if (tr == null) {
@@ -360,8 +388,10 @@ public class Sistema implements IControladorSistema {
             patrocinio = validarCodigoPatrocinio(ed, tr, (Asistente) u, codigoPatrocinio);
         }
 
+        // El Registro nuevo viaja por el cascade de la edicion y se guarda, junto
+        // con todo lo demas, cuando la unidad de trabajo hace commit. Si el commit
+        // falla, no queda en memoria: se descarta con el EntityManager.
         ed.altaRegistro((Asistente) u, tr, LocalDate.now(), patrocinio);
-        manejadorEvento.actualizar(ed.getEvento());
     }
 
     /**
@@ -616,8 +646,6 @@ public class Sistema implements IControladorSistema {
                 NivelPatrocinio.valueOf(dt.getNivel()),
                 institucion, tipo);
         edicionSeleccionada.agregarPatrocinio(p);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
     // ===== Alta Evento =====
     @Override
@@ -963,8 +991,6 @@ public class Sistema implements IControladorSistema {
             usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
         }
 
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorUsuario.actualizar(usuario);
     }
 
     @Override
@@ -986,7 +1012,6 @@ public class Sistema implements IControladorSistema {
                     + nickname + "\".");
         }
         usuario.asignarImagen(crearImagen(imagen));
-        manejadorUsuario.actualizar(usuario);
     }
 
     // ----- Eventos y ediciones (CU 6 a 9) -----
@@ -1108,14 +1133,14 @@ public class Sistema implements IControladorSistema {
         DTEdicionEvento limpio = new DTEdicionEvento(nombre, limpiar(datos.getSigla()),
                 limpiar(datos.getCiudad()), limpiar(datos.getPais()),
                 DTFecha.desde(inicio), DTFecha.desde(fin), DTFecha.desde(LocalDate.now()));
+        // La edicion nueva viaja por el cascade del @OneToMany de Evento y se
+        // guarda cuando la unidad de trabajo hace commit.
         EdicionEvento nueva = evento.altaEdicion(limpio, organizador);
 
         // La imagen es opcional: si no viene, la edicion queda sin imagen.
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
             nueva.asignarImagen(crearImagen(imagen));
         }
-        // JPA: la edicion nueva viaja por el cascade del @OneToMany de Evento.
-        manejadorEvento.actualizar(evento);
     }
 
     @Override
@@ -1164,7 +1189,6 @@ public class Sistema implements IControladorSistema {
             throws ReglaNegocioException {
         Evento evento = buscarEventoExistente(nombreEvento);
         evento.asignarImagen(crearImagen(imagen));
-        manejadorEvento.actualizar(evento);
     }
 
     @Override
@@ -1172,7 +1196,6 @@ public class Sistema implements IControladorSistema {
             throws ReglaNegocioException {
         EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.asignarImagen(crearImagen(imagen));
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
@@ -1213,10 +1236,8 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException("El cupo debe ser mayor que cero.");
         }
 
+        // El tipo pertenece a la edicion: se persiste por cascade al terminar.
         edicion.crearTipoRegistro(nombreLimpio, limpiar(descripcion), costo, cupo);
-        // El tipo pertenece a la edicion y esta al evento: al actualizar la
-        // raiz del agregado se persiste por cascade, como en el flujo Swing.
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     @Override
@@ -1303,7 +1324,6 @@ public class Sistema implements IControladorSistema {
                     "No existe una institucion con el nombre \"" + nombre + "\".");
         }
         institucion.asignarImagen(crearImagen(imagen));
-        manejadorInstitucion.actualizar(institucion);
     }
 
     private static DTImagen obtenerDTImagen(Imagen imagen) {
@@ -1419,8 +1439,6 @@ public class Sistema implements IControladorSistema {
                 datos.getCantRegistrosGratis(), codigo, nivel, institucion, tipo);
 
         edicion.agregarPatrocinio(patrocinio);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     @Override
@@ -1508,7 +1526,6 @@ public class Sistema implements IControladorSistema {
     public void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException {
         EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.aceptar();
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     /** Rechaza una edicion. Solo se puede desde INGRESADA, igual que aceptar. */
@@ -1516,23 +1533,37 @@ public class Sistema implements IControladorSistema {
     public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
         EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.rechazar();
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
-    // ----- Mantenimiento -----
+    // ----- Estado retenido entre llamados (Laboratorio 1) -----
 
-    @Override
-    public void refrescarDatos() {
-        Persistencia.refrescar();
-    }
-
-    @Override
-    public void abrirUnidadDeTrabajo() {
-        Persistencia.abrirUnidadDeTrabajo();
-    }
-
-    @Override
-    public void cerrarUnidadDeTrabajo() {
-        Persistencia.cerrarUnidadDeTrabajo();
+    /**
+     * Vuelve a conectar a la base lo que el Laboratorio 1 dejo "seleccionado".
+     *
+     * Operaciones como seleccionarEdicionEvento() guardan la edicion elegida en
+     * un campo, para que la siguiente (ingresarDatosTipoRegistro) la use. Pero
+     * cada operacion tiene su propio EntityManager, y el de la primera se cerro
+     * al terminar: esa edicion quedo "desconectada" (detached), con los datos de
+     * ese momento y sin poder leer sus colecciones ni guardar cambios.
+     *
+     * Lo llama ControladorConUnidadDeTrabajo ANTES de cada operacion, ya con el
+     * EntityManager nuevo abierto. Cada campo se vuelve a buscar por su id: la
+     * operacion siguiente trabaja con la fila de hoy, no con una copia vieja.
+     * Si la fila ya no existe, el campo queda en null y la operacion avisa que
+     * hay que seleccionar de nuevo, como si nunca se hubiera elegido.
+     *
+     * Quien llama a esto es el intermediario y no cada operacion para que no se
+     * pueda olvidar: una operacion nueva que use estos campos funciona sin
+     * acordarse de nada.
+     *
+     * No es publico: no es parte del contrato con la presentacion.
+     */
+    void reanclarSeleccion() {
+        usuarioSeleccionado = Persistencia.reanclar(usuarioSeleccionado, Usuario.class);
+        eventoSeleccionado = Persistencia.reanclar(eventoSeleccionado, Evento.class);
+        edicionSeleccionada = Persistencia.reanclar(edicionSeleccionada, EdicionEvento.class);
+        organizadorSeleccionado = Persistencia.reanclar(organizadorSeleccionado, Organizador.class);
+        asistenteSeleccionado = Persistencia.reanclar(asistenteSeleccionado, Asistente.class);
+        asistenteRecordado = Persistencia.reanclar(asistenteRecordado, Asistente.class);
     }
 }

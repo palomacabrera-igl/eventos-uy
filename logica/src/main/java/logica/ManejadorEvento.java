@@ -1,5 +1,6 @@
 package logica;
 
+import jakarta.persistence.LockModeType;
 import persistencia.Persistencia;
 
 import java.util.List;
@@ -39,21 +40,11 @@ public class ManejadorEvento {
         Persistencia.enTransaccion(em -> em.persist(evento));
     }
 
-    /**
-     * Confirma en la base los cambios hechos sobre un evento que ya existe.
-     *
-     * No se usa merge() cuando la entidad ya esta managed: merge() devuelve una
-     * copia, y si otra entidad sigue apuntando a la original, JPA inserta el
-     * mismo hijo dos veces. Alcanza con abrir la transaccion: al hacer commit,
-     * JPA detecta solo lo que cambio.
-     */
-    public void actualizar(Evento evento) {
-        Persistencia.enTransaccion(em -> {
-            if (!em.contains(evento)) {
-                em.merge(evento);
-            }
-        });
-    }
+    // No hay un actualizar(evento): un evento que se LEYO con buscar() o listar()
+    // queda conectado a la unidad de trabajo, y JPA guarda solo lo que se le
+    // cambio cuando la operacion termina (ver persistencia.Persistencia).
+    // Llamar a merge() de mas seria un error: devuelve una copia, y si otra
+    // entidad sigue apuntando a la original, JPA inserta el mismo hijo dos veces.
 
     public Evento buscar(String nombre) {
         return Persistencia.getEntityManager()
@@ -94,6 +85,32 @@ public class ManejadorEvento {
                 .createQuery("SELECT ed FROM EdicionEvento ed WHERE ed.nombre = :nombre",
                              EdicionEvento.class)
                 .setParameter("nombre", nombreEdicion)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Igual que buscarEdicion(), pero TRABA la fila de la edicion en la base
+     * hasta que termine la unidad de trabajo (el commit o el rollback).
+     *
+     * Es un bloqueo "pesimista": SELECT ... FOR UPDATE. Si otra operacion
+     * quiere traer la misma edicion con este metodo mientras la primera no
+     * termino, la base la hace ESPERAR. Cuando la primera hace commit, la
+     * segunda sigue y lee los datos ya actualizados.
+     *
+     * Se usa al registrar un asistente. Antes, el candado global hacia que el
+     * sitio atendiera las paginas de a una y eso evitaba que dos registros
+     * simultaneos se pasaran del cupo. Sin ese candado, el cupo y los registros
+     * gratuitos se protegen aca, solo para la edicion que se esta tocando, y
+     * solo mientras dura la operacion.
+     */
+    public EdicionEvento buscarEdicionBloqueandola(String nombreEdicion) {
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT ed FROM EdicionEvento ed WHERE ed.nombre = :nombre",
+                             EdicionEvento.class)
+                .setParameter("nombre", nombreEdicion)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);

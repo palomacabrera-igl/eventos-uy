@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 
-public class VentanaConsultaTipoRegistro extends JInternalFrame {
+public class VentanaConsultaTipoRegistro extends JInternalFrame implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Tipo de Registro";
@@ -49,6 +49,15 @@ public class VentanaConsultaTipoRegistro extends JInternalFrame {
         edicionBox.addActionListener(e -> cargarTiposRegistro());
         registroBox.addActionListener(e -> mostrarTipoRegistro());
         botonCerrar.addActionListener(e -> dispose());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(eventoBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
     }
 
     private void cargarEventos() {

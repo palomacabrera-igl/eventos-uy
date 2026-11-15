@@ -24,7 +24,7 @@ import java.util.Set;
  *      porque listarRegistroUsuario() toma los registros del asistente recordado)
  *  3) obtenerRegistro(nickname, nombre) -> llena los campos de detalle
  */
-public class ConsultaDeRegistro {
+public class ConsultaDeRegistro implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Registro";
@@ -46,6 +46,7 @@ public class ConsultaDeRegistro {
 
     public ConsultaDeRegistro() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         // Los campos de detalle son de solo lectura (es una consulta).
         TipoRegistroTxt.setEditable(false);
@@ -57,6 +58,17 @@ public class ConsultaDeRegistro {
         UsuarioCBox.addActionListener(e -> cargarRegistros());
         EdicionCBox.addActionListener(e -> mostrarRegistro());
         cerrarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los usuarios.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(UsuarioCBox,
+                controlador.listarUsuarios().stream().map(DTUsuario::getNickname).toList(),
+                nickname -> nickname, 0);
     }
 
     public JPanel getMainPanel() {

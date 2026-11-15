@@ -16,7 +16,7 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-public class VentanaConsultaUsuario extends JInternalFrame {
+public class VentanaConsultaUsuario extends JInternalFrame implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Usuario";
@@ -136,6 +136,15 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                 mostrarRegistro();
             }
         });
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los usuarios.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(comboUsuarios, controlador.listarUsuarios(), DTUsuario::getNickname, 0);
     }
 
     private void cargarUsuarios() {

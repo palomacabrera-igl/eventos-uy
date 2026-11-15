@@ -24,7 +24,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class ConsultaEdicionPanel {
+public class ConsultaEdicionPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Edición de Evento";
@@ -75,6 +75,7 @@ public class ConsultaEdicionPanel {
 
     public ConsultaEdicionPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         configurarCamposSoloLectura();
         configurarRenderers();
@@ -95,6 +96,15 @@ public class ConsultaEdicionPanel {
         });
 
         CerrarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventosCBox, controlador.listarEventos(), DTEvento::getNombre, 0);
     }
 
     public JPanel getMainPanel() {

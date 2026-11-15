@@ -93,8 +93,9 @@ Las decisiones de la capa lógica y de persistencia están en el [`README.md`](.
 | `logica/Usuario.java` | La estrategia de herencia `SINGLE_TABLE` y su precio |
 | `logica/Categoria.java` | La jerarquía de categorías (auto-asociación padre/hijas) |
 | `logica/ManejadorUsuario.java` | Por qué las búsquedas usan JPQL y no `em.find()` |
-| `logica/ManejadorEvento.java` | Por qué `actualizar()` no usa `merge()` |
-| `persistencia/Persistencia.java` | Por qué el `EntityManager` es uno por proceso |
+| `logica/ManejadorEvento.java` | Por qué no hay un `actualizar()`, y el bloqueo de la edición al registrar |
+| `persistencia/Persistencia.java` | La unidad de trabajo: un `EntityManager` por operación |
+| `logica/ControladorConUnidadDeTrabajo.java` | El intermediario que abre y cierra la unidad en cada operación |
 | `logica/DatosDePrueba.java` | Por qué el orden de carga importa con JPA |
 
 ---

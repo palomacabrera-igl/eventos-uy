@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 
-public class AltaEdicionPanel {
+public class AltaEdicionPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Alta de Edición de Evento";
@@ -45,6 +45,7 @@ public class AltaEdicionPanel {
 
     public AltaEdicionPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         int anioActual = LocalDate.now().getYear();
         rango(spinnerDiaInicio, 1, 1, 31);
@@ -65,6 +66,17 @@ public class AltaEdicionPanel {
         botonAceptar.addActionListener(e -> aceptar());
         botonCancelar.addActionListener(e -> accionCerrar.run());
         elegirImagenButton.addActionListener(e -> elegirImagen());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos y los organizadores.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(comboEventos, controlador.listarEventos(), DTEvento::getNombre, 0);
+        Combos.sincronizar(comboOrganizadores, controlador.listarOrganizadores(),
+                DTOrganizador::getNickname, 0);
     }
 
     public JPanel getMainPanel() {

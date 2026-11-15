@@ -17,7 +17,7 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.util.Locale;
 
-public class ConsultaPatrocinioPanel {
+public class ConsultaPatrocinioPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Patrocinio";
@@ -49,6 +49,7 @@ public class ConsultaPatrocinioPanel {
 
     public ConsultaPatrocinioPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         for (JTextField f : new JTextField[]{campoCodigo, campoInstitucion, campoTipoRegistro,
                 campoNivel, campoMonto, campoCantRegistrosGratis, campoFecha}) {
@@ -63,6 +64,15 @@ public class ConsultaPatrocinioPanel {
         comboEdiciones.addActionListener(e -> seleccionarEdicion());
         comboPatrocinios.addActionListener(e -> mostrarPatrocinio());
         botonCerrar.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(comboEventos, controlador.listarEventos(), DTEvento::getNombre, 0);
     }
 
     public JPanel getMainPanel() {

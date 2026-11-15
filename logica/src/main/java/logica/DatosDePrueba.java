@@ -1,5 +1,7 @@
 package logica;
 
+import persistencia.Persistencia;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -12,7 +14,31 @@ public final class DatosDePrueba {
     private DatosDePrueba() {
     }
 
+    /**
+     * Carga los datos de prueba. Devuelve false si ya estaban cargados.
+     *
+     * TODO se carga dentro de UNA sola unidad de trabajo (un EntityManager y
+     * una transaccion). Dos consecuencias buenas:
+     *
+     *   - Los objetos se pueden referenciar entre si sin problemas: la UTEC que
+     *     se guarda al principio es la misma que despues se le asigna a un
+     *     asistente, no una copia "desconectada" de otro EntityManager.
+     *   - Es todo o nada: si falla a la mitad (una imagen que no esta, un nombre
+     *     repetido) se hace rollback y la base queda como estaba, en lugar de
+     *     quedar con la mitad de los datos y hacer que la proxima corrida diga
+     *     "ya estaban cargados".
+     */
     public static boolean cargar() {
+        try {
+            return Persistencia.enUnidadDeTrabajo(em -> cargarTodo());
+        } catch (RuntimeException | Error sinCambios) {
+            throw sinCambios;
+        } catch (Exception inesperada) {
+            throw new IllegalStateException(inesperada);
+        }
+    }
+
+    private static boolean cargarTodo() {
         ManejadorUsuario manejadorUsuario =
                 ManejadorUsuario.getInstancia();
         ManejadorCategoria manejadorCategoria =
