@@ -12,11 +12,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import org.openpdf.text.pdf.PdfReader;
+import org.openpdf.text.pdf.parser.PdfTextExtractor;
+
 import persistencia.Persistencia;
 
 /**
- * Registro de Asistencia a Edicion (letra, 6.3) contra la base: lo que cambia
- * se guarda al terminar la operacion, y un rechazo no deja nada a medias.
+ * Registro de Asistencia a Edicion (letra, 6.3) y constancia en PDF (7.5)
+ * contra la base: lo que cambia se guarda al terminar la operacion, y un
+ * rechazo no deja nada a medias.
  *
  * <pre>
  *  Escenario que arma cada prueba, y que borra al terminar:
@@ -199,6 +203,77 @@ class RegistroAsistenciaIntegracionTest extends PruebaConBase {
         Persistencia.enTransaccion(em -> em.createNativeQuery(
                 "UPDATE edicion_evento SET " + asignaciones + " WHERE nombre = '" + EDICION + "'")
                 .executeUpdate());
+    }
+
+    // ================================================== constancia en PDF
+
+    private static String textoDe(byte[] pdf) throws java.io.IOException {
+        PdfReader lector = new PdfReader(pdf);
+        try {
+            return new PdfTextExtractor(lector).getTextFromPage(1);
+        } finally {
+            lector.close();
+        }
+    }
+
+    @Test
+    @DisplayName("CV · quien registro su asistencia recibe una constancia en PDF con sus datos")
+    void constanciaDeQuienAsistio() throws Exception {
+        sistema.registrarAsistencia(ANA, EDICION);
+
+        byte[] pdf = sistema.obtenerConstanciaAsistencia(ANA, EDICION);
+
+        assertTrue(new String(pdf, 0, 5, java.nio.charset.StandardCharsets.ISO_8859_1)
+                .equals("%PDF-"));
+        String texto = textoDe(pdf);
+        assertTrue(texto.contains("Ana Prueba"), texto);
+        assertTrue(texto.contains("Test IA Evento"), texto);
+        assertTrue(texto.contains(EDICION), texto);
+        assertTrue(texto.contains("Montevideo"), texto);
+        assertTrue(texto.contains(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .format(LocalDate.now())), "la fecha de emision es la de hoy: " + texto);
+    }
+
+    @Test
+    @DisplayName("CV · una edicion archivada despues no le quita la constancia a quien asistio")
+    void constanciaDeUnaEdicionArchivada() throws Exception {
+        sistema.registrarAsistencia(ANA, EDICION);
+        cambiarEdicion("estado = 'ARCHIVADA'");
+
+        byte[] pdf = sistema.obtenerConstanciaAsistencia(ANA, EDICION);
+
+        assertTrue(textoDe(pdf).contains("Ana Prueba"));
+    }
+
+    @Test
+    @DisplayName("CI · registrado pero sin asistencia: no hay constancia")
+    void sinAsistenciaNoHayConstancia() {
+        ReglaNegocioException error = assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(BETO, EDICION));
+
+        assertTrue(error.getMessage().contains("Todavía no registraste tu asistencia"));
+    }
+
+    @Test
+    @DisplayName("CI · quien no se registro, el organizador y un visitante no reciben constancia")
+    void otrosNoLaRecibenAunqueOtroAsistio() throws ReglaNegocioException {
+        sistema.registrarAsistencia(ANA, EDICION);
+
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(CARLOS, EDICION));
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(ORGANIZADOR, EDICION));
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(null, EDICION));
+    }
+
+    @Test
+    @DisplayName("CI · una edicion que no existe, o sin nombre, no tiene constancia")
+    void constanciaDeEdicionInexistente() {
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(ANA, "No existe esta edicion"));
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.obtenerConstanciaAsistencia(ANA, null));
     }
 
     @Test

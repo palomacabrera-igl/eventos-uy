@@ -372,6 +372,33 @@ public class EdicionEvento extends EntidadBase {
         registro.registrarAsistencia();
     }
 
+    /**
+     * La constancia de asistencia en PDF (letra, 6.2 y 7.5). Solo la recibe quien
+     * esta registrado en la edicion y ya registro su asistencia; a cualquier otro
+     * le llega un error, no un PDF vacio.
+     *
+     * No mira el estado de la edicion: una edicion archivada conserva sus
+     * registros y cada asistente sigue viendo el suyo, constancia incluida.
+     * "hoy" es la fecha de emision y llega como parametro, como en
+     * registrarAsistencia, para poder probarla.
+     */
+    public byte[] obtenerConstancia(String nickname, LocalDate hoy) throws ReglaNegocioException {
+        Registro registro = buscarRegistroDe(nickname);
+        if (registro == null) {
+            throw new ReglaNegocioException(
+                    "No estás registrado en la edición \"" + nombre + "\".");
+        }
+        if (!registro.getAsistio()) {
+            throw new ReglaNegocioException("Todavía no registraste tu asistencia a la edición \""
+                    + nombre + "\": la constancia es solo para quien asistió.");
+        }
+        Asistente asistente = registro.getAsistente();
+        return ConstanciaAsistencia.generar(new ConstanciaAsistencia.Datos(
+                asistente.getNombre(), asistente.getApellido(),
+                evento == null ? null : evento.getNombre(), nombre, ciudad,
+                fechaIni, fechaFin, hoy));
+    }
+
     private void exigirQueSePuedaAsistir(LocalDate hoy) throws ReglaNegocioException {
         if (estado == EstadoEdicion.ARCHIVADA) {
             throw new ReglaNegocioException("La edición \"" + nombre

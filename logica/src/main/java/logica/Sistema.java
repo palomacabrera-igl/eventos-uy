@@ -1644,7 +1644,8 @@ public class Sistema implements IControladorSistema {
     @Override
     public byte[] obtenerConstanciaAsistencia(String solicitante, String nombreEdicion)
             throws ReglaNegocioException {
-        throw pendiente("obtenerConstanciaAsistencia");
+        // El PDF se arma en el momento y no se guarda en ningun lado (letra, 7.5).
+        return buscarEdicionExistente(nombreEdicion).obtenerConstancia(solicitante, LocalDate.now());
     }
 
     @Override
