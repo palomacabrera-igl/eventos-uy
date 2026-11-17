@@ -1649,12 +1649,30 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void registrarVisita(String nombreEvento) throws ReglaNegocioException {
-        throw pendiente("registrarVisita");
+        String nombre = limpiar(nombreEvento);
+        if (nombre.isEmpty()) {
+            throw new ReglaNegocioException("Falta el nombre del evento.");
+        }
+        // Un solo UPDATE atomico en la base (ver ManejadorEvento.sumarVisita): no
+        // se lee el evento, asi que dos visitas a la vez no se pisan.
+        if (manejadorEvento.sumarVisita(nombre) == 0) {
+            throw new ReglaNegocioException(
+                    "No existe un evento con el nombre \"" + nombreEvento + "\".");
+        }
     }
 
     @Override
     public List<DTEvento> listarEventosMasVisitados(int cantidad) {
-        throw pendiente("listarEventosMasVisitados");
+        List<DTEvento> resultado = new ArrayList<>();
+        if (cantidad <= 0) {
+            return resultado;
+        }
+        // Incluye los eventos finalizados: es una consulta del administrador, que
+        // en la Estacion ve tambien los finalizados (letra, 6.1).
+        for (Evento evento : manejadorEvento.masVisitados(cantidad)) {
+            resultado.add(evento.obtenerDT());
+        }
+        return resultado;
     }
 
     @Override
