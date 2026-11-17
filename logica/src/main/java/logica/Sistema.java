@@ -1659,11 +1659,16 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public boolean existeNickname(String nickname) {
-        throw pendiente("existeNickname");
+        // Misma comparacion que altaUsuario: sin espacios a los costados y exacta.
+        // Vacio o null no es un nickname que alguien tenga: false, para que el
+        // formulario no marque como "no disponible" un campo que todavia esta vacio.
+        String buscado = limpiar(nickname);
+        return !buscado.isEmpty() && manejadorUsuario.existeNickname(buscado);
     }
 
     @Override
     public boolean existeCorreo(String correo) {
-        throw pendiente("existeCorreo");
+        String buscado = limpiar(correo);
+        return !buscado.isEmpty() && manejadorUsuario.existeCorreo(buscado);
     }
 }
