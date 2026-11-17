@@ -1635,7 +1635,10 @@ public class Sistema implements IControladorSistema {
     @Override
     public void registrarAsistencia(String solicitante, String nombreEdicion)
             throws ReglaNegocioException {
-        throw pendiente("registrarAsistencia");
+        // Sin estado: la edicion se busca por el nombre que llega, y el registro
+        // es el del solicitante. El cambio de "asistio" lo guarda solo la unidad
+        // de trabajo al hacer commit (la entidad esta conectada).
+        buscarEdicionExistente(nombreEdicion).registrarAsistencia(solicitante, LocalDate.now());
     }
 
     @Override

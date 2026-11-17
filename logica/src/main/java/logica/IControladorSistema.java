@@ -603,7 +603,8 @@ public interface IControladorSistema {
 
     /**
      * Registra la asistencia del solicitante a una edicion en la que esta
-     * registrado. Solo el asistente registrado, y una sola vez.
+     * registrado. Solo el asistente registrado, y una sola vez. La edicion tiene
+     * que estar Aceptada (una Archivada ya no admite cambios) y haber empezado.
      */
     void registrarAsistencia(String solicitante, String nombreEdicion)
             throws ReglaNegocioException;

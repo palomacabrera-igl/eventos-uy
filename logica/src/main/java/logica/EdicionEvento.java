@@ -13,6 +13,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -336,6 +337,69 @@ public class EdicionEvento extends EntidadBase {
             }
         }
         return cantidad;
+    }
+
+    // ===== Rol 4: asistencia =====
+
+    /**
+     * Registra la asistencia de un asistente a esta edicion (letra, 6.3).
+     *
+     * <ul>
+     *   <li>Solo puede hacerlo quien esta registrado en ella: a cualquier otro
+     *       (un organizador, un asistente que no se registro, un visitante) le
+     *       llega el mismo mensaje.</li>
+     *   <li>Una sola vez: la segunda es un error.</li>
+     *   <li>La edicion tiene que estar Aceptada (una Archivada ya no admite
+     *       cambios) y tiene que haber empezado: no se puede haber asistido a algo
+     *       que todavia no paso. Despues de su fecha de fin si se puede, hasta
+     *       que el organizador la archive.</li>
+     * </ul>
+     *
+     * "hoy" llega como parametro, como en altaRegistro, para poder probar la
+     * regla de la fecha sin depender del reloj.
+     */
+    public void registrarAsistencia(String nickname, LocalDate hoy) throws ReglaNegocioException {
+        Registro registro = buscarRegistroDe(nickname);
+        if (registro == null) {
+            throw new ReglaNegocioException(
+                    "No estás registrado en la edición \"" + nombre + "\".");
+        }
+        // Si ya la habia registrado, lo que tiene que saber es eso, aunque la
+        // edicion se haya archivado despues: lo dice Registro.registrarAsistencia().
+        if (!registro.getAsistio()) {
+            exigirQueSePuedaAsistir(hoy);
+        }
+        registro.registrarAsistencia();
+    }
+
+    private void exigirQueSePuedaAsistir(LocalDate hoy) throws ReglaNegocioException {
+        if (estado == EstadoEdicion.ARCHIVADA) {
+            throw new ReglaNegocioException("La edición \"" + nombre
+                    + "\" está archivada: ya no admite registrar asistencia.");
+        }
+        if (!estaAceptada()) {
+            throw new ReglaNegocioException("La edición \"" + nombre
+                    + "\" no está aceptada: no admite registrar asistencia.");
+        }
+        if (fechaIni != null && hoy.isBefore(fechaIni)) {
+            throw new ReglaNegocioException("La edición \"" + nombre
+                    + "\" todavía no empezó (empieza el "
+                    + fechaIni.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    + "): no se puede registrar la asistencia.");
+        }
+    }
+
+    /** El registro de ese asistente en esta edicion, o null si no esta registrado. */
+    private Registro buscarRegistroDe(String nickname) {
+        if (nickname == null) {
+            return null;
+        }
+        for (Registro r : registros) {
+            if (r.getAsistente().getNickname().equals(nickname.trim())) {
+                return r;
+            }
+        }
+        return null;
     }
 
     public DTEdicionCompleto obtenerDTCompleto() {
