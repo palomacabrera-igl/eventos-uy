@@ -48,6 +48,27 @@
             <artifactId>imageio-webp</artifactId>
             <version>3.12.0</version>
         </dependency>
+
+        <!--
+            Servicios web SOAP (Jakarta XML Web Services). Es la implementacion de
+            referencia, la misma version que usa la demo del curso. Trae las
+            anotaciones (@WebService, @WebMethod...), la clase Endpoint que publica
+            el servicio, y JAXB, que convierte los DT en XML y viceversa.
+            Desde Java 11 el JDK ya no la incluye.
+        -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>4.0.5</version>
+        </dependency>
+
+        <!-- JUnit 5: solo al compilar y ejecutar pruebas. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,6 +91,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
