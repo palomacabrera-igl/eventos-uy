@@ -21,7 +21,7 @@ import java.util.Set;
  * (recuerda la edicion)
  * 4) altaRegistro(nickname, nombreEdicion, nombreTipo) -> OK / ERROR
  */
-public class RegistroEdicionDeEvento {
+public class RegistroEdicionDeEvento implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Registro a Edición de Evento";
@@ -46,6 +46,7 @@ public class RegistroEdicionDeEvento {
 
     public RegistroEdicionDeEvento() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         cargarEventos();
 
@@ -54,6 +55,15 @@ public class RegistroEdicionDeEvento {
         TipoRegistroCBox.addActionListener(e -> mostrarCosto());
         confirmarButton.addActionListener(e -> confirmar());
         cancelarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventoCBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
     }
 
     public JPanel getMainPanel() {

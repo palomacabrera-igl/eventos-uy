@@ -16,7 +16,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Set;
 
-public class ModificarUsuarioPanel {
+public class ModificarUsuarioPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Modificar Datos de Usuario";
@@ -56,6 +56,7 @@ public class ModificarUsuarioPanel {
 
     public ModificarUsuarioPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         campoNickname.setEditable(false);
         campoNickname.setBackground(Color.LIGHT_GRAY);
@@ -92,6 +93,19 @@ public class ModificarUsuarioPanel {
         campoConfirmacion.setText("");
         imagenNueva = null;
         etiquetaImagen.setText("Sin cambios");
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los usuarios.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        // El primer elemento es "(Elegí un usuario)": no viene de la base y no se toca.
+        // Lo que se esta escribiendo en el formulario tampoco: solo cambia la lista.
+        Combos.sincronizar(comboUsuarios,
+                controlador.listarUsuarios().stream().map(DTUsuario::getNickname).toList(),
+                nickname -> nickname, 1);
     }
 
     public JPanel getMainPanel() {
@@ -221,13 +235,6 @@ public class ModificarUsuarioPanel {
             }
         }
 
-        // PENDIENTE: cuando Paloma implemente modificarUsuario(...) en Sistema,
-        // la llamada de abajo pasa a ser esta, que ademas guarda la contrasena
-        // y la imagen (la Estacion de Trabajo es el administrador: solicitante null):
-        //   controlador.modificarUsuario(null, dtModificado, nuevaPassword,
-        //                                confirmacion, imagenNueva);
-        // Hasta entonces se usa la de antes, que no cambia contrasena ni imagen.
-
         // (b) Llamada a la LOGICA: siempre dentro del try.
         try {
             DTUsuario dtModificado;
@@ -245,7 +252,12 @@ public class ModificarUsuarioPanel {
                         nombre, usuarioActual.getCorreo(),
                         campoDescripcion.getText().trim(), campoSitioWeb.getText().trim());
             }
-            controlador.modificarDatosUsuario(dtModificado);
+            // El primer parametro es quien pide el cambio. En el sitio sale
+            // de la sesion, para que nadie modifique los datos de otro; aca
+            // no hay sesion y el administrador puede modificar a cualquiera,
+            // asi que se pasa el nickname del usuario que se esta editando.
+            controlador.modificarUsuario(usuarioActual.getNickname(), dtModificado,
+                    nuevaPassword, confirmacion, imagenNueva);
             Mensajes.exito(mainPanel, TITULO, "Datos actualizados correctamente.");
             accionCerrar.run();
         } catch (Exception ex) {

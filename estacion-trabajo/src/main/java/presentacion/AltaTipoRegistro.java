@@ -13,7 +13,7 @@ import java.util.Set;
  * esta en AltaTipoRegistro.form (editable por arrastre); esta clase
  * contiene el comportamiento.
  */
-public class AltaTipoRegistro {
+public class AltaTipoRegistro implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Alta de Tipo de Registro";
@@ -34,6 +34,7 @@ public class AltaTipoRegistro {
 
     public AltaTipoRegistro() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         CupoSpinner.setModel(new SpinnerNumberModel(1, 1, 100000, 1));
 
@@ -43,6 +44,15 @@ public class AltaTipoRegistro {
         EdicionCBox.addActionListener(e -> seleccionarEdicion());
         confirmarButton.addActionListener(e -> confirmar());
         cancelarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventoCBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
     }
 
     public JPanel getMainPanel() {

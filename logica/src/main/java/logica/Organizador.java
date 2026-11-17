@@ -7,7 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Usuario de tipo organizador. Ademas de los datos de {@link Usuario}, tiene
@@ -72,8 +74,10 @@ public class Organizador extends Usuario {
 
     @Override
     public DTOrganizador obtenerDT() {
-        return new DTOrganizador(getNickname(), getNombre(), getCorreoElectronico(),
+        DTOrganizador dt = new DTOrganizador(getNickname(), getNombre(), getCorreoElectronico(),
                 descripcion, sitioWeb, tieneImagen());
+        dt.setFechaAlta(obtenerFechaAltaDT());
+        return dt;
     }
 
     @Override
@@ -94,6 +98,27 @@ public class Organizador extends Usuario {
 
     public List<EdicionEvento> getEdiciones() {
         return ediciones;
+    }
+
+    /**
+     * Las ediciones de este organizador, segun quien las este mirando (CU 4).
+     *
+     * Para cualquiera: solo las Aceptada. Para el propio organizador: las
+     * tres, como pide la letra. Una edicion Ingresada o Rechazada es asunto
+     * de quien la propuso: un visitante no tiene por que enterarse de que
+     * alguien propuso algo que todavia no se acepto, o que se rechazo.
+     *
+     * solicitante es null cuando el sitio lo mira alguien sin sesion.
+     */
+    public Set<DTEdicionEvento> obtenerEdicionesPara(String solicitante) {
+        boolean esSuPropioPerfil = esSuPropioPerfil(solicitante);
+        Set<DTEdicionEvento> resultado = new LinkedHashSet<>();
+        for (EdicionEvento ed : ediciones) {
+            if (esSuPropioPerfil || ed.estaAceptada()) {
+                resultado.add(ed.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     public EdicionEvento buscarEdicion(String nombre) {

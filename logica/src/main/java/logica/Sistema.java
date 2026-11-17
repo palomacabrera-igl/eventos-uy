@@ -11,6 +11,25 @@ import java.util.*;
  *
  * Sistema solo coordina el caso de uso: valida reglas de negocio y guarda
  * las referencias retenidas entre llamados.
+ *
+ * <h2>No hay que "guardar" a mano</h2>
+ *
+ * Cada operacion de esta clase corre dentro de una unidad de trabajo que abre
+ * y cierra ControladorConUnidadDeTrabajo (ver tambien persistencia.Persistencia):
+ * un EntityManager nuevo y una transaccion. Eso significa que:
+ *
+ *   - Una entidad que se LEE de un Manejador queda "conectada": si se le cambia
+ *     algo (edicion.aceptar(), usuario.modificarDatos(...), agregarle un tipo de
+ *     registro a una edicion), JPA lo detecta solo y lo guarda al terminar la
+ *     operacion. No hace falta llamar a ningun "guardar" despues.
+ *   - Una entidad NUEVA si hay que persistirla con manejador.agregar(...).
+ *   - Si la operacion lanza una excepcion (una ReglaNegocioException o cualquier
+ *     otra), se hace rollback y se tira el EntityManager entero: nada de lo que
+ *     se haya cambiado en memoria llega a la base ni queda dando vueltas para
+ *     la proxima operacion.
+ *
+ * Por eso no se ve ningun try / catch ni commit en esta clase: estan una sola
+ * vez, en el intermediario.
  */
 public class Sistema implements IControladorSistema {
 
@@ -19,7 +38,12 @@ public class Sistema implements IControladorSistema {
     private final ManejadorInstitucion manejadorInstitucion;
     private final ManejadorEvento manejadorEvento;
 
-    // Referencias retenidas entre llamados
+    // Referencias retenidas entre llamados. SOLO las operaciones del
+    // Laboratorio 1 (seleccionarXxx / ingresarXxx), que usa la Estacion de
+    // Trabajo, las escriben. Las operaciones "sin estado" del sitio web NO
+    // pueden tocarlas: el sitio atiende varias peticiones a la vez y estos
+    // campos son de todos. Antes de cada operacion se vuelven a conectar a la
+    // base (ver reanclarSeleccion()).
     private Usuario usuarioSeleccionado;
     private Evento eventoSeleccionado;
     private EdicionEvento edicionSeleccionada;
@@ -81,9 +105,9 @@ public class Sistema implements IControladorSistema {
                     "Primero hay que seleccionar el usuario a modificar.");
         }
         // 1: usuarioSeleccionado.modificarDatos(dt)
+        // El usuario esta conectado a la unidad de trabajo: el cambio se guarda
+        // solo al terminar la operacion.
         usuarioSeleccionado.modificarDatos(dt);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorUsuario.actualizar(usuarioSeleccionado);
     }
 
     /** Busqueda de Usuario por nickname (delega en ManejadorUsuario). */
@@ -188,10 +212,8 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "Primero hay que seleccionar el evento y el organizador de la edicion.");
         }
+        // La edicion nueva viaja por el cascade del @OneToMany de Evento.
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
-        // JPA: confirma el cambio en la base. La edicion nueva viaja por el
-        // cascade del @OneToMany de Evento.
-        manejadorEvento.actualizar(eventoSeleccionado);
     }
 
     // ===== Alta de Usuario =====
@@ -234,8 +256,6 @@ public class Sistema implements IControladorSistema {
                     "Primero hay que ingresar los datos del asistente.");
         }
         asistenteRecordado.setInstitucion(i);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorUsuario.actualizar(asistenteRecordado);
     }
 
     @Override
@@ -286,9 +306,8 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException("Ya existe un tipo de registro con el nombre \""
                     + nombre + "\" en la edicion " + edicionSeleccionada.getNombre() + ".");
         }
+        // El tipo nuevo viaja por el cascade de la edicion.
         edicionSeleccionada.crearTipoRegistro(nombre, descripcion, costo, cupo);
-        // JPA: se actualiza por el Evento, que es la raiz del agregado.
-        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
 
     // ===== Registro a Edicion de Evento =====
@@ -300,7 +319,7 @@ public class Sistema implements IControladorSistema {
         this.edicionSeleccionada = ed;
         Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
         Set<DTAsistente> asistentes = listarAsistentes();
-        return new DTDatosRegistro(tiposRegistro, asistentes);
+        return new DTDatosRegistro(new ArrayList<>(tiposRegistro), new ArrayList<>(asistentes));
     }
 
     @Override
@@ -319,12 +338,34 @@ public class Sistema implements IControladorSistema {
                                   String codigoPatrocinio) throws ReglaNegocioException {
         // La edicion se resuelve por el nombre que llega como parametro, no por
         // la que quedo retenida de un llamado anterior.
-        EdicionEvento ed = manejadorEvento.buscarEdicion(nombreEdicion);
+        //
+        // Y se la TRABA en la base hasta que termine la operacion: el cupo del
+        // tipo de registro y los registros gratuitos de un patrocinio se
+        // controlan contando los registros que ya hay, y dos personas
+        // registrandose a la vez contarian los dos "queda 1 lugar" y entrarian
+        // las dos. Con la fila trabada, la segunda espera a que termine la
+        // primera y recien ahi cuenta, ya con el registro nuevo incluido.
+        EdicionEvento ed = manejadorEvento.buscarEdicionBloqueandola(nombreEdicion);
         if (ed == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
-        this.edicionSeleccionada = ed;
+        // Solo se registra a una edicion Aceptada. La letra, CU 12: "el
+        // asistente elige uno y ve las ediciones en estado Aceptada".
+        //
+        // El listado del sitio ya muestra solo esas, pero eso es presentacion:
+        // si el pedido no pasa por ese listado -por ejemplo armado a mano-, la
+        // regla tiene que seguir valiendo. Vale para los dos clientes: una
+        // edicion que todavia no se acepto, o que se rechazo, no admite
+        // registros aunque los pida el administrador desde la Estacion.
+        if (!ed.estaAceptada()) {
+            throw new ReglaNegocioException("La edicion " + ed.getNombre()
+                    + " no esta aceptada: no admite registros.");
+        }
+
+        // OJO: esta operacion la usa el sitio, que atiende varias peticiones a
+        // la vez, asi que NO deja nada "seleccionado" en los campos del Sistema
+        // (antes hacia this.edicionSeleccionada = ed): esos campos son de todos.
 
         if (!ed.estaAceptada()) {
             throw new ReglaNegocioException(
@@ -357,8 +398,10 @@ public class Sistema implements IControladorSistema {
             patrocinio = validarCodigoPatrocinio(ed, tr, (Asistente) u, codigoPatrocinio);
         }
 
+        // El Registro nuevo viaja por el cascade de la edicion y se guarda, junto
+        // con todo lo demas, cuando la unidad de trabajo hace commit. Si el commit
+        // falla, no queda en memoria: se descarta con el EntityManager.
         ed.altaRegistro((Asistente) u, tr, LocalDate.now(), patrocinio);
-        manejadorEvento.actualizar(ed.getEvento());
     }
 
     /**
@@ -613,8 +656,6 @@ public class Sistema implements IControladorSistema {
                 NivelPatrocinio.valueOf(dt.getNivel()),
                 institucion, tipo);
         edicionSeleccionada.agregarPatrocinio(p);
-        // JPA: confirma el cambio en la base (sin transaccion se perderia).
-        manejadorEvento.actualizar(edicionSeleccionada.getEvento());
     }
     // ===== Alta Evento =====
     @Override
@@ -775,6 +816,11 @@ public class Sistema implements IControladorSistema {
                 throw new ReglaNegocioException(
                         "El apellido y la fecha de nacimiento son obligatorios.");
             }
+            if (Asistente.fechaDeNacimientoEnElFuturo(
+                    asistente.getFechaNacimiento().aLocalDate(), LocalDate.now())) {
+                throw new ReglaNegocioException(
+                        "La fecha de nacimiento no puede ser posterior a hoy.");
+            }
             Asistente nuevo = new Asistente(nickname, nombre, correo,
                     asistente.getApellido().trim(),
                     asistente.getFechaNacimiento().aLocalDate(),
@@ -821,41 +867,140 @@ public class Sistema implements IControladorSistema {
     @Override
     public DTUsuario consultarUsuario(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Usuario: todavia no implementado.");
+        // El perfil en si es publico: nickname, nombre, correo, tipo y si
+        // tiene imagen. La contrasena no esta en el DT, asi que no hay nada
+        // que esconder aca. Lo que depende de quien pregunta son los dos
+        // listados de abajo, no estos datos.
+        return exigirUsuario(nickname).obtenerDT();
     }
 
     @Override
     public Set<DTEdicionEvento> listarEdicionesDeOrganizador(String nickname, String solicitante)
             throws ReglaNegocioException {
-        String nicknameLimpio = limpiar(nickname);
-        Usuario usuario = find(nicknameLimpio);
+
+        Usuario usuario = exigirUsuario(nickname);
         if (!(usuario instanceof Organizador organizador)) {
             throw new ReglaNegocioException(
-                    "No existe un organizador con el nickname \"" + nicknameLimpio + "\".");
+                    "El usuario \"" + usuario.getNickname() + "\" no es un organizador.");
         }
-
-        boolean esPropioPerfil = nicknameLimpio.equals(limpiar(solicitante));
-        Set<DTEdicionEvento> resultado = new HashSet<>();
-        for (EdicionEvento edicion : organizador.getEdiciones()) {
-            if (esPropioPerfil || edicion.estaAceptada()) {
-                resultado.add(edicion.obtenerDT());
-            }
-        }
-        return resultado;
+        return organizador.obtenerEdicionesPara(solicitante);
     }
 
     @Override
     public Set<DTRegistro> listarRegistrosDeAsistente(String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException(
-                "Registros de un asistente: todavia no implementado.");
+
+        Usuario usuario = exigirUsuario(nickname);
+        if (!(usuario instanceof Asistente asistente)) {
+            throw new ReglaNegocioException(
+                    "El usuario \"" + usuario.getNickname() + "\" no es un asistente.");
+        }
+        return asistente.obtenerRegistrosPara(solicitante);
     }
+
+    /** El usuario que se pide, o un error si no existe. */
+    private Usuario exigirUsuario(String nickname) throws ReglaNegocioException {
+        Usuario usuario = (nickname == null || nickname.isBlank())
+                ? null
+                : manejadorUsuario.buscar(nickname.trim());
+        if (usuario == null) {
+            throw new ReglaNegocioException(
+                    "No existe un usuario con el nickname \"" + nickname + "\".");
+        }
+        return usuario;
+    }
+
 
     @Override
     public void modificarUsuario(String solicitante, DTUsuario datos, String nuevaPassword,
                                  String confirmacion, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Modificar Usuario: todavia no implementado.");
+
+        if (solicitante == null || solicitante.isBlank()) {
+            throw new ReglaNegocioException("Hay que iniciar sesion para modificar los datos.");
+        }
+        if (datos == null) {
+            throw new ReglaNegocioException("Faltan los datos del usuario.");
+        }
+
+        // Se modifica SIEMPRE el usuario que inicio sesion, nunca el que venga
+        // nombrado en el formulario. Si alguien manda el nickname de otro, el
+        // pedido se rechaza en vez de ignorarse en silencio.
+        Usuario usuario = exigirUsuario(solicitante);
+        String pedido = datos.getNickname();
+        if (pedido != null && !pedido.isBlank() && !usuario.esSuPropioPerfil(pedido)) {
+            throw new ReglaNegocioException("Solo se pueden modificar los datos propios.");
+        }
+
+        if (limpiar(datos.getNombre()).isEmpty()) {
+            throw new ReglaNegocioException("El nombre es obligatorio.");
+        }
+
+        // La contrasena es opcional: los dos campos vacios significan "dejala
+        // como esta". Si se escribe una, tiene que coincidir con su
+        // confirmacion, aunque el pedido no haya pasado por el navegador.
+        boolean cambiaPassword = nuevaPassword != null && !nuevaPassword.isEmpty();
+        if (cambiaPassword && !nuevaPassword.equals(confirmacion)) {
+            throw new ReglaNegocioException("Las dos contraseñas no coinciden.");
+        }
+
+        // Lo propio de cada tipo, antes de tocar nada: si algo falla, el
+        // usuario tiene que quedar como estaba.
+        Institucion institucion = null;
+        boolean cambiaInstitucion = false;
+
+        if (usuario instanceof Asistente) {
+            if (!(datos instanceof DTAsistente asistente)) {
+                throw new ReglaNegocioException("Faltan los datos del asistente.");
+            }
+            if (limpiar(asistente.getApellido()).isEmpty()
+                    || asistente.getFechaNacimiento() == null) {
+                throw new ReglaNegocioException(
+                        "El apellido y la fecha de nacimiento son obligatorios.");
+            }
+            if (Asistente.fechaDeNacimientoEnElFuturo(
+                    asistente.getFechaNacimiento().aLocalDate(), LocalDate.now())) {
+                throw new ReglaNegocioException(
+                        "La fecha de nacimiento no puede ser posterior a hoy.");
+            }
+            // Sin institucion es una opcion valida, asi que se distingue entre
+            // "no la nombraron" y "la sacaron": las dos llegan como vacio y
+            // las dos significan lo mismo, dejar al asistente sin institucion.
+            cambiaInstitucion = true;
+            String nombreInstitucion = limpiar(asistente.getInstitucion());
+            if (!nombreInstitucion.isEmpty()) {
+                institucion = manejadorInstitucion.buscar(nombreInstitucion);
+                if (institucion == null) {
+                    throw new ReglaNegocioException(
+                            "No existe una institucion con el nombre \"" + nombreInstitucion + "\".");
+                }
+            }
+        } else {
+            if (!(datos instanceof DTOrganizador organizador)) {
+                throw new ReglaNegocioException("Faltan los datos del organizador.");
+            }
+            if (limpiar(organizador.getDescripcion()).isEmpty()) {
+                throw new ReglaNegocioException("La descripcion es obligatoria.");
+            }
+        }
+
+        // El nickname y el correo no se tocan: modificarDatos() solo cambia el
+        // nombre y lo propio de cada tipo, asi que si el formulario los manda
+        // igual no pasa nada.
+        usuario.modificarDatos(datos);
+
+        if (cambiaInstitucion) {
+            ((Asistente) usuario).setInstitucion(institucion);
+        }
+        if (cambiaPassword) {
+            usuario.cambiarPassword(nuevaPassword);
+        }
+        // La imagen solo se reemplaza cuando eligieron una nueva. Un
+        // formulario enviado sin elegir archivo deja la que ya estaba.
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+        }
+
     }
 
     @Override
@@ -877,7 +1022,6 @@ public class Sistema implements IControladorSistema {
                     + nickname + "\".");
         }
         usuario.asignarImagen(crearImagen(imagen));
-        manejadorUsuario.actualizar(usuario);
     }
 
     // ----- Eventos y ediciones (CU 6 a 9) -----
@@ -930,20 +1074,112 @@ public class Sistema implements IControladorSistema {
     public void altaEvento(String solicitante, String nombre, String descripcion, String sigla,
                            List<String> nombresCategorias, DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Evento: todavia no implementado.");
+        // Solo un organizador con sesion puede crear eventos.
+        if (!(find(limpiar(solicitante)) instanceof Organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede dar de alta eventos.");
+        }
+        Evento.validarDatos(nombre, descripcion, sigla, nombresCategorias);
+
+        String nombreLimpio = limpiar(nombre);
+        if (findEvento(nombreLimpio) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un evento con el nombre \"" + nombreLimpio + "\".");
+        }
+
+        // Cada categoria tiene que existir; si la eligieron dos veces, va una vez.
+        List<Categoria> categorias = new ArrayList<>();
+        for (String nombreCategoria : nombresCategorias) {
+            if (nombreCategoria == null || nombreCategoria.isBlank()) {
+                continue;
+            }
+            Categoria categoria = findCategoria(nombreCategoria.trim());
+            if (categoria == null) {
+                throw new ReglaNegocioException(
+                        "La categoría \"" + nombreCategoria + "\" no existe en la plataforma.");
+            }
+            if (!categorias.contains(categoria)) {
+                categorias.add(categoria);
+            }
+        }
+
+        // La fecha de alta es la de hoy: la pone el sistema, no el formulario.
+        Evento evento = new Evento(nombreLimpio, limpiar(descripcion), LocalDate.now(),
+                limpiar(sigla), categorias);
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            evento.asignarImagen(crearImagen(imagen));
+        }
+        manejadorEvento.agregar(evento);
     }
 
     @Override
     public void altaEdicion(String solicitante, String nombreEvento, DTEdicionEvento datos,
                             DTImagen imagen)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Edicion: todavia no implementado.");
+        // Solo un organizador con sesion: y el organizador de la edicion es
+        // siempre quien la da de alta, no se elige.
+        Usuario usuario = find(limpiar(solicitante));
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede dar de alta ediciones.");
+        }
+        Evento evento = buscarEventoExistente(nombreEvento);
+        if (datos == null) {
+            throw new ReglaNegocioException("Faltan los datos de la edición.");
+        }
+
+        String nombre = limpiar(datos.getNombre());
+        LocalDate inicio = datos.getFechaInicio() == null ? null : datos.getFechaInicio().aLocalDate();
+        LocalDate fin = datos.getFechaFin() == null ? null : datos.getFechaFin().aLocalDate();
+        EdicionEvento.validarDatos(nombre, datos.getSigla(), datos.getCiudad(), datos.getPais(),
+                inicio, fin);
+
+        // Una edicion no puede repetir nombre en NINGUN evento (regla del Lab 1).
+        if (manejadorEvento.buscarEdicion(nombre) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe una edición con el nombre \"" + nombre + "\".");
+        }
+
+        // La fecha de alta la pone el sistema: se ignora la del DT si viniera.
+        // El estado no se pasa: toda edicion nace INGRESADA.
+        DTEdicionEvento limpio = new DTEdicionEvento(nombre, limpiar(datos.getSigla()),
+                limpiar(datos.getCiudad()), limpiar(datos.getPais()),
+                DTFecha.desde(inicio), DTFecha.desde(fin), DTFecha.desde(LocalDate.now()));
+        // La edicion nueva viaja por el cascade del @OneToMany de Evento y se
+        // guarda cuando la unidad de trabajo hace commit.
+        EdicionEvento nueva = evento.altaEdicion(limpio, organizador);
+
+        // La imagen es opcional: si no viene, la edicion queda sin imagen.
+        if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
+            nueva.asignarImagen(crearImagen(imagen));
+        }
     }
 
     @Override
     public DTEdicionCompleto consultarEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        if (!edicion.puedeVerla(solicitante)) {
+            throw new ReglaNegocioException("La edición \"" + edicion.getNombre()
+                    + "\" todavía no está publicada. Solo puede verla su organizador.");
+        }
+        return edicion.obtenerDTCompletoPara(solicitante);
+    }
+
+    /**
+     * Busca una edicion por nombre en TODOS los eventos, sin depender de un
+     * evento "seleccionado" antes: las operaciones de la web no recuerdan nada
+     * entre llamadas. Los nombres de edicion son unicos en la plataforma.
+     */
+    private EdicionEvento buscarEdicionExistente(String nombreEdicion)
+            throws ReglaNegocioException {
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre de la edición.");
+        }
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
+        }
+        return edicion;
     }
 
     @Override
@@ -953,7 +1189,9 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTImagen obtenerImagenEdicion(String nombreEdicion) throws ReglaNegocioException {
-        return obtenerDTImagen(buscarEdicionDelEvento(nombreEdicion).getImagen());
+        // Sin estado: buscarEdicionDelEvento exigia un evento seleccionado antes
+        // y desde la web fallaba siempre.
+        return obtenerDTImagen(buscarEdicionExistente(nombreEdicion).getImagen());
     }
 
     @Override
@@ -961,15 +1199,13 @@ public class Sistema implements IControladorSistema {
             throws ReglaNegocioException {
         Evento evento = buscarEventoExistente(nombreEvento);
         evento.asignarImagen(crearImagen(imagen));
-        manejadorEvento.actualizar(evento);
     }
 
     @Override
     public void asignarImagenEdicion(String nombreEdicion, DTImagen imagen)
             throws ReglaNegocioException {
-        EdicionEvento edicion = buscarEdicionDelEvento(nombreEdicion);
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
         edicion.asignarImagen(crearImagen(imagen));
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     // ----- Tipos de registro e instituciones (CU 10, 11 y 14) -----
@@ -987,7 +1223,7 @@ public class Sistema implements IControladorSistema {
         EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
         if (edicion == null) {
             throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
         }
         if (!edicion.getOrganizador().getNickname().equals(usuario.getNickname())) {
             throw new ReglaNegocioException(
@@ -1010,25 +1246,17 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException("El cupo debe ser mayor que cero.");
         }
 
+        // El tipo pertenece a la edicion: se persiste por cascade al terminar.
         edicion.crearTipoRegistro(nombreLimpio, limpiar(descripcion), costo, cupo);
-        // El tipo pertenece a la edicion y esta al evento: al actualizar la
-        // raiz del agregado se persiste por cascade, como en el flujo Swing.
-        manejadorEvento.actualizar(edicion.getEvento());
     }
 
     @Override
-    public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+    public DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo,
+                                               String solicitante)
             throws ReglaNegocioException {
-        EdicionEvento edicion = manejadorEvento.buscarEdicion(limpiar(nombreEdicion));
-        if (edicion == null) {
-            throw new ReglaNegocioException(
-                    "No existe una edicion con el nombre \"" + nombreEdicion + "\".");
-        }
-        if (!edicion.estaAceptada()) {
-            throw new ReglaNegocioException(
-                    "La edicion \"" + edicion.getNombre()
-                            + "\" no esta disponible para consulta publica.");
-        }
+        // Quien pregunta importa: una edicion que no esta Aceptada la ve solo
+        // su organizador. Es la misma regla que ya usaban los patrocinios.
+        EdicionEvento edicion = edicionVisiblePara(limpiar(nombreEdicion), solicitante);
 
         TipoRegistro tipo = edicion.buscarTipoRegistro(limpiar(nombreTipo));
         if (tipo == null) {
@@ -1106,7 +1334,6 @@ public class Sistema implements IControladorSistema {
                     "No existe una institucion con el nombre \"" + nombre + "\".");
         }
         institucion.asignarImagen(crearImagen(imagen));
-        manejadorInstitucion.actualizar(institucion);
     }
 
     private static DTImagen obtenerDTImagen(Imagen imagen) {
@@ -1127,13 +1354,16 @@ public class Sistema implements IControladorSistema {
     @Override
     public Set<DTRegistro> listarRegistrosDeEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Registros de una edicion: todavia no implementado.");
+        return buscarEdicionExistente(nombreEdicion).obtenerRegistrosPara(solicitante);
     }
 
     @Override
     public DTRegistro consultarRegistro(String nombreEdicion, String nickname, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Registro: todavia no implementado.");
+        if (nickname == null || nickname.isBlank()) {
+            throw new ReglaNegocioException("Falta el nickname del asistente.");
+        }
+        return buscarEdicionExistente(nombreEdicion).obtenerRegistroPara(nickname, solicitante);
     }
 
     // ----- Patrocinios (CU 15 y 16) -----
@@ -1141,54 +1371,306 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaPatrocinio(String solicitante, String nombreEdicion, DTPatrocinio datos)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Alta de Patrocinio sin estado: todavia no implementado.");
+
+        if (solicitante == null || solicitante.isBlank()) {
+            throw new ReglaNegocioException("Hay que iniciar sesion para dar de alta un patrocinio.");
+        }
+        if (datos == null || nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Faltan los datos del patrocinio.");
+        }
+
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
+        }
+
+        // La letra: el organizador ve "las ediciones de ese evento que EL
+        // organiza". En cualquier estado, eso si: se puede patrocinar una
+        // edicion todavia Ingresada.
+        if (!edicion.loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(
+                    "Solo el organizador de la edicion " + edicion.getNombre()
+                            + " puede darle un patrocinio.");
+        }
+
+        NivelPatrocinio nivel = nivelDe(datos.getNivel());
+
+        if (datos.getMonto() <= 0) {
+            throw new ReglaNegocioException("El aporte economico tiene que ser mayor que cero.");
+        }
+        if (datos.getCantRegistrosGratis() < 0) {
+            throw new ReglaNegocioException(
+                    "La cantidad de registros gratuitos no puede ser negativa.");
+        }
+
+        String codigo = limpiar(datos.getCodigoPatrocinio());
+        if (codigo.isEmpty()) {
+            throw new ReglaNegocioException("El codigo de patrocinio es obligatorio.");
+        }
+        // El codigo es unico en toda la plataforma. Hasta ahora esto solo lo
+        // frenaba la restriccion de la base, que corta con un error de
+        // Hibernate en vez de con un mensaje que se pueda mostrar.
+        if (manejadorEvento.buscarPatrocinioPorCodigo(codigo) != null) {
+            throw new ReglaNegocioException(
+                    "Ya existe un patrocinio con el codigo \"" + codigo + "\".");
+        }
+
+        Institucion institucion = manejadorInstitucion.buscar(limpiar(datos.getInstitucion()));
+        if (institucion == null) {
+            throw new ReglaNegocioException("No existe una institucion con el nombre \""
+                    + datos.getInstitucion() + "\".");
+        }
+        // Una institucion patrocina una edicion una sola vez.
+        if (edicion.tienePatrocinioDe(institucion.getNombre())) {
+            throw new ReglaNegocioException("La institucion " + institucion.getNombre()
+                    + " ya tiene un patrocinio para la edicion " + edicion.getNombre() + ".");
+        }
+
+        TipoRegistro tipo = edicion.buscarTipoRegistro(limpiar(datos.getTipoRegistro()));
+        if (tipo == null) {
+            throw new ReglaNegocioException("La edicion " + edicion.getNombre()
+                    + " no tiene un tipo de registro \"" + datos.getTipoRegistro() + "\".");
+        }
+
+        // El tope del 20%: la cuenta y la comparacion viven en Patrocinio.
+        if (Patrocinio.superaElTope(datos.getMonto(), tipo.getCosto(),
+                datos.getCantRegistrosGratis())) {
+            throw new ReglaNegocioException(String.format(
+                    "El valor de los registros gratuitos ($%.2f = %d x $%.2f) supera "
+                            + "el 20%% del aporte ($%.2f). Maximo permitido: $%.2f.",
+                    Patrocinio.valorDeGratis(tipo.getCosto(), datos.getCantRegistrosGratis()),
+                    datos.getCantRegistrosGratis(), tipo.getCosto(),
+                    datos.getMonto(), Patrocinio.topeDeGratis(datos.getMonto())));
+        }
+
+        // La fecha la pone el sistema, no el formulario (letra, seccion 6).
+        Patrocinio patrocinio = new Patrocinio(LocalDate.now(), datos.getMonto(),
+                datos.getCantRegistrosGratis(), codigo, nivel, institucion, tipo);
+
+        edicion.agregarPatrocinio(patrocinio);
+    }
+
+    @Override
+    public Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
+            throws ReglaNegocioException {
+
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new ReglaNegocioException("Hay que indicar una edicion.");
+        }
+        EdicionEvento edicion = manejadorEvento.buscarEdicion(nombreEdicion.trim());
+        if (edicion == null) {
+            throw new ReglaNegocioException(
+                    "No existe una edición con el nombre \"" + nombreEdicion + "\".");
+        }
+        // A diferencia de listarTiposRegistroDeEdicion(), esta NO se guarda la
+        // edicion en un campo: no deja estado que la proxima llamada pueda
+        // arrastrar, que es lo que el sitio necesita.
+        return edicion.obtenerTiposRegistro();
+    }
+
+    /** El nivel que llega como texto desde la pantalla, o un error entendible. */
+    private static NivelPatrocinio nivelDe(String texto) throws ReglaNegocioException {
+        try {
+            return NivelPatrocinio.valueOf(limpiar(texto).toUpperCase());
+        } catch (IllegalArgumentException noEsUnNivel) {
+            // valueOf tira IllegalArgumentException, que es un error de
+            // programa; se traduce a ReglaNegocioException, que es lo que la
+            // pantalla sabe mostrar.
+            throw new ReglaNegocioException(
+                    "El nivel de patrocinio tiene que ser Platino, Oro, Plata o Bronce.");
+        }
     }
 
     @Override
     public Set<DTPatrocinio> listarPatrociniosDeEdicion(String nombreEdicion, String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Patrocinios de una edicion: todavia no implementado.");
+        return edicionVisiblePara(nombreEdicion, solicitante).obtenerPatrociniosPara(solicitante);
     }
 
     @Override
     public DTPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion,
                                             String solicitante)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Consulta de Patrocinio: todavia no implementado.");
+        if (nombreInstitucion == null || nombreInstitucion.isBlank()) {
+            throw new ReglaNegocioException("Falta el nombre de la institución.");
+        }
+        return edicionVisiblePara(nombreEdicion, solicitante)
+                .obtenerPatrocinioPara(nombreInstitucion.trim(), solicitante);
+    }
+
+    /**
+     * La edicion, si quien pregunta la puede ver: una edicion que no esta
+     * Aceptada solo la ve su organizador. Es la misma regla que Consulta de
+     * Edicion, asi un patrocinio no deja ver una edicion que no se publico.
+     */
+    private EdicionEvento edicionVisiblePara(String nombreEdicion, String solicitante)
+            throws ReglaNegocioException {
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        if (!edicion.puedeVerla(solicitante)) {
+            throw new ReglaNegocioException("La edición \"" + edicion.getNombre()
+                    + "\" todavía no está publicada. Solo puede verla su organizador.");
+        }
+        return edicion;
     }
 
     // ----- Aceptar/Rechazar Edicion de Evento (Estacion de Trabajo) -----
 
+    /**
+     * Las ediciones Ingresada de un evento, para que el administrador elija
+     * cual aceptar o rechazar. No recuerda nada: la operacion siguiente recibe
+     * el nombre de la edicion.
+     */
     @Override
     public Set<DTEdicionEvento> listarEdicionesIngresadas(String nombreEvento)
             throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Ediciones ingresadas: todavia no implementado.");
+        return buscarEventoExistente(nombreEvento).obtenerEdicionesIngresadas();
     }
 
+    /**
+     * Acepta una edicion: pasa a ACEPTADA y desde ese momento el sitio la
+     * muestra al publico. La regla de que solo se puede desde INGRESADA vive
+     * en la entidad (EdicionEvento.aceptar), que es la unica que cambia el estado.
+     */
     @Override
     public void aceptarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Aceptar Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        edicion.aceptar();
     }
 
+    /** Rechaza una edicion. Solo se puede desde INGRESADA, igual que aceptar. */
     @Override
     public void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException {
-        throw new UnsupportedOperationException("Rechazar Edicion: todavia no implementado.");
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        edicion.rechazar();
     }
 
-    // ----- Mantenimiento -----
+    // ----- Estado retenido entre llamados (Laboratorio 1) -----
+
+    /**
+     * Vuelve a conectar a la base lo que el Laboratorio 1 dejo "seleccionado".
+     *
+     * Operaciones como seleccionarEdicionEvento() guardan la edicion elegida en
+     * un campo, para que la siguiente (ingresarDatosTipoRegistro) la use. Pero
+     * cada operacion tiene su propio EntityManager, y el de la primera se cerro
+     * al terminar: esa edicion quedo "desconectada" (detached), con los datos de
+     * ese momento y sin poder leer sus colecciones ni guardar cambios.
+     *
+     * Lo llama ControladorConUnidadDeTrabajo ANTES de cada operacion, ya con el
+     * EntityManager nuevo abierto. Cada campo se vuelve a buscar por su id: la
+     * operacion siguiente trabaja con la fila de hoy, no con una copia vieja.
+     * Si la fila ya no existe, el campo queda en null y la operacion avisa que
+     * hay que seleccionar de nuevo, como si nunca se hubiera elegido.
+     *
+     * Quien llama a esto es el intermediario y no cada operacion para que no se
+     * pueda olvidar: una operacion nueva que use estos campos funciona sin
+     * acordarse de nada.
+     *
+     * No es publico: no es parte del contrato con la presentacion.
+     */
+    void reanclarSeleccion() {
+        usuarioSeleccionado = Persistencia.reanclar(usuarioSeleccionado, Usuario.class);
+        eventoSeleccionado = Persistencia.reanclar(eventoSeleccionado, Evento.class);
+        edicionSeleccionada = Persistencia.reanclar(edicionSeleccionada, EdicionEvento.class);
+        organizadorSeleccionado = Persistencia.reanclar(organizadorSeleccionado, Organizador.class);
+        asistenteSeleccionado = Persistencia.reanclar(asistenteSeleccionado, Asistente.class);
+        asistenteRecordado = Persistencia.reanclar(asistenteRecordado, Asistente.class);
+    }
+
+    // =================================================================
+    //  OPERACIONES NUEVAS DEL LABORATORIO 3 (esqueleto)
+    // =================================================================
+    //
+    //  Las firmas y las reglas de cada una estan en IControladorSistema. Cada
+    //  rol reemplaza "throw pendiente(...)" por la logica de las suyas, en su
+    //  propia seccion para que Git junte los cambios sin conflicto. Las
+    //  operaciones sin estado no escriben los campos "...Seleccionada".
+
+    private static UnsupportedOperationException pendiente(String operacion) {
+        return new UnsupportedOperationException("Operacion pendiente de implementar: " + operacion);
+    }
+
+    // ----- Seguidores, finalizar evento y archivar edicion -----
 
     @Override
-    public void refrescarDatos() {
-        Persistencia.refrescar();
+    public void seguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
+        throw pendiente("seguirUsuario");
     }
 
     @Override
-    public void abrirUnidadDeTrabajo() {
-        Persistencia.abrirUnidadDeTrabajo();
+    public void dejarDeSeguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
+        throw pendiente("dejarDeSeguirUsuario");
     }
 
     @Override
-    public void cerrarUnidadDeTrabajo() {
-        Persistencia.cerrarUnidadDeTrabajo();
+    public List<DTUsuario> listarSeguidores(String nickname) throws ReglaNegocioException {
+        throw pendiente("listarSeguidores");
+    }
+
+    @Override
+    public List<DTUsuario> listarSeguidos(String nickname) throws ReglaNegocioException {
+        throw pendiente("listarSeguidos");
+    }
+
+    @Override
+    public void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException {
+        throw pendiente("finalizarEvento");
+    }
+
+    @Override
+    public void archivarEdicion(String solicitante, String nombreEdicion) throws ReglaNegocioException {
+        throw pendiente("archivarEdicion");
+    }
+
+    @Override
+    public List<DTEdicionEvento> listarEdicionesArchivables(String solicitante)
+            throws ReglaNegocioException {
+        throw pendiente("listarEdicionesArchivables");
+    }
+
+    // ----- Video, busqueda y sitio para celular -----
+
+    @Override
+    public List<DTEvento> buscarEventos(String texto, OrdenBusqueda orden) {
+        throw pendiente("buscarEventos");
+    }
+
+    @Override
+    public List<DTEdicionEvento> buscarEdiciones(String texto, OrdenBusqueda orden) {
+        throw pendiente("buscarEdiciones");
+    }
+
+    // ----- Asistencia, constancia, visitas y validacion -----
+
+    @Override
+    public void registrarAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException {
+        throw pendiente("registrarAsistencia");
+    }
+
+    @Override
+    public byte[] obtenerConstanciaAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException {
+        throw pendiente("obtenerConstanciaAsistencia");
+    }
+
+    @Override
+    public void registrarVisita(String nombreEvento) throws ReglaNegocioException {
+        throw pendiente("registrarVisita");
+    }
+
+    @Override
+    public List<DTEvento> listarEventosMasVisitados(int cantidad) {
+        throw pendiente("listarEventosMasVisitados");
+    }
+
+    @Override
+    public boolean existeNickname(String nickname) {
+        throw pendiente("existeNickname");
+    }
+
+    @Override
+    public boolean existeCorreo(String correo) {
+        throw pendiente("existeCorreo");
     }
 }

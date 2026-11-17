@@ -11,7 +11,9 @@ import jakarta.persistence.OneToMany;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Usuario de tipo asistente. Ademas de los datos de {@link Usuario}, tiene
@@ -72,6 +74,23 @@ public class Asistente extends Usuario {
         this.apellido = apellido;
     }
 
+    /**
+     * Una persona no puede haber nacido despues de hoy. Una fecha de
+     * nacimiento futura no describe a nadie, y hasta ahora el unico
+     * control era que no viniera vacia.
+     *
+     * Esta aca, y como metodo aparte, por los mismos motivos que el tope
+     * del patrocinio: es una regla del asistente y no del caso de uso, y
+     * asi se puede probar sola, pasandole el "hoy" que uno quiera, sin
+     * depender de la fecha de la maquina ni de la base.
+     *
+     * Nacer hoy si vale: el limite es el dia de hoy, incluido.
+     */
+    public static boolean fechaDeNacimientoEnElFuturo(LocalDate fechaNacimiento,
+                                                      LocalDate hoy) {
+        return fechaNacimiento != null && hoy != null && fechaNacimiento.isAfter(hoy);
+    }
+
     public LocalDate getFechaNacimiento() {
         return fechaNacimiento;
     }
@@ -90,10 +109,12 @@ public class Asistente extends Usuario {
 
     @Override
     public DTUsuario obtenerDT() {
-        return new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
+        DTAsistente dt = new DTAsistente(getNickname(), getNombre(), getCorreoElectronico(),
                 apellido, DTFecha.desde(fechaNacimiento),
                 institucion == null ? null : institucion.getNombre(),
                 tieneImagen());
+        dt.setFechaAlta(obtenerFechaAltaDT());
+        return dt;
     }
 
     @Override
@@ -115,6 +136,25 @@ public class Asistente extends Usuario {
 
     public List<Registro> getRegistros() {
         return registros;
+    }
+
+    /**
+     * Los registros de este asistente, segun quien los este mirando (CU 4).
+     *
+     * A diferencia de las ediciones de un organizador, aca no se muestra nada
+     * a nadie mas: a que eventos se anoto alguien es asunto suyo. Se devuelve
+     * el conjunto vacio y no un error, porque el perfil SI se puede mirar; lo
+     * unico que no se ve es esta parte.
+     */
+    public Set<DTRegistro> obtenerRegistrosPara(String solicitante) {
+        Set<DTRegistro> resultado = new LinkedHashSet<>();
+        if (!esSuPropioPerfil(solicitante)) {
+            return resultado;
+        }
+        for (Registro reg : registros) {
+            resultado.add(reg.obtenerDT());
+        }
+        return resultado;
     }
 
     public DTRegistro darRegistro(String nombreEdicion) {

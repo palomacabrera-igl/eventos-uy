@@ -402,7 +402,29 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     /** Consulta de Tipo de Registro (CU 11). */
-    DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo)
+    /**
+     * Los tipos de registro de una edicion, sin depender de que antes se
+     * haya seleccionado un evento.
+     *
+     * Es la version sin estado de listarTiposRegistroDeEdicion(), que en el
+     * Laboratorio 1 solo funcionaba despues de seleccionar el evento. La
+     * necesita cualquier formulario que tenga que ofrecer los tipos de una
+     * edicion: el Alta de Patrocinio y el Registro a Edicion.
+     */
+    Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
+            throws ReglaNegocioException;
+
+    /**
+     * Consulta de Tipo de Registro (CU 11).
+     *
+     * Recibe quien pregunta por el mismo motivo que consultarPatrocinio: una
+     * edicion que todavia no esta Aceptada la ve solo su organizador, y la
+     * letra (CU 9) dice que desde el detalle de esa edicion "se llega a la
+     * consulta correspondiente". Sin el solicitante, el organizador se topaba
+     * con un callejon sin salida en su propia edicion.
+     */
+    DTTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipo,
+                                         String solicitante)
             throws ReglaNegocioException;
 
     /** Alta de Institucion (CU 14). Solo un organizador puede; la imagen es opcional. */
@@ -487,34 +509,126 @@ public interface IControladorSistema {
     /** Rechaza una edicion. Solo se puede desde INGRESADA. */
     void rechazarEdicion(String nombreEdicion) throws ReglaNegocioException;
 
-    // ----- Mantenimiento -----
+    // =================================================================
+    //  OPERACIONES NUEVAS DEL LABORATORIO 3
+    // =================================================================
+    //
+    //  Esqueleto: las firmas estan acordadas y los cuerpos de Sistema dicen
+    //  "pendiente". Cada rol reemplaza el cuerpo de las suyas.
+    //
+    //  Siguen las mismas reglas que las operaciones del sitio de arriba:
+    //
+    //   - Sin estado: reciben todo lo que necesitan en una sola llamada.
+    //   - "solicitante" (el nickname de quien tiene la sesion, o null si es un
+    //     visitante) va primero si la operacion cambia algo, y ultimo si consulta.
+    //   - Devuelven List y no Set: la busqueda y los mas visitados dependen del orden.
+    //   - Los errores de negocio son ReglaNegocioException, con un mensaje que se
+    //     le pueda mostrar a quien uso la pantalla.
+    //
+    //  Si una firma no le sirve a la pantalla que la usa, se cambia en un commit
+    //  aparte y se avisa al grupo: el sitio genera su cliente a partir de ellas.
+    //
+    //  Las reglas de cada operacion son las que resume el documento del grupo a
+    //  partir de la letra. Al implementar, confirmarlas con la letra.
+
+    // ----- Seguidores, finalizar evento y archivar edicion -----
 
     /**
-     * Descarta lo que la logica tiene guardado en memoria para que la proxima
-     * consulta vuelva a leer de la base.
-     *
-     * Hace falta porque el sitio y la Estacion de Trabajo son dos programas
-     * distintos sobre la misma base. En la Estacion de Trabajo la dispara el
-     * boton "Actualizar datos"; en el sitio, un filtro al empezar cada pagina.
-     *
-     * Esta en el contrato para que el modulo web no tenga que conocer la capa
-     * de persistencia: habla solo con IControladorSistema y con los DT.
+     * El solicitante pasa a seguir a otro usuario. No puede seguirse a si mismo
+     * ni seguir dos veces al mismo usuario. Ademas de la regla en la logica, la
+     * base tiene que tener una restriccion unica sobre el par.
      */
-    void refrescarDatos();
+    void seguirUsuario(String solicitante, String nickname) throws ReglaNegocioException;
+
+    /** El solicitante deja de seguir a ese usuario. Es un error si no lo seguia. */
+    void dejarDeSeguirUsuario(String solicitante, String nickname) throws ReglaNegocioException;
+
+    /** Los usuarios que siguen a "nickname": el listado de seguidores del perfil. */
+    List<DTUsuario> listarSeguidores(String nickname) throws ReglaNegocioException;
 
     /**
-     * Empieza una unidad de trabajo: espera el turno, refresca y queda listo
-     * para leer. La usa el sitio al empezar cada pagina.
-     *
-     * Hace falta porque la logica tiene un solo EntityManager y Tomcat atiende
-     * cada peticion en un hilo distinto. Sin esto, dos paginas pedidas a la
-     * vez se pisan.
+     * Los usuarios a los que "nickname" sigue. Llamada con el nickname del
+     * solicitante, sirve tambien para saber a quien ya sigue y mostrar "seguir"
+     * o "dejar de seguir" en los listados.
      */
-    void abrirUnidadDeTrabajo();
+    List<DTUsuario> listarSeguidos(String nickname) throws ReglaNegocioException;
 
     /**
-     * Termina la unidad de trabajo. SIEMPRE se llama desde un finally: si una
-     * pagina falla y no se cierra, el sitio queda colgado para todos.
+     * Finaliza un evento. Un evento finalizado deja de aparecer en los listados
+     * y en las busquedas, y no admite ediciones nuevas. Quien puede hacerlo
+     * depende de la decision 10 del grupo (la letra dice que el sistema lista
+     * los eventos no finalizados y el organizador elige uno). Ese listado ya
+     * existe: es listarEventos.
      */
-    void cerrarUnidadDeTrabajo();
+    void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException;
+
+    /**
+     * Archiva una edicion. Solo su organizador, y solo si esta ACEPTADA y su
+     * fecha de fin es anterior a hoy. La edicion pasa a ARCHIVADA, solo se
+     * muestra en el perfil de su organizador y los asistentes conservan su
+     * registro.
+     */
+    void archivarEdicion(String solicitante, String nombreEdicion) throws ReglaNegocioException;
+
+    /** Las ediciones del solicitante que estan en condiciones de archivarse. */
+    List<DTEdicionEvento> listarEdicionesArchivables(String solicitante)
+            throws ReglaNegocioException;
+
+    // ----- Video, busqueda y sitio para celular -----
+    //
+    //  El video no necesita operaciones: es el campo urlVideo de DTEdicionEvento
+    //  (alta de edicion) y de DTEdicionCompleto (consulta).
+    //  El sitio para celular tampoco: usa iniciarSesion, consultarEdicion,
+    //  consultarRegistro y registrarAsistencia.
+
+    /**
+     * Busca eventos por nombre o descripcion, sin distinguir mayusculas. Solo
+     * devuelve eventos no finalizados, ordenados segun "orden".
+     */
+    List<DTEvento> buscarEventos(String texto, OrdenBusqueda orden);
+
+    /**
+     * Busca ediciones, ordenadas segun "orden". Solo devuelve las ACEPTADAS. Que
+     * campos se comparan con el texto lo define la letra.
+     */
+    List<DTEdicionEvento> buscarEdiciones(String texto, OrdenBusqueda orden);
+
+    // ----- Asistencia, constancia, visitas y validacion -----
+    //
+    //  Quien asistio se ve en el campo "asistio" de DTRegistro.
+
+    /**
+     * Registra la asistencia del solicitante a una edicion en la que esta
+     * registrado. Solo el asistente registrado, y una sola vez.
+     */
+    void registrarAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException;
+
+    /**
+     * La constancia de asistencia, en PDF. Solo si el solicitante registro su
+     * asistencia a esa edicion.
+     */
+    byte[] obtenerConstanciaAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException;
+
+    /**
+     * Cuenta una visita al evento. La llama el filtro del sitio en cada consulta
+     * (escritorio y celular). El contador se incrementa con un UPDATE atomico
+     * (visitas = visitas + 1), no leyendo el numero y guardandolo de nuevo:
+     * dos visitas a la vez se pisarian.
+     */
+    void registrarVisita(String nombreEvento) throws ReglaNegocioException;
+
+    /**
+     * Los eventos mas visitados, del que mas al que menos, hasta "cantidad".
+     * Lo usa la Estacion de Trabajo, que llama al controlador directamente: esta
+     * operacion no se publica por SOAP.
+     */
+    List<DTEvento> listarEventosMasVisitados(int cantidad);
+
+    /** Si ya existe un usuario con ese nickname. Es para la validacion asincronica del formulario. */
+    boolean existeNickname(String nickname);
+
+    /** Si ya existe un usuario con ese correo electronico. Para la validacion asincronica. */
+    boolean existeCorreo(String correo);
 }

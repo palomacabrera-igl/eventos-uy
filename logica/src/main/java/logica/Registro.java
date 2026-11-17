@@ -80,6 +80,7 @@ public class Registro extends EntidadBase {
 
     public DTRegistro obtenerDT() {
         return new DTRegistro(asistente.getNickname(), edicion.getNombre(),
-                tipoRegistro.getNombre(), costo, fechaRegistro, patrocinio != null);
+                tipoRegistro.getNombre(), costo, DTFecha.desdeOpcional(fechaRegistro),
+                patrocinio != null);
     }
 }

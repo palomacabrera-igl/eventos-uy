@@ -1,5 +1,7 @@
 package logica;
 
+import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +13,15 @@ import java.util.List;
  * DTCategoria) es la forma de representar la relacion recursiva
  * Categoria -> 0..* categorias hijas en la informacion que viaja a la presentacion.
  */
+@XmlType(name = "DTCategoria")
 public class DTCategoria {
 
     private String nombre;
-    private List<DTCategoria> hijas;
+    private List<DTCategoria> hijas = new ArrayList<>();
+
+    /** Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su setter. */
+    public DTCategoria() {
+    }
 
     /** Categoria sin hijas (hoja o cuando la jerarquia no interesa). */
     public DTCategoria(String nombre) {
@@ -32,5 +39,13 @@ public class DTCategoria {
 
     public List<DTCategoria> getHijas() {
         return hijas;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setHijas(List<DTCategoria> hijas) {
+        this.hijas = hijas;
     }
 }

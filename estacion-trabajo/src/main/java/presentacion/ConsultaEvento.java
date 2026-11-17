@@ -17,7 +17,7 @@ import java.util.Set;
  * ConsultaEvento.form (editable por arrastre); esta clase contiene el
  * comportamiento. Es de solo lectura: no hay boton Confirmar, solo Cerrar.
  */
-public class ConsultaEvento {
+public class ConsultaEvento implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Evento";
@@ -36,8 +36,11 @@ public class ConsultaEvento {
     private JTextField FechaInicioTxt;
     private JTextField FechaFinTxt;
     private JTextField FechaAltaEdicionTxt;
+    private JTextField EstadoEdicionTxt;
     private JButton cerrarButton;
     private JTextField CategoriasTxt;
+    private VistaImagen imagenEvento;
+    private VistaImagen imagenEdicion;
 
     private final transient IControladorSistema controlador;
     private transient Runnable accionCerrar = () -> {
@@ -45,12 +48,22 @@ public class ConsultaEvento {
 
     public ConsultaEvento() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         cargarEventos();
 
         EventoCBox.addActionListener(e -> seleccionarEvento());
         EdicionCBox.addActionListener(e -> seleccionarEdicion());
         cerrarButton.addActionListener(e -> accionCerrar.run());
+    }
+
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventoCBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
     }
 
     public JPanel getMainPanel() {
@@ -95,6 +108,7 @@ public class ConsultaEvento {
             DescripcionTxt.setText(evento.getDescripcion());
             CategoriasTxt.setText(String.join(", ", evento.getCategorias()));
             FechaAltaTxt.setText(formatearFecha(evento.getFechaAlta()));
+            imagenEvento.mostrar(controlador.obtenerImagenEvento(nombreEvento));
 
             // listarEdicionesDeEvento(nombreEvento) : set<DTEdicionEvento>
             Set<DTEdicionEvento> ediciones = controlador.listarEdicionesDeEvento(nombreEvento);
@@ -127,6 +141,8 @@ public class ConsultaEvento {
             FechaInicioTxt.setText(formatearFecha(edicion.getFechaInicio()));
             FechaFinTxt.setText(formatearFecha(edicion.getFechaFin()));
             FechaAltaEdicionTxt.setText(formatearFecha(edicion.getFechaAlta()));
+            EstadoEdicionTxt.setText(Estados.texto(edicion.getEstado()));
+            imagenEdicion.mostrar(controlador.obtenerImagenEdicion(nombreEdicion));
         } catch (Exception ex) {
             limpiarDetalleEdicion();
             Mensajes.errorInesperado(mainPanel, TITULO, ex);
@@ -143,6 +159,7 @@ public class ConsultaEvento {
         DescripcionTxt.setText("");
         CategoriasTxt.setText("");
         FechaAltaTxt.setText("");
+        imagenEvento.limpiar();
     }
 
     private void limpiarDetalleEdicion() {
@@ -153,6 +170,8 @@ public class ConsultaEvento {
         FechaInicioTxt.setText("");
         FechaFinTxt.setText("");
         FechaAltaEdicionTxt.setText("");
+        EstadoEdicionTxt.setText("");
+        imagenEdicion.limpiar();
     }
 
     {
@@ -171,7 +190,11 @@ public class ConsultaEvento {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(16, 2, new Insets(15, 15, 15, 15), 10, 10));
+        mainPanel.setLayout(new GridLayoutManager(17, 3, new Insets(15, 15, 15, 15), 10, 10));
+        imagenEvento = new VistaImagen();
+        mainPanel.add(imagenEvento, new GridConstraints(1, 2, 6, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        imagenEdicion = new VistaImagen();
+        mainPanel.add(imagenEdicion, new GridConstraints(7, 2, 9, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Consulta de Evento");
         mainPanel.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -252,9 +275,15 @@ public class ConsultaEvento {
         FechaAltaEdicionTxt = new JTextField();
         FechaAltaEdicionTxt.setEditable(false);
         mainPanel.add(FechaAltaEdicionTxt, new GridConstraints(14, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel labelEstado = new JLabel();
+        labelEstado.setText("Estado");
+        mainPanel.add(labelEstado, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        EstadoEdicionTxt = new JTextField();
+        EstadoEdicionTxt.setEditable(false);
+        mainPanel.add(EstadoEdicionTxt, new GridConstraints(15, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         cerrarButton = new JButton();
         cerrarButton.setText("Cerrar");
-        mainPanel.add(cerrarButton, new GridConstraints(15, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cerrarButton, new GridConstraints(16, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label15 = new JLabel();
         label15.setText("Categorías");
         mainPanel.add(label15, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

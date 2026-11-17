@@ -10,6 +10,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import java.time.LocalDate;
+
 /**
  * Entidad de dominio abstracta que representa un usuario de la plataforma.
  * No se instancia directamente: todo usuario es o bien un {@link Asistente}
@@ -62,12 +64,24 @@ public abstract class Usuario extends EntidadBase {
     @Embedded
     private Imagen imagen;
 
+    /**
+     * Fecha de alta (letra, seccion 6: "la fecha de alta ... la asigna el
+     * sistema con la fecha del dia"). Sin nullable = false por lo mismo que
+     * password: las bases que ya tienen usuarios no la pueden recibir NOT NULL.
+     */
+    private LocalDate fechaAlta;
+
     protected Usuario() {}
 
+    /**
+     * Todos los caminos de alta (Estacion de Trabajo, sitio web y datos de
+     * prueba) pasan por aca, asi que la fecha se pone en un solo lugar.
+     */
     protected Usuario(String nickname, String nombre, String correoElectronico) {
         this.nickname = nickname;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
+        this.fechaAlta = LocalDate.now();
     }
 
     protected Usuario(String nickname, String nombre, String correoElectronico, String password) {
@@ -91,6 +105,18 @@ public abstract class Usuario extends EntidadBase {
         return correoElectronico;
     }
 
+    public LocalDate getFechaAlta() {
+        return fechaAlta;
+    }
+
+    /**
+     * Para los DT de los subtipos. Un usuario guardado antes de que existiera
+     * esta columna la tiene en null, y eso no tiene que romper la consulta.
+     */
+    protected DTFecha obtenerFechaAltaDT() {
+        return fechaAlta == null ? null : DTFecha.desde(fechaAlta);
+    }
+
     public Imagen getImagen() {
         return imagen;
     }
@@ -111,6 +137,16 @@ public abstract class Usuario extends EntidadBase {
      * Polimorfico: cada subtipo concreto arma su propio DT (DTAsistente o
      * DTOrganizador), que extiende a DTUsuario con sus campos propios.
      */
+    /**
+     * Si quien pregunta es el duenio de este perfil (CU 4).
+     *
+     * Se compara contra el nickname de la entidad y no contra el texto que
+     * llego, asi unos espacios de mas no deciden quien ve que.
+     */
+    public boolean esSuPropioPerfil(String solicitante) {
+        return solicitante != null && nickname.equals(solicitante.trim());
+    }
+
     public abstract DTUsuario obtenerDT();
 
     /**

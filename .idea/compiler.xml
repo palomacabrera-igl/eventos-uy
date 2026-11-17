@@ -8,8 +8,9 @@
         <outputRelativeToContentRoot value="true" />
         <module name="logica" />
         <module name="estacion-trabajo" />
-        <module name="servidor-web" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+    </bytecodeTargetLevel>
   </component>
 </project>

@@ -6,6 +6,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import logica.DTAsistente;
 import logica.DTEdicionCompleto;
 import logica.DTEdicionEvento;
+import logica.DTFecha;
 import logica.DTOrganizador;
 import logica.DTRegistro;
 import logica.DTUsuario;
@@ -16,7 +17,7 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-public class VentanaConsultaUsuario extends JInternalFrame {
+public class VentanaConsultaUsuario extends JInternalFrame implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Usuario";
@@ -38,6 +39,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     private JLabel Usuario;
     private JPanel panelDetalle;
     private JLabel etiquetaDetalle;
+    private VistaImagen imagenDetalle;
     private final IControladorSistema controlador;
     private CardLayout cardLayout;
 
@@ -95,8 +97,9 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                 super.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
 
+                // Se ven las ediciones en los tres estados, con el estado al lado.
                 if (value instanceof DTEdicionEvento edicion) {
-                    setText(edicion.getNombre());
+                    setText(edicion.getNombre() + " (" + Estados.texto(edicion.getEstado()) + ")");
                 }
 
                 return this;
@@ -136,6 +139,15 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         });
     }
 
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los usuarios.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(comboUsuarios, controlador.listarUsuarios(), DTUsuario::getNickname, 0);
+    }
+
     private void cargarUsuarios() {
         comboUsuarios.removeAllItems();
 
@@ -159,12 +171,14 @@ public class VentanaConsultaUsuario extends JInternalFrame {
 
         try {
             DTUsuario datos = controlador.seleccionarUsuario(usuario.getNickname());
+            imagenDetalle.mostrar(controlador.obtenerImagenUsuario(usuario.getNickname()));
 
             if (datos instanceof DTOrganizador organizador) {
                 areaDetalle.setText(
                         "Nickname: " + organizador.getNickname()
                                 + "\nNombre: " + organizador.getNombre()
                                 + "\nCorreo: " + organizador.getCorreo()
+                                + "\nFecha de alta: " + textoFechaAlta(organizador)
                                 + "\nDescripción: " + organizador.getDescripcion()
                                 + "\nSitio web: "
                                 + (organizador.getSitioWeb() == null
@@ -185,6 +199,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                                 + "\nNombre: " + asistente.getNombre()
                                 + "\nApellido: " + asistente.getApellido()
                                 + "\nCorreo: " + asistente.getCorreo()
+                                + "\nFecha de alta: " + textoFechaAlta(asistente)
                                 + "\nFecha de nacimiento: "
                                 + asistente.getFechaNacimiento().aLocalDate()
                                 + "\nInstitución: "
@@ -204,10 +219,23 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         } catch (Exception ex) {
             // Estado consistente: vaciamos detalle y listas en vez de dejarlas a medias.
             areaDetalle.setText("");
+            imagenDetalle.limpiar();
             listaEdiciones.setListData(new DTEdicionEvento[0]);
             listaRegistros.setListData(new DTRegistro[0]);
             Mensajes.errorInesperado(panelPrincipal, TITULO, ex);
         }
+    }
+
+    /** Los usuarios guardados antes de existir la fecha de alta no la tienen. */
+    private static String textoFechaAlta(DTUsuario datos) {
+        return datos.getFechaAlta() == null
+                ? "(sin registrar)"
+                : datos.getFechaAlta().aLocalDate().toString();
+    }
+
+    /** Una fecha como se mostraba siempre (2026-10-28). Si el dato falta, lo dice. */
+    private static String textoFecha(DTFecha fecha) {
+        return fecha == null ? "(sin registrar)" : fecha.aLocalDate().toString();
     }
 
     private void mostrarEdicion() {
@@ -222,6 +250,8 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         try {
             DTEdicionCompleto edicion =
                     controlador.seleccionarEdicion(item.getNombre());
+            // El recuadro muestra la imagen de lo que se esta viendo: ahora, la edicion.
+            imagenDetalle.mostrar(controlador.obtenerImagenEdicion(item.getNombre()));
 
             DTOrganizador org = edicion.getOrganizador();
             String organizador = org == null
@@ -237,7 +267,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             String registros = edicion.getRegistros().isEmpty()
                     ? "Sin registros"
                     : edicion.getRegistros().stream()
-                    .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + r.getFechaRegistro())
+                    .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + textoFecha(r.getFechaRegistro()))
                     .collect(Collectors.joining("\n- ", "- ", ""));
 
             String patrocinios = edicion.getPatrocinios().isEmpty()
@@ -249,9 +279,10 @@ public class VentanaConsultaUsuario extends JInternalFrame {
             areaDetalle.setText(
                     "Edición: " + edicion.getNombre()
                             + "\nSigla: " + edicion.getSigla()
-                            + "\nFecha de alta: " + edicion.getFechaAlta()
-                            + "\nInicio: " + edicion.getFechaIni()
-                            + "\nFin: " + edicion.getFechaFin()
+                            + "\nEstado: " + Estados.texto(edicion.getEstado())
+                            + "\nFecha de alta: " + textoFecha(edicion.getFechaAlta())
+                            + "\nInicio: " + textoFecha(edicion.getFechaIni())
+                            + "\nFin: " + textoFecha(edicion.getFechaFin())
                             + "\nCiudad: " + edicion.getCiudad()
                             + "\nPaís: " + edicion.getPais()
                             + "\nOrganizador: " + organizador
@@ -282,7 +313,7 @@ public class VentanaConsultaUsuario extends JInternalFrame {
                     "Edición: " + registro.getNombreEdicion()
                             + "\nTipo de registro: " + registro.getTipoRegistro()
                             + "\nCosto: " + registro.getCosto()
-                            + "\nFecha de registro: " + registro.getFechaRegistro()
+                            + "\nFecha de registro: " + textoFecha(registro.getFechaRegistro())
             );
         } catch (Exception ex) {
             areaDetalle.setText("");
@@ -355,8 +386,10 @@ public class VentanaConsultaUsuario extends JInternalFrame {
         comboUsuarios = new JComboBox();
         panelSeleccion.add(comboUsuarios, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panelDetalle = new JPanel();
-        panelDetalle.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panelDetalle.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         panelPrincipal.add(panelDetalle, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        imagenDetalle = new VistaImagen();
+        panelDetalle.add(imagenDetalle, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane3 = new JScrollPane();
         panelDetalle.add(scrollPane3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         areaDetalle = new JTextArea();
@@ -372,4 +405,4 @@ public class VentanaConsultaUsuario extends JInternalFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
-}
+}

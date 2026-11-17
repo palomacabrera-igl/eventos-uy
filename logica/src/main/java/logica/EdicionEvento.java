@@ -161,7 +161,8 @@ public class EdicionEvento extends EntidadBase {
     public DTEdicionEvento obtenerDT() {
         return new DTEdicionEvento(nombre, sigla, ciudad, pais,
                 DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta),
-                estado, tieneImagen());
+                estado, tieneImagen(),
+                evento == null ? null : evento.getNombre());
     }
 
     public Set<DTPatrocinio> obtenerPatrocinios() {
@@ -171,6 +172,18 @@ public class EdicionEvento extends EntidadBase {
             resultado.add(p.obtenerDT());
         }
         return resultado;
+    }
+
+    /**
+     * true si esta edicion la organiza esa persona.
+     *
+     * La letra pide, para el Alta de Patrocinio, que el organizador vea "las
+     * ediciones de ese evento que el organiza": nadie patrocina la edicion de
+     * otro.
+     */
+    public boolean loOrganiza(String nickname) {
+        return nickname != null && organizador != null
+                && organizador.getNickname().equals(nickname.trim());
     }
 
     public Patrocinio buscarPatrocinio(String codigo) {
@@ -221,6 +234,48 @@ public class EdicionEvento extends EntidadBase {
             resultado.add(t.obtenerDT());
         }
         return resultado;
+    }
+
+    /**
+     * Los registros de la edicion (CU 13). Son solo para su organizador: a
+     * cualquier otro le llega un error, no una lista vacia, para que la
+     * pagina no muestre "nadie se registro" cuando en realidad no le toca verlo.
+     */
+    public Set<DTRegistro> obtenerRegistrosPara(String solicitante)
+            throws ReglaNegocioException {
+        if (!loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(
+                    "Solo el organizador de la edición puede ver sus registros.");
+        }
+        Set<DTRegistro> resultado = new HashSet<>();
+        for (Registro r : registros) {
+            resultado.add(r.obtenerDT());
+        }
+        return resultado;
+    }
+
+    /**
+     * El registro de un asistente en esta edicion (CU 13). Lo pueden ver el
+     * asistente duenio del registro y el organizador de la edicion, nadie mas.
+     *
+     * El permiso se mira ANTES de buscar, y el mensaje es el mismo si no
+     * existe o si no le corresponde: asi nadie averigua si otra persona esta
+     * registrada probando nicknames.
+     */
+    public DTRegistro obtenerRegistroPara(String nickname, String solicitante)
+            throws ReglaNegocioException {
+        String noEncontrado = "No encontramos ese registro, o no te corresponde verlo.";
+        boolean esElAsistente = solicitante != null && nickname != null
+                && solicitante.trim().equals(nickname.trim());
+        if (!esElAsistente && !loOrganiza(solicitante)) {
+            throw new ReglaNegocioException(noEncontrado);
+        }
+        for (Registro r : registros) {
+            if (r.getAsistente().getNickname().equals(nickname.trim())) {
+                return r.obtenerDT();
+            }
+        }
+        throw new ReglaNegocioException(noEncontrado);
     }
 
     /**
@@ -284,25 +339,125 @@ public class EdicionEvento extends EntidadBase {
     }
 
     public DTEdicionCompleto obtenerDTCompleto() {
-        Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
+        List<DTPatrocinio> dtPatrocinios = new ArrayList<>();
         for (Patrocinio p : patrocinios) {
             dtPatrocinios.add(p.obtenerDT());
         }
 
-        Set<DTTipoRegistro> dtTipos = new HashSet<>();
+        List<DTTipoRegistro> dtTipos = new ArrayList<>();
         for (TipoRegistro t : tipoRegistros) {
             dtTipos.add(t.obtenerDT());
         }
 
-        Set<DTRegistro> dtRegistros = new HashSet<>();
+        List<DTRegistro> dtRegistros = new ArrayList<>();
         for (Registro r : registros) {
             dtRegistros.add(r.obtenerDT());
         }
 
         DTOrganizador dtOrg = organizador.obtenerDT();
 
-        return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
+        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+                DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
                 pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen());
     }
-}
+
+    // ===== Consulta de Edicion (CU 9) =====
+
+    /**
+     * Quien puede ver esta edicion (letra, seccion 4): una Aceptada la ve
+     * cualquiera, incluso un visitante; una Ingresada o Rechazada, solo su
+     * organizador.
+     */
+    public boolean puedeVerla(String solicitante) {
+        return estaAceptada() || loOrganiza(solicitante);
+    }
+
+    /**
+     * La edicion completa, recortada segun quien pregunta (requisito R14):
+     * el listado de registros y los codigos de patrocinio son solo para su
+     * organizador. A cualquier otro le llegan sin registros y con los
+     * patrocinios sin codigo. Que la regla este aca, y no en la JSP, es lo
+     * que impide que una pagina la olvide.
+     */
+    /**
+     * Los patrocinios de la edicion (CU 16). El codigo de patrocinio viaja
+     * solo si quien pregunta es su organizador; para el resto llega en null.
+     */
+    public Set<DTPatrocinio> obtenerPatrociniosPara(String solicitante) {
+        boolean conCodigo = loOrganiza(solicitante);
+        Set<DTPatrocinio> resultado = new HashSet<>();
+        for (Patrocinio p : patrocinios) {
+            resultado.add(p.obtenerDTPara(conCodigo));
+        }
+        return resultado;
+    }
+
+    /**
+     * El patrocinio de una institucion en esta edicion (CU 16), con la misma
+     * regla del codigo. Una institucion tiene a lo sumo un patrocinio por
+     * edicion, asi que la institucion lo identifica.
+     */
+    public DTPatrocinio obtenerPatrocinioPara(String nombreInstitucion, String solicitante)
+            throws ReglaNegocioException {
+        for (Patrocinio p : patrocinios) {
+            if (p.getInstitucion().getNombre().equals(nombreInstitucion)) {
+                return p.obtenerDTPara(loOrganiza(solicitante));
+            }
+        }
+        throw new ReglaNegocioException("La institución \"" + nombreInstitucion
+                + "\" no patrocina la edición \"" + nombre + "\".");
+    }
+
+    public DTEdicionCompleto obtenerDTCompletoPara(String solicitante) {
+        boolean esSuOrganizador = loOrganiza(solicitante);
+
+        List<DTTipoRegistro> dtTipos = new ArrayList<>();
+        for (TipoRegistro t : tipoRegistros) {
+            dtTipos.add(t.obtenerDT());
+        }
+
+        // Mismos patrocinios, pero el codigo solo viaja para su organizador.
+        List<DTPatrocinio> dtPatrocinios = new ArrayList<>(obtenerPatrociniosPara(solicitante));
+
+        List<DTRegistro> dtRegistros = new ArrayList<>();
+        if (esSuOrganizador) {
+            for (Registro r : registros) {
+                dtRegistros.add(r.obtenerDT());
+            }
+        }
+
+        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+                DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
+                pais, ciudad, organizador.obtenerDT(), dtTipos, dtRegistros, dtPatrocinios,
+                estado, tieneImagen(), evento == null ? null : evento.getNombre());
+    }
+
+    // ===== Alta de Edicion (CU 8) =====
+
+    /**
+     * Revisa los datos de una edicion nueva antes de crearla. Todos los campos
+     * son obligatorios y la fecha de fin no puede ser anterior a la de inicio
+     * (puede ser el mismo dia: una edicion de un dia). El nombre repetido lo
+     * controla Sistema, porque hay que buscar en la base.
+     */
+    public static void validarDatos(String nombre, String sigla, String ciudad, String pais,
+                                    LocalDate fechaIni, LocalDate fechaFin)
+            throws ReglaNegocioException {
+        if (estaVacio(nombre) || estaVacio(sigla) || estaVacio(ciudad) || estaVacio(pais)) {
+            throw new ReglaNegocioException(
+                    "El nombre, la sigla, la ciudad y el país son obligatorios.");
+        }
+        if (fechaIni == null || fechaFin == null) {
+            throw new ReglaNegocioException("Las fechas de inicio y de fin son obligatorias.");
+        }
+        if (fechaFin.isBefore(fechaIni)) {
+            throw new ReglaNegocioException(
+                    "La fecha de fin no puede ser anterior a la de inicio.");
+        }
+    }
+
+    private static boolean estaVacio(String texto) {
+        return texto == null || texto.isBlank();
+    }
+}

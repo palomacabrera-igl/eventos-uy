@@ -16,7 +16,6 @@ import logica.IControladorSistema;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 
@@ -24,7 +23,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class ConsultaEdicionPanel {
+public class ConsultaEdicionPanel implements Actualizable {
 
     /** Titulo de todos los dialogos de este caso de uso. */
     private static final String TITULO = "Consulta de Edición de Evento";
@@ -32,6 +31,7 @@ public class ConsultaEdicionPanel {
     private JPanel mainPanel;
     private JPanel SeleccionPanel;
     private JPanel DatosPanel;
+    private VistaImagen imagenEdicion;
     private JTabbedPane ColeccionesTPane;
     private JPanel BotonesPanel;
     private JComboBox EventosCBox;
@@ -44,6 +44,7 @@ public class ConsultaEdicionPanel {
     private JTextField PaisTxt;
     private JTextField FinTxt;
     private JTextField OrganizadorTxt;
+    private JTextField EstadoTxt;
     private JList TiposList;
     private JPanel DetalleTipoPanel;
     private JTextField TRNombreTxt;
@@ -73,6 +74,7 @@ public class ConsultaEdicionPanel {
 
     public ConsultaEdicionPanel() {
         controlador = Fabrica.getInstancia().getControladorSistema();
+        Actualizable.registrar(mainPanel, this);
 
         configurarCamposSoloLectura();
         configurarRenderers();
@@ -95,6 +97,15 @@ public class ConsultaEdicionPanel {
         CerrarButton.addActionListener(e -> accionCerrar.run());
     }
 
+    /**
+     * Se llama sola cada 5 segundos (ver Actualizable). Vuelve a leer los eventos.
+     * Conserva lo que la persona eligio (ver Combos.sincronizar).
+     */
+    @Override
+    public void actualizar() {
+        Combos.sincronizar(EventosCBox, controlador.listarEventos(), DTEvento::getNombre, 0);
+    }
+
     public JPanel getMainPanel() {
         return mainPanel;
     }
@@ -105,7 +116,7 @@ public class ConsultaEdicionPanel {
 
     private void configurarCamposSoloLectura() {
         for (JTextField f : new JTextField[]{
-                NombreTxt, SiglaTxt, CiudadTxt, PaisTxt, InicioTxt, FinTxt, AltaTxt, OrganizadorTxt,
+                NombreTxt, SiglaTxt, CiudadTxt, PaisTxt, InicioTxt, FinTxt, AltaTxt, OrganizadorTxt, EstadoTxt,
                 TRNombreTxt, TRDescripcionTxt, TRCostoTxt, TRCupoTxt,
                 PatCodigoTxt, PatInstitucionTxt, PatTipoRegistroTxt, PatNivelTxt,
                 PatAporteTxt, PatCantGratisTxt, PatFechaTxt}) {
@@ -129,7 +140,10 @@ public class ConsultaEdicionPanel {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof DTEdicionEvento ed) setText(ed.getNombre());
+                // Se ven las ediciones en los tres estados, con el estado al lado.
+                if (value instanceof DTEdicionEvento ed) {
+                    setText(ed.getNombre() + " (" + Estados.texto(ed.getEstado()) + ")");
+                }
                 return this;
             }
         });
@@ -223,6 +237,8 @@ public class ConsultaEdicionPanel {
             FinTxt.setText(formatear(ed.getFechaFin()));
             AltaTxt.setText(formatear(ed.getFechaAlta()));
             OrganizadorTxt.setText(ed.getOrganizador().getNickname());
+            EstadoTxt.setText(Estados.texto(ed.getEstado()));
+            imagenEdicion.mostrar(controlador.obtenerImagenEdicion(ed.getNombre()));
 
             TiposList.setListData(ed.getTiposRegistro().stream()
                     .sorted(Comparator.comparing(DTTipoRegistro::getNombre))
@@ -274,8 +290,8 @@ public class ConsultaEdicionPanel {
 
     // ===== Helpers =====
 
-    private static String formatear(LocalDate fecha) {
-        return fecha == null ? "" : fecha.format(FORMATO);
+    private static String formatear(DTFecha fecha) {
+        return fecha == null ? "" : fecha.aLocalDate().format(FORMATO);
     }
 
     private void limpiarDatosEdicion() {
@@ -287,6 +303,8 @@ public class ConsultaEdicionPanel {
         FinTxt.setText("");
         AltaTxt.setText("");
         OrganizadorTxt.setText("");
+        EstadoTxt.setText("");
+        imagenEdicion.limpiar();
     }
 
     private void limpiarDetalleTipo() {
@@ -353,9 +371,11 @@ public class ConsultaEdicionPanel {
         EdicionesCBox.setModel(defaultComboBoxModel1);
         SeleccionPanel.add(EdicionesCBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(300, -1), null, 0, false));
         DatosPanel = new JPanel();
-        DatosPanel.setLayout(new GridLayoutManager(4, 4, new Insets(8, 8, 8, 8), 6, 6));
+        DatosPanel.setLayout(new GridLayoutManager(5, 5, new Insets(8, 8, 8, 8), 6, 6));
         mainPanel.add(DatosPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         DatosPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Datos de la Edición", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        imagenEdicion = new VistaImagen();
+        DatosPanel.add(imagenEdicion, new GridConstraints(0, 4, 5, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("Nombre");
         DatosPanel.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -399,6 +419,11 @@ public class ConsultaEdicionPanel {
         DatosPanel.add(FinTxt, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(180, -1), null, 0, false));
         OrganizadorTxt = new JTextField();
         DatosPanel.add(OrganizadorTxt, new GridConstraints(3, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(180, -1), null, 0, false));
+        final JLabel labelEstado = new JLabel();
+        labelEstado.setText("Estado");
+        DatosPanel.add(labelEstado, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        EstadoTxt = new JTextField();
+        DatosPanel.add(EstadoTxt, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(180, -1), null, 0, false));
         ColeccionesTPane = new JTabbedPane();
         mainPanel.add(ColeccionesTPane, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, 200), null, 0, false));
         final JPanel panel1 = new JPanel();

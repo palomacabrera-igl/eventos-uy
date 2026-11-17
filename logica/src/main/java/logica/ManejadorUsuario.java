@@ -28,21 +28,9 @@ public class ManejadorUsuario {
         Persistencia.enTransaccion(em -> em.persist(usuario));
     }
 
-    /**
-     * Confirma en la base los cambios hechos sobre un usuario que ya existe.
-     *
-     * No se usa merge() cuando la entidad ya esta managed: merge() devuelve una
-     * copia, y si otra entidad sigue apuntando a la original, JPA inserta el
-     * mismo hijo dos veces. Alcanza con abrir la transaccion: al hacer commit,
-     * JPA detecta solo lo que cambio.
-     */
-    public void actualizar(Usuario usuario) {
-        Persistencia.enTransaccion(em -> {
-            if (!em.contains(usuario)) {
-                em.merge(usuario);
-            }
-        });
-    }
+    // No hay un actualizar(usuario): un usuario que se LEYO con buscar() o
+    // listar() queda conectado a la unidad de trabajo, y JPA guarda solo lo que
+    // se le cambio cuando la operacion termina (ver persistencia.Persistencia).
 
     /**
      * Devuelve el usuario con ese nickname, o null si no existe.

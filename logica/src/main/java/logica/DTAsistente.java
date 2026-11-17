@@ -1,5 +1,8 @@
 package logica;
 
+import jakarta.xml.bind.annotation.XmlType;
+
+@XmlType(name = "DTAsistente")
 public class DTAsistente extends DTUsuario {
 
     private String apellido;
@@ -13,6 +16,14 @@ public class DTAsistente extends DTUsuario {
      * que los objetos del dominio no crucen a la interfaz grafica.
      */
     private String institucion;
+
+    /**
+     * Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su
+     * setter. Ya queda con el tipo de asistente, igual que los otros constructores.
+     */
+    public DTAsistente() {
+        super(null, null, null, TipoUsuario.ASISTENTE, false);
+    }
 
     /**
      * El tipo no es un parametro: un DTAsistente no puede ser otra cosa que
@@ -41,5 +52,9 @@ public class DTAsistente extends DTUsuario {
 
     /** Nombre de la institucion, o null si el asistente no pertenece a ninguna. */
     public String getInstitucion() {return institucion;}
+
+    public void setApellido(String apellido) {this.apellido = apellido;}
+    public void setFechaNacimiento(DTFecha fechaNacimiento) {this.fechaNacimiento = fechaNacimiento;}
+    public void setInstitucion(String institucion) {this.institucion = institucion;}
 
 }
