@@ -308,6 +308,7 @@ class DatatypesJaxbTest {
         DTTipoRegistro tipo = new DTTipoRegistro("General", "Entrada general", 500.0, 40);
         DTRegistro registro = new DTRegistro("ana", "JIAP 2027", "General", 500.0,
                 new DTFecha(1, 11, 2026), true);
+        registro.setAsistio(true);
         DTPatrocinio patrocinio = new DTPatrocinio("ANTEL-27", new DTFecha(1, 3, 2027),
                 100000.0, "ORO", 5, "ANTEL", "General");
 
@@ -334,15 +335,22 @@ class DatatypesJaxbTest {
                 new DTCategoria("Tecnologia", new ArrayList<>(List.of(new DTCategoria("IA")))));
         ejemplos.put(DTDatosRegistro.class,
                 new DTDatosRegistro(new ArrayList<>(List.of(tipo)), new ArrayList<>(List.of(asistente))));
-        ejemplos.put(DTEdicionCompleto.class, new DTEdicionCompleto("JIAP 2027", "JIAP27", fecha,
+        DTEdicionCompleto edicionCompleta = new DTEdicionCompleto("JIAP 2027", "JIAP27", fecha,
                 new DTFecha(2, 10, 2027), new DTFecha(4, 10, 2027), "Uruguay", "Montevideo",
                 organizador, new ArrayList<>(List.of(tipo)), new ArrayList<>(List.of(registro)),
-                new ArrayList<>(List.of(patrocinio)), EstadoEdicion.ACEPTADA, true, "JIAP"));
-        ejemplos.put(DTEdicionEvento.class, new DTEdicionEvento("JIAP 2027", "JIAP27", "Montevideo",
+                new ArrayList<>(List.of(patrocinio)), EstadoEdicion.ACEPTADA, true, "JIAP");
+        edicionCompleta.setUrlVideo("https://www.youtube.com/watch?v=abc123");
+        DTEdicionEvento edicion = new DTEdicionEvento("JIAP 2027", "JIAP27", "Montevideo",
                 "Uruguay", new DTFecha(2, 10, 2027), new DTFecha(4, 10, 2027), fecha,
-                EstadoEdicion.INGRESADA, true, "JIAP"));
-        ejemplos.put(DTEvento.class, new DTEvento("JIAP", "JIAP", "Jornadas de informatica", fecha,
-                new ArrayList<>(List.of("Tecnologia", "Educacion")), true));
+                EstadoEdicion.INGRESADA, true, "JIAP");
+        edicion.setUrlVideo("https://www.youtube.com/watch?v=abc123");
+        DTEvento evento = new DTEvento("JIAP", "JIAP", "Jornadas de informatica", fecha,
+                new ArrayList<>(List.of("Tecnologia", "Educacion")), true);
+        evento.setFinalizado(true);
+        evento.setVisitas(42);
+        ejemplos.put(DTEdicionCompleto.class, edicionCompleta);
+        ejemplos.put(DTEdicionEvento.class, edicion);
+        ejemplos.put(DTEvento.class, evento);
         ejemplos.put(DTImagen.class, new DTImagen(new byte[]{1, 2, 3}, "image/png"));
         ejemplos.put(DTInstitucion.class,
                 new DTInstitucion("ANCAP", "Combustibles", "https://ancap.com.uy", true));

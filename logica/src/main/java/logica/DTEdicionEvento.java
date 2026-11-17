@@ -31,6 +31,12 @@ public class DTEdicionEvento {
      */
     private String nombreEvento;
 
+    /**
+     * Direccion del video de YouTube de la edicion (por ejemplo
+     * https://www.youtube.com/watch?v=...), o null si no tiene. Es opcional.
+     */
+    private String urlVideo;
+
     /** Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su setter. */
     public DTEdicionEvento() {
     }
@@ -83,6 +89,7 @@ public class DTEdicionEvento {
     public EstadoEdicion getEstado() {return estado;}
     public boolean getTieneImagen() {return tieneImagen;}
     public String getNombreEvento() {return nombreEvento;}
+    public String getUrlVideo() {return urlVideo;}
 
     // Setters: los usa JAXB para reconstruir el objeto cuando llega por un servicio web.
     public void setNombre(String nombre) {this.nombre = nombre;}
@@ -95,4 +102,5 @@ public class DTEdicionEvento {
     public void setEstado(EstadoEdicion estado) {this.estado = estado;}
     public void setTieneImagen(boolean tieneImagen) {this.tieneImagen = tieneImagen;}
     public void setNombreEvento(String nombreEvento) {this.nombreEvento = nombreEvento;}
+    public void setUrlVideo(String urlVideo) {this.urlVideo = urlVideo;}
 }

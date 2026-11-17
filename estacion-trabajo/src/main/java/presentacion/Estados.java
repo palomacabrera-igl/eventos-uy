@@ -4,7 +4,7 @@ import logica.EstadoEdicion;
 
 /**
  * Como se muestra el estado de una edicion en las pantallas: "Ingresada",
- * "Aceptada" o "Rechazada", igual que en la letra. Esta en un solo lugar para
+ * "Aceptada", "Rechazada" o "Archivada", igual que en la letra. Esta en un solo lugar para
  * que todas las consultas lo escriban igual.
  */
 final class Estados {
@@ -20,6 +20,7 @@ final class Estados {
             case INGRESADA -> "Ingresada";
             case ACEPTADA -> "Aceptada";
             case RECHAZADA -> "Rechazada";
+            case ARCHIVADA -> "Archivada";
         };
     }
 }

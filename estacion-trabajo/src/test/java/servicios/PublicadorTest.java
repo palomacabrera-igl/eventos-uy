@@ -14,12 +14,15 @@ import logica.DTRegistro;
 import logica.DTTipoRegistro;
 import logica.EstadoEdicion;
 import logica.IControladorSistema;
+import logica.OrdenBusqueda;
 import logica.ReglaNegocioException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -50,6 +53,8 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,6 +84,40 @@ class PublicadorTest {
     private static final List<Object[]> LLAMADAS = new CopyOnWriteArrayList<>();
 
     private static final HttpClient HTTP = HttpClient.newHttpClient();
+
+    /**
+     * Las operaciones nuevas del Laboratorio 3 (el esqueleto): el XML de sus
+     * parametros, lo que la logica tiene que recibir y, si hace falta, algo que
+     * tiene que aparecer en la respuesta. Cuando se agregue una operacion nueva
+     * al Publicador, se agrega aca su fila.
+     */
+    private static final List<Operacion> NUEVAS = List.of(
+            op("seguirUsuario", "<solicitante>ana</solicitante><nickname>imm</nickname>",
+                    null, "ana", "imm"),
+            op("dejarDeSeguirUsuario", "<solicitante>ana</solicitante><nickname>imm</nickname>",
+                    null, "ana", "imm"),
+            op("listarSeguidores", "<nickname>imm</nickname>", null, "imm"),
+            op("listarSeguidos", "<nickname>ana</nickname>", null, "ana"),
+            op("finalizarEvento", "<solicitante>imm</solicitante><nombreEvento>JIAP</nombreEvento>",
+                    null, "imm", "JIAP"),
+            op("archivarEdicion", "<solicitante>imm</solicitante><nombreEdicion>JIAP 2027</nombreEdicion>",
+                    null, "imm", "JIAP 2027"),
+            op("listarEdicionesArchivables", "<solicitante>imm</solicitante>", null, "imm"),
+            op("buscarEventos", "<texto>tecno</texto><orden>ALFABETICO</orden>",
+                    null, "tecno", OrdenBusqueda.ALFABETICO),
+            op("buscarEdiciones", "<texto>tecno</texto><orden>FECHA_ALTA</orden>",
+                    null, "tecno", OrdenBusqueda.FECHA_ALTA),
+            op("registrarAsistencia", "<solicitante>ana</solicitante><nombreEdicion>JIAP 2027</nombreEdicion>",
+                    null, "ana", "JIAP 2027"),
+            op("obtenerConstanciaAsistencia",
+                    "<solicitante>ana</solicitante><nombreEdicion>JIAP 2027</nombreEdicion>",
+                    "<return>JVBERg==</return>", "ana", "JIAP 2027"), // "%PDF" en Base64
+            op("registrarVisita", "<nombreEvento>JIAP</nombreEvento>", null, "JIAP"),
+            op("existeNickname", "<nickname>ana</nickname>", "<return>false</return>", "ana"),
+            op("existeCorreo", "<correo>ana@correo.uy</correo>", "<return>false</return>", "ana@correo.uy"));
+
+    private static final Set<String> NOMBRES_NUEVAS = NUEVAS.stream()
+            .map(Operacion::nombre).collect(Collectors.toSet());
 
     private static Endpoint endpoint;
     private static String url;
@@ -350,6 +389,38 @@ class PublicadorTest {
         assertNull(args[3], "La imagen es opcional: ausente llega como null");
     }
 
+    @TestFactory
+    @DisplayName("cada operacion nueva del Laboratorio 3 esta publicada y le pasa a la logica lo que recibe")
+    Stream<DynamicTest> operacionesNuevasDelLaboratorio3() {
+        return NUEVAS.stream().map(op -> DynamicTest.dynamicTest(op.nombre(), () -> {
+            LLAMADAS.clear();
+            Respuesta r = soap("<ns:" + op.nombre() + " xmlns:ns=\"" + NS + "\">" + op.cuerpo()
+                    + "</ns:" + op.nombre() + ">");
+
+            assertEquals(200, r.estado(), r.cuerpo());
+            assertArrayEquals(op.argumentos(), ultimosArgumentos(op.nombre()),
+                    op.nombre() + ": la logica no recibio lo que mando el sitio");
+            if (op.enRespuesta() != null) {
+                assertContiene(r, op.enRespuesta());
+            }
+        }));
+    }
+
+    @Test
+    @DisplayName("las operaciones nuevas aparecen en el WSDL")
+    void lasNuevasEstanEnElContrato() throws Exception {
+        Set<String> enElWsdl = operacionesDelWsdl();
+        for (String nombre : NOMBRES_NUEVAS) {
+            assertTrue(enElWsdl.contains(nombre), nombre + " no esta en el contrato");
+        }
+    }
+
+    @Test
+    @DisplayName("listarEventosMasVisitados no se publica: la usa la Estacion, que llama directo")
+    void masVisitadosNoSePublica() throws Exception {
+        assertFalse(operacionesDelWsdl().contains("listarEventosMasVisitados"));
+    }
+
     // =====================================================================
     //  El controlador de mentira
     // =====================================================================
@@ -383,10 +454,40 @@ class PublicadorTest {
                                 ? new DTImagen(new byte[]{1, 2, 3}, "image/png")
                                 : null;
                         case "altaRegistro", "altaEdicion" -> null;
-                        default -> throw new UnsupportedOperationException(
-                                "El controlador de mentira no sabe contestar " + metodo.getName());
+                        default -> {
+                            if (NOMBRES_NUEVAS.contains(metodo.getName())) {
+                                yield valorPorDefecto(metodo.getReturnType());
+                            }
+                            throw new UnsupportedOperationException(
+                                    "El controlador de mentira no sabe contestar " + metodo.getName());
+                        }
                     };
                 });
+    }
+
+    /** Una operacion nueva de prueba: nombre, XML de parametros, argumentos esperados y respuesta esperada. */
+    private record Operacion(String nombre, String cuerpo, Object[] argumentos, String enRespuesta) {
+    }
+
+    private static Operacion op(String nombre, String cuerpo, String enRespuesta, Object... argumentos) {
+        return new Operacion(nombre, cuerpo, argumentos, enRespuesta);
+    }
+
+    /** Lo que contesta el controlador de mentira a las operaciones nuevas: algo vacio del tipo que toque. */
+    private static Object valorPorDefecto(Class<?> tipo) {
+        if (tipo == void.class) {
+            return null;
+        }
+        if (tipo == boolean.class) {
+            return false;
+        }
+        if (tipo == byte[].class) {
+            return new byte[]{37, 80, 68, 70}; // "%PDF"
+        }
+        if (List.class.isAssignableFrom(tipo)) {
+            return new ArrayList<>();
+        }
+        throw new UnsupportedOperationException("Sin valor por defecto para " + tipo);
     }
 
     private static DTEvento evento(String nombre, List<String> categorias) {

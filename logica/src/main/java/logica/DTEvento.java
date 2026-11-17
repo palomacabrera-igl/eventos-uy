@@ -16,6 +16,16 @@ public class DTEvento {
     /** La pagina necesita saber si poner un <img> o el poster de color. */
     private boolean tieneImagen;
 
+    /**
+     * Si el evento ya finalizo. Un evento finalizado no aparece en los listados
+     * ni en las busquedas del sitio y no admite ediciones nuevas; la Estacion de
+     * Trabajo si lo sigue mostrando, y por eso necesita este dato.
+     */
+    private boolean finalizado;
+
+    /** Cuantas veces se consulto el evento, desde el sitio de escritorio y el de celular. */
+    private long visitas;
+
     /** Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su setter. */
     public DTEvento() {
     }
@@ -40,6 +50,8 @@ public class DTEvento {
     public DTFecha getFechaAlta() {return fechaAlta;}
     public List<String> getCategorias() {return categorias;}
     public boolean getTieneImagen() {return tieneImagen;}
+    public boolean getFinalizado() {return finalizado;}
+    public long getVisitas() {return visitas;}
 
     // Setters: los usa JAXB para reconstruir el objeto cuando llega por un servicio web.
     public void setNombre(String nombre) {this.nombre = nombre;}
@@ -48,4 +60,6 @@ public class DTEvento {
     public void setFechaAlta(DTFecha fechaAlta) {this.fechaAlta = fechaAlta;}
     public void setCategorias(List<String> categorias) {this.categorias = categorias;}
     public void setTieneImagen(boolean tieneImagen) {this.tieneImagen = tieneImagen;}
+    public void setFinalizado(boolean finalizado) {this.finalizado = finalizado;}
+    public void setVisitas(long visitas) {this.visitas = visitas;}
 }

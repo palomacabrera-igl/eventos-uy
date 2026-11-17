@@ -19,6 +19,7 @@ import logica.DTTipoRegistro;
 import logica.DTUsuario;
 import logica.Fabrica;
 import logica.IControladorSistema;
+import logica.OrdenBusqueda;
 import logica.ReglaNegocioException;
 import logica.TipoUsuario;
 
@@ -350,18 +351,114 @@ public class Publicador {
 
     // =====================================================================
     //  Seguidores, finalizar evento y archivar edicion
-    //  (operaciones nuevas del Laboratorio 3: agregar aca)
+    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
     // =====================================================================
+
+    @WebMethod
+    public void seguirUsuario(@WebParam(name = "solicitante") String solicitante,
+                              @WebParam(name = "nickname") String nickname)
+            throws ReglaNegocioException {
+        controlador.seguirUsuario(solicitante, nickname);
+    }
+
+    @WebMethod
+    public void dejarDeSeguirUsuario(@WebParam(name = "solicitante") String solicitante,
+                                     @WebParam(name = "nickname") String nickname)
+            throws ReglaNegocioException {
+        controlador.dejarDeSeguirUsuario(solicitante, nickname);
+    }
+
+    @WebMethod
+    public List<DTUsuario> listarSeguidores(@WebParam(name = "nickname") String nickname)
+            throws ReglaNegocioException {
+        return controlador.listarSeguidores(nickname);
+    }
+
+    @WebMethod
+    public List<DTUsuario> listarSeguidos(@WebParam(name = "nickname") String nickname)
+            throws ReglaNegocioException {
+        return controlador.listarSeguidos(nickname);
+    }
+
+    @WebMethod
+    public void finalizarEvento(@WebParam(name = "solicitante") String solicitante,
+                                @WebParam(name = "nombreEvento") String nombreEvento)
+            throws ReglaNegocioException {
+        controlador.finalizarEvento(solicitante, nombreEvento);
+    }
+
+    @WebMethod
+    public void archivarEdicion(@WebParam(name = "solicitante") String solicitante,
+                                @WebParam(name = "nombreEdicion") String nombreEdicion)
+            throws ReglaNegocioException {
+        controlador.archivarEdicion(solicitante, nombreEdicion);
+    }
+
+    @WebMethod
+    public List<DTEdicionEvento> listarEdicionesArchivables(
+            @WebParam(name = "solicitante") String solicitante)
+            throws ReglaNegocioException {
+        return controlador.listarEdicionesArchivables(solicitante);
+    }
 
     // =====================================================================
     //  Video, busqueda y sitio para celular
-    //  (operaciones nuevas del Laboratorio 3: agregar aca)
+    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
+    //
+    //  El video no tiene operaciones: viaja en el campo urlVideo de los DT de
+    //  edicion. El sitio para celular usa las operaciones que ya estan.
     // =====================================================================
+
+    @WebMethod
+    public List<DTEvento> buscarEventos(@WebParam(name = "texto") String texto,
+                                        @WebParam(name = "orden") OrdenBusqueda orden) {
+        return controlador.buscarEventos(texto, orden);
+    }
+
+    @WebMethod
+    public List<DTEdicionEvento> buscarEdiciones(@WebParam(name = "texto") String texto,
+                                                 @WebParam(name = "orden") OrdenBusqueda orden) {
+        return controlador.buscarEdiciones(texto, orden);
+    }
 
     // =====================================================================
     //  Asistencia, constancia, visitas y validacion
-    //  (operaciones nuevas del Laboratorio 3: agregar aca)
+    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
+    //
+    //  listarEventosMasVisitados lo usa solo la Estacion de Trabajo, que llama al
+    //  controlador directamente: no se publica.
     // =====================================================================
+
+    @WebMethod
+    public void registrarAsistencia(@WebParam(name = "solicitante") String solicitante,
+                                    @WebParam(name = "nombreEdicion") String nombreEdicion)
+            throws ReglaNegocioException {
+        controlador.registrarAsistencia(solicitante, nombreEdicion);
+    }
+
+    /** El PDF viaja como byte[], en Base64 dentro del XML, igual que las imagenes. */
+    @WebMethod
+    public byte[] obtenerConstanciaAsistencia(@WebParam(name = "solicitante") String solicitante,
+                                              @WebParam(name = "nombreEdicion") String nombreEdicion)
+            throws ReglaNegocioException {
+        return controlador.obtenerConstanciaAsistencia(solicitante, nombreEdicion);
+    }
+
+    @WebMethod
+    public void registrarVisita(@WebParam(name = "nombreEvento") String nombreEvento)
+            throws ReglaNegocioException {
+        controlador.registrarVisita(nombreEvento);
+    }
+
+    @WebMethod
+    public boolean existeNickname(@WebParam(name = "nickname") String nickname) {
+        return controlador.existeNickname(nickname);
+    }
+
+    @WebMethod
+    public boolean existeCorreo(@WebParam(name = "correo") String correo) {
+        return controlador.existeCorreo(correo);
+    }
 
     /**
      * Convierte el Set que devuelve el controlador en la List que viaja por la

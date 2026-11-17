@@ -1566,4 +1566,101 @@ public class Sistema implements IControladorSistema {
         asistenteSeleccionado = Persistencia.reanclar(asistenteSeleccionado, Asistente.class);
         asistenteRecordado = Persistencia.reanclar(asistenteRecordado, Asistente.class);
     }
+
+    // =================================================================
+    //  OPERACIONES NUEVAS DEL LABORATORIO 3 (esqueleto)
+    // =================================================================
+    //
+    //  Las firmas y las reglas de cada una estan en IControladorSistema. Cada
+    //  rol reemplaza "throw pendiente(...)" por la logica de las suyas, en su
+    //  propia seccion para que Git junte los cambios sin conflicto. Las
+    //  operaciones sin estado no escriben los campos "...Seleccionada".
+
+    private static UnsupportedOperationException pendiente(String operacion) {
+        return new UnsupportedOperationException("Operacion pendiente de implementar: " + operacion);
+    }
+
+    // ----- Seguidores, finalizar evento y archivar edicion -----
+
+    @Override
+    public void seguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
+        throw pendiente("seguirUsuario");
+    }
+
+    @Override
+    public void dejarDeSeguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
+        throw pendiente("dejarDeSeguirUsuario");
+    }
+
+    @Override
+    public List<DTUsuario> listarSeguidores(String nickname) throws ReglaNegocioException {
+        throw pendiente("listarSeguidores");
+    }
+
+    @Override
+    public List<DTUsuario> listarSeguidos(String nickname) throws ReglaNegocioException {
+        throw pendiente("listarSeguidos");
+    }
+
+    @Override
+    public void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException {
+        throw pendiente("finalizarEvento");
+    }
+
+    @Override
+    public void archivarEdicion(String solicitante, String nombreEdicion) throws ReglaNegocioException {
+        throw pendiente("archivarEdicion");
+    }
+
+    @Override
+    public List<DTEdicionEvento> listarEdicionesArchivables(String solicitante)
+            throws ReglaNegocioException {
+        throw pendiente("listarEdicionesArchivables");
+    }
+
+    // ----- Video, busqueda y sitio para celular -----
+
+    @Override
+    public List<DTEvento> buscarEventos(String texto, OrdenBusqueda orden) {
+        throw pendiente("buscarEventos");
+    }
+
+    @Override
+    public List<DTEdicionEvento> buscarEdiciones(String texto, OrdenBusqueda orden) {
+        throw pendiente("buscarEdiciones");
+    }
+
+    // ----- Asistencia, constancia, visitas y validacion -----
+
+    @Override
+    public void registrarAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException {
+        throw pendiente("registrarAsistencia");
+    }
+
+    @Override
+    public byte[] obtenerConstanciaAsistencia(String solicitante, String nombreEdicion)
+            throws ReglaNegocioException {
+        throw pendiente("obtenerConstanciaAsistencia");
+    }
+
+    @Override
+    public void registrarVisita(String nombreEvento) throws ReglaNegocioException {
+        throw pendiente("registrarVisita");
+    }
+
+    @Override
+    public List<DTEvento> listarEventosMasVisitados(int cantidad) {
+        throw pendiente("listarEventosMasVisitados");
+    }
+
+    @Override
+    public boolean existeNickname(String nickname) {
+        throw pendiente("existeNickname");
+    }
+
+    @Override
+    public boolean existeCorreo(String correo) {
+        throw pendiente("existeCorreo");
+    }
 }
