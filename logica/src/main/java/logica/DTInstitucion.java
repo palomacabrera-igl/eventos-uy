@@ -1,11 +1,18 @@
 package logica;
 
+import jakarta.xml.bind.annotation.XmlType;
+
+@XmlType(name = "DTInstitucion")
 public class DTInstitucion {
-    private final String nombre;
-    private final String descripcion;
-    private final String sitioWeb;
+    private String nombre;
+    private String descripcion;
+    private String sitioWeb;
     /** La pagina necesita saber si poner un <img> o no. Los bytes no viajan aca. */
-    private final boolean tieneImagen;
+    private boolean tieneImagen;
+
+    /** Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su setter. */
+    public DTInstitucion() {
+    }
 
     /**
      * El constructor para quien no tiene imagen que informar.
@@ -27,4 +34,10 @@ public class DTInstitucion {
     public String getDescripcion() {return descripcion;}
     public String getSitioWeb() {return sitioWeb;}
     public boolean getTieneImagen() {return tieneImagen;}
+
+    // Setters: los usa JAXB para reconstruir el objeto cuando llega por un servicio web.
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
+    public void setSitioWeb(String sitioWeb) {this.sitioWeb = sitioWeb;}
+    public void setTieneImagen(boolean tieneImagen) {this.tieneImagen = tieneImagen;}
 }

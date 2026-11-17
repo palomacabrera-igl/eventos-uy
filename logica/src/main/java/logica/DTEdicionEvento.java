@@ -1,5 +1,8 @@
 package logica;
 
+import jakarta.xml.bind.annotation.XmlType;
+
+@XmlType(name = "DTEdicionEvento")
 public class DTEdicionEvento {
 
     private String nombre;
@@ -27,6 +30,10 @@ public class DTEdicionEvento {
      * Patrocinio. Sin esto, "JIAP 2027" no dice a que evento pertenece.
      */
     private String nombreEvento;
+
+    /** Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su setter. */
+    public DTEdicionEvento() {
+    }
 
     public DTEdicionEvento(String nombre, String sigla, String ciudad, String pais,
                            DTFecha fechaInicio, DTFecha fechaFin, DTFecha fechaAlta) {
@@ -76,4 +83,16 @@ public class DTEdicionEvento {
     public EstadoEdicion getEstado() {return estado;}
     public boolean getTieneImagen() {return tieneImagen;}
     public String getNombreEvento() {return nombreEvento;}
+
+    // Setters: los usa JAXB para reconstruir el objeto cuando llega por un servicio web.
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setSigla(String sigla) {this.sigla = sigla;}
+    public void setCiudad(String ciudad) {this.ciudad = ciudad;}
+    public void setPais(String pais) {this.pais = pais;}
+    public void setFechaInicio(DTFecha fechaInicio) {this.fechaInicio = fechaInicio;}
+    public void setFechaFin(DTFecha fechaFin) {this.fechaFin = fechaFin;}
+    public void setFechaAlta(DTFecha fechaAlta) {this.fechaAlta = fechaAlta;}
+    public void setEstado(EstadoEdicion estado) {this.estado = estado;}
+    public void setTieneImagen(boolean tieneImagen) {this.tieneImagen = tieneImagen;}
+    public void setNombreEvento(String nombreEvento) {this.nombreEvento = nombreEvento;}
 }

@@ -16,7 +16,6 @@ import logica.IControladorSistema;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 
@@ -291,8 +290,8 @@ public class ConsultaEdicionPanel implements Actualizable {
 
     // ===== Helpers =====
 
-    private static String formatear(LocalDate fecha) {
-        return fecha == null ? "" : fecha.format(FORMATO);
+    private static String formatear(DTFecha fecha) {
+        return fecha == null ? "" : fecha.aLocalDate().format(FORMATO);
     }
 
     private void limpiarDatosEdicion() {

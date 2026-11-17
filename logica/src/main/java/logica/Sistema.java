@@ -319,7 +319,7 @@ public class Sistema implements IControladorSistema {
         this.edicionSeleccionada = ed;
         Set<DTTipoRegistro> tiposRegistro = ed.obtenerTiposRegistro();
         Set<DTAsistente> asistentes = listarAsistentes();
-        return new DTDatosRegistro(tiposRegistro, asistentes);
+        return new DTDatosRegistro(new ArrayList<>(tiposRegistro), new ArrayList<>(asistentes));
     }
 
     @Override

@@ -105,7 +105,7 @@ class ConsultaRegistroTest {
         assertEquals("JIAP 2027", dt.getNombreEdicion());
         assertEquals("General", dt.getTipoRegistro());
         assertEquals(500.0, dt.getCosto());
-        assertEquals(LocalDate.of(2026, 10, 28), dt.getFechaRegistro());
+        assertEquals(LocalDate.of(2026, 10, 28), dt.getFechaRegistro().aLocalDate());
         assertFalse(dt.getUsoCodigo());
     }
 

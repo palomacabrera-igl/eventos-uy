@@ -1,9 +1,20 @@
 package logica;
 
+import jakarta.xml.bind.annotation.XmlType;
+
+@XmlType(name = "DTOrganizador")
 public class DTOrganizador extends DTUsuario {
 
     private String descripcion;
     private String sitioWeb;
+
+    /**
+     * Lo usa JAXB: crea el objeto vacio y despues completa cada campo con su
+     * setter. Ya queda con el tipo de organizador, igual que los otros constructores.
+     */
+    public DTOrganizador() {
+        super(null, null, null, TipoUsuario.ORGANIZADOR, false);
+    }
 
     /**
      * El tipo no es un parametro: un DTOrganizador no puede ser otra cosa.
@@ -26,5 +37,8 @@ public class DTOrganizador extends DTUsuario {
 
     public String getDescripcion() {return descripcion;}
     public String getSitioWeb() {return sitioWeb;}
+
+    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
+    public void setSitioWeb(String sitioWeb) {this.sitioWeb = sitioWeb;}
 
 }

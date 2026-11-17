@@ -6,6 +6,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import logica.DTAsistente;
 import logica.DTEdicionCompleto;
 import logica.DTEdicionEvento;
+import logica.DTFecha;
 import logica.DTOrganizador;
 import logica.DTRegistro;
 import logica.DTUsuario;
@@ -232,6 +233,11 @@ public class VentanaConsultaUsuario extends JInternalFrame implements Actualizab
                 : datos.getFechaAlta().aLocalDate().toString();
     }
 
+    /** Una fecha como se mostraba siempre (2026-10-28). Si el dato falta, lo dice. */
+    private static String textoFecha(DTFecha fecha) {
+        return fecha == null ? "(sin registrar)" : fecha.aLocalDate().toString();
+    }
+
     private void mostrarEdicion() {
         DTEdicionEvento item = listaEdiciones.getSelectedValue();
 
@@ -261,7 +267,7 @@ public class VentanaConsultaUsuario extends JInternalFrame implements Actualizab
             String registros = edicion.getRegistros().isEmpty()
                     ? "Sin registros"
                     : edicion.getRegistros().stream()
-                    .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + r.getFechaRegistro())
+                    .map(r -> r.getTipoRegistro() + " - $" + r.getCosto() + " - " + textoFecha(r.getFechaRegistro()))
                     .collect(Collectors.joining("\n- ", "- ", ""));
 
             String patrocinios = edicion.getPatrocinios().isEmpty()
@@ -274,9 +280,9 @@ public class VentanaConsultaUsuario extends JInternalFrame implements Actualizab
                     "Edición: " + edicion.getNombre()
                             + "\nSigla: " + edicion.getSigla()
                             + "\nEstado: " + Estados.texto(edicion.getEstado())
-                            + "\nFecha de alta: " + edicion.getFechaAlta()
-                            + "\nInicio: " + edicion.getFechaIni()
-                            + "\nFin: " + edicion.getFechaFin()
+                            + "\nFecha de alta: " + textoFecha(edicion.getFechaAlta())
+                            + "\nInicio: " + textoFecha(edicion.getFechaIni())
+                            + "\nFin: " + textoFecha(edicion.getFechaFin())
                             + "\nCiudad: " + edicion.getCiudad()
                             + "\nPaís: " + edicion.getPais()
                             + "\nOrganizador: " + organizador
@@ -307,7 +313,7 @@ public class VentanaConsultaUsuario extends JInternalFrame implements Actualizab
                     "Edición: " + registro.getNombreEdicion()
                             + "\nTipo de registro: " + registro.getTipoRegistro()
                             + "\nCosto: " + registro.getCosto()
-                            + "\nFecha de registro: " + registro.getFechaRegistro()
+                            + "\nFecha de registro: " + textoFecha(registro.getFechaRegistro())
             );
         } catch (Exception ex) {
             areaDetalle.setText("");

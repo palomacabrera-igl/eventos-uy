@@ -142,7 +142,9 @@ public class ConsultaDeRegistro implements Actualizable {
             }
             TipoRegistroTxt.setText(reg.getTipoRegistro());
             CostoTxt.setText(String.valueOf(reg.getCosto()));
-            FechaRegistroTxt.setText(String.valueOf(reg.getFechaRegistro()));
+            FechaRegistroTxt.setText(reg.getFechaRegistro() == null
+                    ? ""
+                    : reg.getFechaRegistro().aLocalDate().toString());
         } catch (Exception ex) {
             limpiarDetalle();
             Mensajes.errorInesperado(mainPanel, TITULO, ex);

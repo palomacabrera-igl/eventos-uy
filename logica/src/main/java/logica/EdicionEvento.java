@@ -339,24 +339,25 @@ public class EdicionEvento extends EntidadBase {
     }
 
     public DTEdicionCompleto obtenerDTCompleto() {
-        Set<DTPatrocinio> dtPatrocinios = new HashSet<>();
+        List<DTPatrocinio> dtPatrocinios = new ArrayList<>();
         for (Patrocinio p : patrocinios) {
             dtPatrocinios.add(p.obtenerDT());
         }
 
-        Set<DTTipoRegistro> dtTipos = new HashSet<>();
+        List<DTTipoRegistro> dtTipos = new ArrayList<>();
         for (TipoRegistro t : tipoRegistros) {
             dtTipos.add(t.obtenerDT());
         }
 
-        Set<DTRegistro> dtRegistros = new HashSet<>();
+        List<DTRegistro> dtRegistros = new ArrayList<>();
         for (Registro r : registros) {
             dtRegistros.add(r.obtenerDT());
         }
 
         DTOrganizador dtOrg = organizador.obtenerDT();
 
-        return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
+        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+                DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
                 pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen());
     }
@@ -411,22 +412,23 @@ public class EdicionEvento extends EntidadBase {
     public DTEdicionCompleto obtenerDTCompletoPara(String solicitante) {
         boolean esSuOrganizador = loOrganiza(solicitante);
 
-        Set<DTTipoRegistro> dtTipos = new HashSet<>();
+        List<DTTipoRegistro> dtTipos = new ArrayList<>();
         for (TipoRegistro t : tipoRegistros) {
             dtTipos.add(t.obtenerDT());
         }
 
         // Mismos patrocinios, pero el codigo solo viaja para su organizador.
-        Set<DTPatrocinio> dtPatrocinios = obtenerPatrociniosPara(solicitante);
+        List<DTPatrocinio> dtPatrocinios = new ArrayList<>(obtenerPatrociniosPara(solicitante));
 
-        Set<DTRegistro> dtRegistros = new HashSet<>();
+        List<DTRegistro> dtRegistros = new ArrayList<>();
         if (esSuOrganizador) {
             for (Registro r : registros) {
                 dtRegistros.add(r.obtenerDT());
             }
         }
 
-        return new DTEdicionCompleto(nombre, sigla, fechaAlta, fechaIni, fechaFin,
+        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+                DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
                 pais, ciudad, organizador.obtenerDT(), dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen(), evento == null ? null : evento.getNombre());
     }

@@ -48,6 +48,18 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.13</version>
         </dependency>
+
+        <!--
+            Solo las anotaciones de JAXB (@XmlType), para que los DT le digan al
+            servicio web con que nombre viajan. Hibernate ya trae JAXB, pero solo
+            en tiempo de ejecucion: para anotar clases tiene que estar al compilar.
+            Misma version que usa jaxws-rt en la Estacion.
+        -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.5</version>
+        </dependency>
     </dependencies>
 
     <build>

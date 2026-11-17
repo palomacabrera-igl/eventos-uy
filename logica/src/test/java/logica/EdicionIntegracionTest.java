@@ -67,7 +67,7 @@ class EdicionIntegracionTest extends PruebaConBase {
         DTEdicionCompleto dt = sistema.consultarEdicion(NUEVA, "imm");
         assertEquals(EstadoEdicion.INGRESADA, dt.getEstado());
         assertEquals("imm", dt.getOrganizador().getNickname());
-        assertEquals(LocalDate.now(), dt.getFechaAlta());
+        assertEquals(LocalDate.now(), dt.getFechaAlta().aLocalDate());
         assertEquals("JIAP", dt.getNombreEvento());
         assertFalse(sistema.listarEdicionesAceptadas("JIAP").stream()
                 .anyMatch(ed -> ed.getNombre().equals(NUEVA)));
