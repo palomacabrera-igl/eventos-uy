@@ -60,6 +60,18 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
             <version>4.0.5</version>
         </dependency>
+
+        <!--
+            OpenPDF: genera la constancia de asistencia en PDF (letra, 7.5). Es
+            una de las bibliotecas que nombra la letra y NO es AGPL como iText:
+            tiene licencia LGPL / MPL. No trae dependencias obligatorias. A partir
+            de la 3.0 los paquetes son org.openpdf.* (antes com.lowagie.*).
+        -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>3.0.5</version>
+        </dependency>
     </dependencies>
 
     <build>

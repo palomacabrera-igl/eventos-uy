@@ -70,4 +70,25 @@ public class ManejadorUsuario {
                 .createQuery("SELECT u FROM Usuario u ORDER BY u.nickname", Usuario.class)
                 .getResultList();
     }
+
+    // ===== Rol 4: validacion asincronica =====
+    //
+    // Solo cuentan, no traen el usuario: se llaman mientras alguien escribe en
+    // el formulario, y buscar() leeria la fila entera, con su imagen.
+
+    /** true si ya hay un usuario con ese nickname (comparacion exacta, como la restriccion unica). */
+    public boolean existeNickname(String nickname) {
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.nickname = :nickname", Long.class)
+                .setParameter("nickname", nickname)
+                .getSingleResult() > 0;
+    }
+
+    /** true si ya hay un usuario con ese correo (comparacion exacta, como la restriccion unica). */
+    public boolean existeCorreo(String correo) {
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.correoElectronico = :correo", Long.class)
+                .setParameter("correo", correo)
+                .getSingleResult() > 0;
+    }
 }

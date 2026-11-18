@@ -115,4 +115,45 @@ public class ManejadorEvento {
                 .findFirst()
                 .orElse(null);
     }
+
+    // ===== Rol 4: visitas =====
+
+    /**
+     * Suma una visita al evento con UN solo UPDATE en la base:
+     * visitas = visitas + 1. Devuelve cuantas filas cambio, 0 si no existe.
+     *
+     * No se lee el numero, se le suma uno y se guarda de nuevo: con dos visitas
+     * a la vez las dos leerian el mismo valor y una se perderia. Con el UPDATE,
+     * la base traba la fila: la segunda espera a que termine la primera y recien
+     * ahi suma, sobre el valor ya actualizado.
+     */
+    public int sumarVisita(String nombreEvento) {
+        return sumarVisitas(nombreEvento, 1);
+    }
+
+    /**
+     * Lo mismo con varias visitas de una vez (visitas = visitas + cantidad). Lo
+     * usan los datos de prueba para que el ranking de mas visitados no arranque
+     * vacio. Devuelve cuantas filas cambio, 0 si el evento no existe.
+     */
+    public int sumarVisitas(String nombreEvento, long cantidad) {
+        return Persistencia.getEntityManager()
+                .createQuery("UPDATE Evento e SET e.visitas = e.visitas + :cantidad WHERE e.nombre = :nombre")
+                .setParameter("cantidad", cantidad)
+                .setParameter("nombre", nombreEvento)
+                .executeUpdate();
+    }
+
+    /**
+     * Los eventos con mas visitas, del que mas al que menos y, si empatan, por
+     * nombre. Hasta "cantidad". Un evento que nadie consulto no es de los mas
+     * visitados: no entra.
+     */
+    public List<Evento> masVisitados(int cantidad) {
+        return Persistencia.getEntityManager()
+                .createQuery("SELECT e FROM Evento e WHERE e.visitas > 0 "
+                        + "ORDER BY e.visitas DESC, e.nombre ASC", Evento.class)
+                .setMaxResults(cantidad)
+                .getResultList();
+    }
 }

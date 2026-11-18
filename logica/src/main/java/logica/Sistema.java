@@ -1635,32 +1635,59 @@ public class Sistema implements IControladorSistema {
     @Override
     public void registrarAsistencia(String solicitante, String nombreEdicion)
             throws ReglaNegocioException {
-        throw pendiente("registrarAsistencia");
+        // Sin estado: la edicion se busca por el nombre que llega, y el registro
+        // es el del solicitante. El cambio de "asistio" lo guarda solo la unidad
+        // de trabajo al hacer commit (la entidad esta conectada).
+        buscarEdicionExistente(nombreEdicion).registrarAsistencia(solicitante, LocalDate.now());
     }
 
     @Override
     public byte[] obtenerConstanciaAsistencia(String solicitante, String nombreEdicion)
             throws ReglaNegocioException {
-        throw pendiente("obtenerConstanciaAsistencia");
+        // El PDF se arma en el momento y no se guarda en ningun lado (letra, 7.5).
+        return buscarEdicionExistente(nombreEdicion).obtenerConstancia(solicitante, LocalDate.now());
     }
 
     @Override
     public void registrarVisita(String nombreEvento) throws ReglaNegocioException {
-        throw pendiente("registrarVisita");
+        String nombre = limpiar(nombreEvento);
+        if (nombre.isEmpty()) {
+            throw new ReglaNegocioException("Falta el nombre del evento.");
+        }
+        // Un solo UPDATE atomico en la base (ver ManejadorEvento.sumarVisita): no
+        // se lee el evento, asi que dos visitas a la vez no se pisan.
+        if (manejadorEvento.sumarVisita(nombre) == 0) {
+            throw new ReglaNegocioException(
+                    "No existe un evento con el nombre \"" + nombreEvento + "\".");
+        }
     }
 
     @Override
     public List<DTEvento> listarEventosMasVisitados(int cantidad) {
-        throw pendiente("listarEventosMasVisitados");
+        List<DTEvento> resultado = new ArrayList<>();
+        if (cantidad <= 0) {
+            return resultado;
+        }
+        // Incluye los eventos finalizados: es una consulta del administrador, que
+        // en la Estacion ve tambien los finalizados (letra, 6.1).
+        for (Evento evento : manejadorEvento.masVisitados(cantidad)) {
+            resultado.add(evento.obtenerDT());
+        }
+        return resultado;
     }
 
     @Override
     public boolean existeNickname(String nickname) {
-        throw pendiente("existeNickname");
+        // Misma comparacion que altaUsuario: sin espacios a los costados y exacta.
+        // Vacio o null no es un nickname que alguien tenga: false, para que el
+        // formulario no marque como "no disponible" un campo que todavia esta vacio.
+        String buscado = limpiar(nickname);
+        return !buscado.isEmpty() && manejadorUsuario.existeNickname(buscado);
     }
 
     @Override
     public boolean existeCorreo(String correo) {
-        throw pendiente("existeCorreo");
+        String buscado = limpiar(correo);
+        return !buscado.isEmpty() && manejadorUsuario.existeCorreo(buscado);
     }
 }

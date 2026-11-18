@@ -1,5 +1,6 @@
 package logica;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
@@ -50,6 +51,17 @@ public class Registro extends EntidadBase {
     private Double costo;
     private LocalDate fechaRegistro;
 
+    /**
+     * Si el asistente indico que asistio a la edicion (letra, seccion 6.3,
+     * Registro de Asistencia). Arranca en false y pasa a true una sola vez.
+     *
+     * El valor por defecto esta en la columna y no solo en Java: con
+     * hbm2ddl.auto=update, una columna NOT NULL nueva en una tabla que ya tiene
+     * filas no se crea si la base no sabe con que llenarla (ver README).
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean asistio;
+
     protected Registro() {}
 
     public Registro(Asistente asistente, EdicionEvento edicion, TipoRegistro tipoRegistro, Double costo, LocalDate fechaRegistro) {
@@ -78,9 +90,25 @@ public class Registro extends EntidadBase {
     public void setCosto(Double costo) { this.costo = costo; }
     public void setFechaRegistro(LocalDate fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
+    public boolean getAsistio() { return asistio; }
+
+    /**
+     * Anota que el asistente asistio. Solo se puede una vez: la letra pide que
+     * el sistema indique que ya estaba registrada y no ofrezca registrarla otra vez.
+     */
+    public void registrarAsistencia() throws ReglaNegocioException {
+        if (asistio) {
+            throw new ReglaNegocioException("Ya registraste tu asistencia a la edición \""
+                    + edicion.getNombre() + "\".");
+        }
+        asistio = true;
+    }
+
     public DTRegistro obtenerDT() {
-        return new DTRegistro(asistente.getNickname(), edicion.getNombre(),
+        DTRegistro dt = new DTRegistro(asistente.getNickname(), edicion.getNombre(),
                 tipoRegistro.getNombre(), costo, DTFecha.desdeOpcional(fechaRegistro),
                 patrocinio != null);
+        dt.setAsistio(asistio);
+        return dt;
     }
 }

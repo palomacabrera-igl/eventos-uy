@@ -51,6 +51,25 @@ public class Evento extends EntidadBase {
                inverseJoinColumns = @JoinColumn(name = "categoria_id"))
     private List<Categoria> categorias = new ArrayList<>();
 
+    // ===== Rol 4: visitas =====
+
+    /**
+     * Cuantas veces se consulto el evento en el sitio (letra, 7.7). Sobrevive a
+     * los reinicios porque esta en la base.
+     *
+     * Solo se cambia con ManejadorEvento.sumarVisita, que hace un UPDATE
+     * atomico (visitas = visitas + 1). Por eso la columna es updatable = false:
+     * cuando otra operacion modifica el evento (por ejemplo, lo finaliza),
+     * Hibernate escribe todas las columnas con el valor que leyo, y si en el
+     * medio entro una visita la pisaria. Sin esta columna en su UPDATE, no puede.
+     *
+     * El valor por defecto esta en la columna: con hbm2ddl.auto=update, una
+     * columna NOT NULL nueva en una tabla con filas no se crea si la base no
+     * sabe con que llenarla (ver README).
+     */
+    @Column(nullable = false, updatable = false, columnDefinition = "bigint default 0")
+    private long visitas;
+
     protected Evento() {}
 
     public Evento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<Categoria> categorias) {
@@ -72,6 +91,8 @@ public class Evento extends EntidadBase {
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
 
     public Imagen getImagen() {return imagen;}
+
+    public long getVisitas() {return visitas;}
 
     public boolean tieneImagen() {
         return imagen != null && imagen.getContenido() != null;
@@ -99,8 +120,10 @@ public class Evento extends EntidadBase {
         for (Categoria c : categorias) {
             nombresCategorias.add(c.getNombre());
         }
-        return new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta),
+        DTEvento dt = new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta),
                 nombresCategorias, tieneImagen());
+        dt.setVisitas(visitas);
+        return dt;
     }
 
     public Set<DTEdicionEvento> obtenerEdiciones() {
