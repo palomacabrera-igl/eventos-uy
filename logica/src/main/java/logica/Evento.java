@@ -124,9 +124,10 @@ public class Evento extends EntidadBase {
         for (Categoria c : categorias) {
             nombresCategorias.add(c.getNombre());
         }
-        DTEvento dt = new DTEvento(nombre, sigla, descripcion, DTFecha.desde(fechaAlta),
+        DTEvento dt = new DTEvento(nombre, sigla, descripcion, DTFecha.desdeOpcional(fechaAlta),
                 nombresCategorias, tieneImagen());
         dt.setVisitas(visitas);
+        dt.setFinalizado(finalizado);
         return dt;
     }
 
