@@ -169,7 +169,7 @@ public class EdicionEvento extends EntidadBase {
 
     public DTEdicionEvento obtenerDT() {
         DTEdicionEvento dt = new DTEdicionEvento(nombre, sigla, ciudad, pais,
-                DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta),
+                DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desdeOpcional(fechaAlta),
                 estado, tieneImagen(),
                 evento == null ? null : evento.getNombre());
         dt.setUrlVideo(urlVideo);

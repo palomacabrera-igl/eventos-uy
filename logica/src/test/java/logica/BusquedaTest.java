@@ -1,6 +1,8 @@
 package logica;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -158,6 +160,34 @@ class BusquedaTest {
                 eventosEncontrados("", OrdenBusqueda.ALFABETICO_ASC));
         assertEquals(List.of("Nube 2026", "Ñandú 2026", "Oro 2026"),
                 edicionesEncontradas("", OrdenBusqueda.ALFABETICO_ASC));
+    }
+
+    @Test
+    @DisplayName("un evento y una edicion sin fecha de alta (datos viejos) van al final")
+    void sinFechaDeAltaAlFinal() throws ReglaNegocioException {
+        Evento viejo = evento("Antiguo", "sin fecha", null);
+        LocalDate inicio = LocalDate.of(2027, 1, 10);
+        EdicionEvento sinFecha = new EdicionEvento("Antiguo 2020", "SIG", inicio, inicio, null,
+                "Montevideo", "Uruguay", null);
+        viejo.agregarEdicion(sinFecha);
+        sinFecha.aceptar();
+
+        List<String> eventosPorFecha = eventosEncontrados("", OrdenBusqueda.FECHA_ALTA);
+        List<String> edicionesPorFecha = edicionesEncontradas("", OrdenBusqueda.FECHA_ALTA);
+
+        assertEquals("Antiguo", eventosPorFecha.get(eventosPorFecha.size() - 1));
+        assertEquals("Antiguo 2020", edicionesPorFecha.get(edicionesPorFecha.size() - 1));
+        assertNull(Busqueda.eventos(eventos, "antiguo", null).get(0).getFechaAlta());
+    }
+
+    @Test
+    @DisplayName("el DT del evento dice si esta finalizado")
+    void elDTDiceSiEstaFinalizado() {
+        Evento evento = evento("Suelto", "otro", LocalDate.of(2026, 1, 1));
+
+        assertFalse(evento.obtenerDT().getFinalizado());
+        evento.finalizar();
+        assertTrue(evento.obtenerDT().getFinalizado());
     }
 
     @Test

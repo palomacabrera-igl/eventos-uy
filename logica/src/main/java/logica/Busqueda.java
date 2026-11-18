@@ -73,7 +73,8 @@ final class Busqueda {
 
     /**
      * El orden pedido. Por fecha de alta van primero los mas nuevos y, si dos
-     * tienen la misma fecha, por nombre. Los nombres se comparan con un
+     * tienen la misma fecha, por nombre; los que no tienen fecha (datos viejos)
+     * van al final. Los nombres se comparan con un
      * Collator en espanol, para que "Ñ" y las tildes queden donde corresponde.
      */
     private static <T> Comparator<T> comparador(OrdenBusqueda orden, Function<T, String> nombre,
@@ -85,7 +86,7 @@ final class Busqueda {
         if (orden == OrdenBusqueda.ALFABETICO_DESC) {
             return porNombre.reversed();
         }
-        return Comparator.comparing(fechaAlta, Comparator.<LocalDate>reverseOrder())
+        return Comparator.comparing(fechaAlta, Comparator.nullsLast(Comparator.<LocalDate>reverseOrder()))
                 .thenComparing(porNombre);
     }
 }
