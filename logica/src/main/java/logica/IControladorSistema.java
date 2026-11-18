@@ -559,10 +559,16 @@ public interface IControladorSistema {
 
     /**
      * Finaliza un evento. Un evento finalizado deja de aparecer en los listados
-     * y en las busquedas, y no admite ediciones nuevas. Quien puede hacerlo
-     * depende de la decision 10 del grupo (la letra dice que el sistema lista
-     * los eventos no finalizados y el organizador elige uno). Ese listado ya
-     * existe: es listarEventos.
+     * y en las busquedas, y no admite ediciones nuevas. Solo lo puede finalizar
+     * SU organizador.
+     *
+     * Ojo: hoy un Evento no guarda quien lo creo (altaEvento solo controla que
+     * el solicitante sea un organizador), y los eventos que crea el
+     * administrador desde la Estacion no tienen organizador. Para implementar
+     * esta operacion hay que agregar esa relacion, llenarla en altaEvento y en
+     * los datos de prueba, y decidir que pasa con los eventos sin organizador.
+     *
+     * El listado de los eventos no finalizados ya existe: es listarEventos.
      */
     void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException;
 
