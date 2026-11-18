@@ -618,7 +618,80 @@ public final class DatosDePrueba {
 
         manejadorEvento.agregar(comics);
 
+        cargarAsistenciaYVisitas();
+
         return true;
+    }
+
+    // =========================
+    // Rol 4: asistencia y visitas
+    // =========================
+
+    /**
+     * Registros con y sin asistencia, y visitas por evento, para poder ver todo lo
+     * de asistencia y de "mas visitados" sin tener que armarlo a mano antes de cada
+     * prueba o demostracion.
+     *
+     * <pre>
+     *  Edicion (organizador)        Asistente  Asistio   Para que sirve
+     *  JIAP 2026 (imm)              vale23     si        descargar la constancia
+     *                               lgomez     no        el organizador ve quien fue y quien no
+     *  Comics 2026 (imm)            jperez     si
+     *                               lgomez     no        registrar la asistencia desde el celular
+     *  Maratón 2026 (imm)           vale23     si
+     *                               jperez     no        registrar la asistencia desde el celular
+     *  Montevideo Rock 2026 (antel) vale23     no        todavia no empezo: no se puede asistir
+     *  Libro1 (antel)               nadie                edicion que ya empezo sin registros
+     * </pre>
+     *
+     * La asistencia se registra con la misma regla del sistema, el dia que empieza
+     * cada edicion: asi los datos no dependen de la fecha en que se carguen.
+     *
+     * Visitas: de mas a menos Montevideo Rock, JIAP, Maratón, Comics y Feria del
+     * libro. Expo Negocios no tiene ninguna, asi que no esta entre los mas
+     * visitados; con unas pocas visitas desde el sitio entra y se ve moverse el
+     * ranking.
+     *
+     * Se llama al final, con todo lo anterior ya guardado, y busca lo que necesita
+     * por su nombre: no depende de las variables de cargarTodo().
+     */
+    private static void cargarAsistenciaYVisitas() {
+        registrar("JIAP 2026", "Estudiante", "lgomez", LocalDate.of(2026, 9, 10));
+        asistio("JIAP 2026", "vale23", LocalDate.of(2026, 10, 1));
+
+        registrar("Comics 2026", "Entrada general", "jperez", LocalDate.of(2026, 9, 20));
+        registrar("Comics 2026", "Entrada general", "lgomez", LocalDate.of(2026, 9, 25));
+        asistio("Comics 2026", "jperez", LocalDate.of(2026, 10, 3));
+
+        registrar("Maratón 2026", "Corredor 21K", "vale23", LocalDate.of(2026, 10, 20));
+        asistio("Maratón 2026", "vale23", LocalDate.of(2026, 11, 15));
+
+        ManejadorEvento eventos = ManejadorEvento.getInstancia();
+        eventos.sumarVisitas("Montevideo Rock", 24);
+        eventos.sumarVisitas("JIAP", 17);
+        eventos.sumarVisitas("Maratón de Montevideo", 12);
+        eventos.sumarVisitas("Montevideo Comics", 7);
+        eventos.sumarVisitas("Feria del libro", 3);
+    }
+
+    private static void registrar(String nombreEdicion, String tipoRegistro, String nickname,
+                                  LocalDate fecha) {
+        EdicionEvento edicion = edicion(nombreEdicion);
+        Asistente asistente = (Asistente) ManejadorUsuario.getInstancia().buscar(nickname);
+        edicion.altaRegistro(asistente, edicion.buscarTipoRegistro(tipoRegistro), fecha);
+    }
+
+    private static void asistio(String nombreEdicion, String nickname, LocalDate dia) {
+        try {
+            edicion(nombreEdicion).registrarAsistencia(nickname, dia);
+        } catch (ReglaNegocioException e) {
+            throw new IllegalStateException(
+                    "No se pudo registrar la asistencia de " + nickname + " a " + nombreEdicion, e);
+        }
+    }
+
+    private static EdicionEvento edicion(String nombreEdicion) {
+        return ManejadorEvento.getInstancia().buscarEdicion(nombreEdicion);
     }
 
     private static void aceptar(EdicionEvento edicion) {

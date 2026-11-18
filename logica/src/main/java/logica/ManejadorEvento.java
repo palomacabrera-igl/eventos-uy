@@ -128,8 +128,18 @@ public class ManejadorEvento {
      * ahi suma, sobre el valor ya actualizado.
      */
     public int sumarVisita(String nombreEvento) {
+        return sumarVisitas(nombreEvento, 1);
+    }
+
+    /**
+     * Lo mismo con varias visitas de una vez (visitas = visitas + cantidad). Lo
+     * usan los datos de prueba para que el ranking de mas visitados no arranque
+     * vacio. Devuelve cuantas filas cambio, 0 si el evento no existe.
+     */
+    public int sumarVisitas(String nombreEvento, long cantidad) {
         return Persistencia.getEntityManager()
-                .createQuery("UPDATE Evento e SET e.visitas = e.visitas + 1 WHERE e.nombre = :nombre")
+                .createQuery("UPDATE Evento e SET e.visitas = e.visitas + :cantidad WHERE e.nombre = :nombre")
+                .setParameter("cantidad", cantidad)
                 .setParameter("nombre", nombreEvento)
                 .executeUpdate();
     }
