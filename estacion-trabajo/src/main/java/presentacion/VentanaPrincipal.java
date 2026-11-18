@@ -143,6 +143,11 @@ public class VentanaPrincipal extends JFrame {
         itemAltaPatrocinio.addActionListener(e -> abrirAltaPatrocinio());
         menuInstituciones.add(itemAltaPatrocinio);
 
+        // ===== Consulta de Eventos mas Visitados =====
+        JMenuItem itemEventosMasVisitados = new JMenuItem("Consulta de Eventos más Visitados");
+        itemEventosMasVisitados.addActionListener(e -> abrirEventosMasVisitados());
+        menuEventos.add(itemEventosMasVisitados);
+
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
         menuBar.add(menuInstituciones);
@@ -171,6 +176,7 @@ public class VentanaPrincipal extends JFrame {
     private void abrirAltaEvento()         { abrir(new VentanaAltaEvento()); }
     private void abrirAltaPatrocinio()     { abrir(new VentanaAltaPatrocinio()); }
     private void abrirAceptarRechazarEdicion() { abrir(new VentanaAceptarRechazarEdicion()); }
+    private void abrirEventosMasVisitados() { abrir(new VentanaEventosMasVisitados(controlador)); }
 
     /**
      * Cada 5 segundos le pide a cada ventana abierta que se vuelva a leer de la
