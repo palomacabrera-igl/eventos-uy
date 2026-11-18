@@ -1121,6 +1121,7 @@ public class Sistema implements IControladorSistema {
         LocalDate fin = datos.getFechaFin() == null ? null : datos.getFechaFin().aLocalDate();
         EdicionEvento.validarDatos(nombre, datos.getSigla(), datos.getCiudad(), datos.getPais(),
                 inicio, fin);
+        String video = VideoYoutube.normalizar(datos.getUrlVideo());
 
         // Una edicion no puede repetir nombre en NINGUN evento (regla del Lab 1).
         if (manejadorEvento.buscarEdicion(nombre) != null) {
@@ -1136,6 +1137,7 @@ public class Sistema implements IControladorSistema {
         // La edicion nueva viaja por el cascade del @OneToMany de Evento y se
         // guarda cuando la unidad de trabajo hace commit.
         EdicionEvento nueva = evento.altaEdicion(limpio, organizador);
+        nueva.asignarVideo(video);
 
         // La imagen es opcional: si no viene, la edicion queda sin imagen.
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
@@ -1622,12 +1624,12 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public List<DTEvento> buscarEventos(String texto, OrdenBusqueda orden) {
-        throw pendiente("buscarEventos");
+        return Busqueda.eventos(manejadorEvento.listar(), texto, orden);
     }
 
     @Override
     public List<DTEdicionEvento> buscarEdiciones(String texto, OrdenBusqueda orden) {
-        throw pendiente("buscarEdiciones");
+        return Busqueda.ediciones(manejadorEvento.listar(), texto, orden);
     }
 
     // ----- Asistencia, constancia, visitas y validacion -----
