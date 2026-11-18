@@ -32,6 +32,10 @@ public class Evento extends EntidadBase {
 
     private LocalDate fechaAlta;
 
+    /** Un evento finalizado no admite ediciones nuevas y no sale en los listados ni en la busqueda. */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean finalizado;
+
     /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
     @Embedded
     private Imagen imagen;
@@ -212,4 +216,14 @@ public class Evento extends EntidadBase {
     private static boolean estaVacio(String texto) {
         return texto == null || texto.isBlank();
     }
+
+    // ===== Finalizar evento y busqueda (letra, 6.2 y 7.8) =====
+
+    public boolean estaFinalizado() {return finalizado;}
+
+    /** Quien puede finalizarlo lo controla Sistema.finalizarEvento. */
+    public void finalizar() {finalizado = true;}
+
+    /** Las ediciones del evento, para que la busqueda las recorra. */
+    List<EdicionEvento> getEdiciones() {return List.copyOf(ediciones);}
 }

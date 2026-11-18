@@ -593,13 +593,15 @@ public interface IControladorSistema {
 
     /**
      * Busca eventos por nombre o descripcion, sin distinguir mayusculas. Solo
-     * devuelve eventos no finalizados, ordenados segun "orden".
+     * devuelve eventos no finalizados, ordenados segun "orden". Con el texto
+     * vacio o null devuelve todos; con el orden null, ordena por FECHA_ALTA.
      */
     List<DTEvento> buscarEventos(String texto, OrdenBusqueda orden);
 
     /**
-     * Busca ediciones, ordenadas segun "orden". Solo devuelve las ACEPTADAS. Que
-     * campos se comparan con el texto lo define la letra.
+     * Busca ediciones por nombre (las ediciones no tienen descripcion), sin
+     * distinguir mayusculas. Solo devuelve las ACEPTADAS de eventos no
+     * finalizados. El texto y el orden se tratan igual que en buscarEventos.
      */
     List<DTEdicionEvento> buscarEdiciones(String texto, OrdenBusqueda orden);
 

@@ -55,6 +55,10 @@ public class EdicionEvento extends EntidadBase {
     @Embedded
     private Imagen imagen;
 
+    /** Video de YouTube opcional (letra, 7.4), guardado como https://www.youtube.com/watch?v=ID. */
+    @Column(length = 100)
+    private String urlVideo;
+
     @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "evento_id",
                 foreignKey = @ForeignKey(name = "fk_edicion_evento"))
@@ -121,6 +125,11 @@ public class EdicionEvento extends EntidadBase {
     /** La imagen se agrega o se reemplaza despues del alta, no en el constructor. */
     public void asignarImagen(Imagen imagen) {this.imagen = imagen;}
 
+    public String getUrlVideo() {return urlVideo;}
+
+    /** Recibe la direccion que devuelve VideoYoutube.normalizar, o null si no tiene video. */
+    public void asignarVideo(String urlVideo) {this.urlVideo = urlVideo;}
+
     // ===== Estados de la edicion (letra, Tabla 1) =====
 
     /** true si la edicion se puede listar al publico (letra, seccion 4). */
@@ -160,10 +169,12 @@ public class EdicionEvento extends EntidadBase {
     }
 
     public DTEdicionEvento obtenerDT() {
-        return new DTEdicionEvento(nombre, sigla, ciudad, pais,
+        DTEdicionEvento dt = new DTEdicionEvento(nombre, sigla, ciudad, pais,
                 DTFecha.desde(fechaIni), DTFecha.desde(fechaFin), DTFecha.desde(fechaAlta),
                 estado, tieneImagen(),
                 evento == null ? null : evento.getNombre());
+        dt.setUrlVideo(urlVideo);
+        return dt;
     }
 
     public Set<DTPatrocinio> obtenerPatrocinios() {
@@ -447,10 +458,12 @@ public class EdicionEvento extends EntidadBase {
 
         DTOrganizador dtOrg = organizador.obtenerDT();
 
-        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+        DTEdicionCompleto dt = new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
                 DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
                 pais, ciudad, dtOrg, dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen());
+        dt.setUrlVideo(urlVideo);
+        return dt;
     }
 
     // ===== Consulta de Edicion (CU 9) =====
@@ -518,10 +531,12 @@ public class EdicionEvento extends EntidadBase {
             }
         }
 
-        return new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
+        DTEdicionCompleto dt = new DTEdicionCompleto(nombre, sigla, DTFecha.desdeOpcional(fechaAlta),
                 DTFecha.desdeOpcional(fechaIni), DTFecha.desdeOpcional(fechaFin),
                 pais, ciudad, organizador.obtenerDT(), dtTipos, dtRegistros, dtPatrocinios,
                 estado, tieneImagen(), evento == null ? null : evento.getNombre());
+        dt.setUrlVideo(urlVideo);
+        return dt;
     }
 
     // ===== Alta de Edicion (CU 8) =====

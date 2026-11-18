@@ -213,6 +213,7 @@ public final class DatosDePrueba {
         jiap2026.asignarImagen(imagenes.get(
                 "imagenes/eventos/JIAP/ediciones/edicionIng2026.png"
         ));
+        jiap2026.asignarVideo("https://www.youtube.com/watch?v=jNQXAC9IVRw");
         try {
             jiap2026.aceptar();
         } catch (ReglaNegocioException e) {
@@ -498,6 +499,7 @@ public final class DatosDePrueba {
         rock2026.asignarImagen(imagenes.get(
                 "imagenes/eventos/MontevideoRock/ediciones/rock2026.webp"
         ));
+        rock2026.asignarVideo("https://www.youtube.com/watch?v=9bZkp7q19f0");
         try {
             rock2026.aceptar();
         } catch (ReglaNegocioException e) {
