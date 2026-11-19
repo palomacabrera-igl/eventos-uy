@@ -7,10 +7,18 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Entidad de dominio abstracta que representa un usuario de la plataforma.
@@ -70,6 +78,23 @@ public abstract class Usuario extends EntidadBase {
      * password: las bases que ya tienen usuarios no la pueden recibir NOT NULL.
      */
     private LocalDate fechaAlta;
+
+    /**
+     * Usuarios que siguen a este perfil. La tabla intermedia conserva ambos
+     * lados de la relacion y no permite repetir el mismo seguidor para un
+     * mismo seguido, incluso si dos pedidos llegan al mismo tiempo.
+     */
+    @ManyToMany
+    @JoinTable(name = "usuario_seguidor",
+            joinColumns = @JoinColumn(name = "seguido_id"),
+            inverseJoinColumns = @JoinColumn(name = "seguidor_id"),
+            uniqueConstraints = @UniqueConstraint(name = "uk_usuario_seguidor",
+                    columnNames = {"seguidor_id", "seguido_id"}))
+    private Set<Usuario> seguidores = new LinkedHashSet<>();
+
+    /** Lado inverso: usuarios a los que este perfil sigue. */
+    @ManyToMany(mappedBy = "seguidores")
+    private Set<Usuario> seguidos = new LinkedHashSet<>();
 
     protected Usuario() {}
 
@@ -145,6 +170,46 @@ public abstract class Usuario extends EntidadBase {
      */
     public boolean esSuPropioPerfil(String solicitante) {
         return solicitante != null && nickname.equals(solicitante.trim());
+    }
+
+    /**
+     * Empieza a seguir a otro usuario. Devuelve false cuando ya lo seguia;
+     * Sistema transforma ese resultado en el mensaje de regla de negocio.
+     */
+    public boolean seguir(Usuario seguido) {
+        if (!seguidos.add(seguido)) {
+            return false;
+        }
+        seguido.seguidores.add(this);
+        return true;
+    }
+
+    /** Deja de seguir a otro usuario; false significa que no existia el vinculo. */
+    public boolean dejarDeSeguir(Usuario seguido) {
+        if (!seguidos.remove(seguido)) {
+            return false;
+        }
+        seguido.seguidores.remove(this);
+        return true;
+    }
+
+    /** Datatypes ordenados para que el perfil no dependa del orden de Hibernate. */
+    public List<DTUsuario> obtenerSeguidores() {
+        return obtenerDTOrdenados(seguidores);
+    }
+
+    /** Datatypes ordenados para que el perfil no dependa del orden de Hibernate. */
+    public List<DTUsuario> obtenerSeguidos() {
+        return obtenerDTOrdenados(seguidos);
+    }
+
+    private static List<DTUsuario> obtenerDTOrdenados(Set<Usuario> usuarios) {
+        List<DTUsuario> resultado = new ArrayList<>();
+        usuarios.stream()
+                .sorted(Comparator.comparing(Usuario::getNickname))
+                .map(Usuario::obtenerDT)
+                .forEach(resultado::add);
+        return resultado;
     }
 
     public abstract DTUsuario obtenerDT();
