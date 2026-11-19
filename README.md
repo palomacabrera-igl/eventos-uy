@@ -29,7 +29,7 @@ Mientras fueron un solo proyecto Maven, el sitio compilaba la lógica desde el c
 
 Ahora:
 
-- Acá se compila la lógica y sale `logica-1.0-SNAPSHOT.jar`.
+- Acá se compila la lógica y sale `logica-3.0-SNAPSHOT.jar`.
 - `scripts/publicar-logica.ps1` deja ese JAR, con su ficha de dependencias, dentro del repositorio del sitio.
 - Allá, Maven lo toma como una biblioteca cualquiera y lo mete en el WAR, en `WEB-INF/lib`.
 
@@ -77,7 +77,7 @@ Pide la contraseña del usuario `postgres`, la que cada uno definió al instalar
 .\mvnw.cmd install -DskipTests
 ```
 
-Genera `logica/target/logica-1.0-SNAPSHOT.jar` y `estacion-trabajo/target/estacion-trabajo-1.0-SNAPSHOT.jar`.
+Genera `logica/target/logica-3.0-SNAPSHOT.jar` y `estacion-trabajo/target/estacion-trabajo-3.0-SNAPSHOT.jar`.
 
 ### 3. Cargar los datos de prueba
 

@@ -1,0 +1,8 @@
+﻿<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+  <S:Body>
+    <ns:iniciarSesion xmlns:ns="http://servicios/">
+      <identificador>jperez</identificador>
+      <password>Juan2026!</password>
+    </ns:iniciarSesion>
+  </S:Body>
+</S:Envelope>

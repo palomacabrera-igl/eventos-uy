@@ -6,7 +6,14 @@
 
     <groupId>uy.edu.eventos</groupId>
     <artifactId>eventos-uy</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <!--
+        3.0 por el Laboratorio 3, y NO 1.0, a proposito: el sitio (el otro
+        repositorio) todavia trae el JAR viejo de la logica en su carpeta lib/
+        con el nombre logica 1.0-SNAPSHOT. Si este proyecto tambien se llamara
+        1.0-SNAPSHOT, un "mvnw install" aca pisaria ese JAR en ~/.m2 y el sitio
+        dejaria de compilar. Con versiones distintas no se pueden pisar.
+    -->
+    <version>3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>EventosUY</name>
     <description>Plataforma eventos.uy - Programacion de Aplicaciones</description>
@@ -35,6 +42,27 @@
         <maven.compiler.release>25</maven.compiler.release>
         <junit.version>5.13.4</junit.version>
     </properties>
+
+    <!--
+        Una sola version de JAXB (la biblioteca que convierte objetos en XML).
+
+        Hibernate trae JAXB 4.0.2 y jaxws-rt (los servicios web) trae JAXB 4.0.9.
+        Las dos tienen clases con el mismo nombre: si conviven versiones distintas,
+        gana la que Java encuentre primero y aparecen errores como
+        NoSuchMethodError en tiempo de ejecucion. Este BOM fija todo JAXB en la
+        version que pide jaxws-rt 4.0.5.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-bom</artifactId>
+                <version>4.0.9</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>
