@@ -1594,22 +1594,35 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void seguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
-        throw pendiente("seguirUsuario");
+        Usuario seguidor = exigirUsuario(solicitante);
+        Usuario seguido = exigirUsuario(nickname);
+        if (seguidor.getNickname().equals(seguido.getNickname())) {
+            throw new ReglaNegocioException("Un usuario no puede seguirse a sí mismo.");
+        }
+        if (!seguidor.seguir(seguido)) {
+            throw new ReglaNegocioException("Ya seguís al usuario \""
+                    + seguido.getNickname() + "\".");
+        }
     }
 
     @Override
     public void dejarDeSeguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
-        throw pendiente("dejarDeSeguirUsuario");
+        Usuario seguidor = exigirUsuario(solicitante);
+        Usuario seguido = exigirUsuario(nickname);
+        if (!seguidor.dejarDeSeguir(seguido)) {
+            throw new ReglaNegocioException("No seguís al usuario \""
+                    + seguido.getNickname() + "\".");
+        }
     }
 
     @Override
     public List<DTUsuario> listarSeguidores(String nickname) throws ReglaNegocioException {
-        throw pendiente("listarSeguidores");
+        return exigirUsuario(nickname).obtenerSeguidores();
     }
 
     @Override
     public List<DTUsuario> listarSeguidos(String nickname) throws ReglaNegocioException {
-        throw pendiente("listarSeguidos");
+        return exigirUsuario(nickname).obtenerSeguidos();
     }
 
     @Override
