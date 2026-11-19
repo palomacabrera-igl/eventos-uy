@@ -15,8 +15,9 @@
     <name>EventosUY - Estacion de Trabajo</name>
 
     <properties>
-        <!-- Clase que corre "mvnw -pl estacion-trabajo exec:java". Se cambia con -Dexec.mainClass=... -->
-        <exec.mainClass>presentacion.VentanaPrincipal</exec.mainClass>
+        <!-- Clase que corre "mvnw -pl estacion-trabajo exec:java": publica los servicios web y
+             despues abre la Estacion (servicios.Main). Se cambia con -Dexec.mainClass=... -->
+        <exec.mainClass>servicios.Main</exec.mainClass>
     </properties>
 
     <dependencies>
@@ -83,7 +84,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>presentacion.VentanaPrincipal</mainClass>
+                            <mainClass>servicios.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
