@@ -34,6 +34,9 @@ public class EdicionEvento extends EntidadBase {
     private LocalDate fechaFin;
     private LocalDate fechaAlta;
 
+    /** Dia en que el organizador archivo la edicion; null mientras siga activa. */
+    private LocalDate fechaArchivado;
+
     @Column(length = 100)
     private String ciudad;
 
@@ -100,6 +103,7 @@ public class EdicionEvento extends EntidadBase {
     public LocalDate getfechaIni() {return fechaIni;}
     public LocalDate getfechaFin() {return fechaFin;}
     public LocalDate getfechaAlta() {return fechaAlta;}
+    public LocalDate getFechaArchivado() {return fechaArchivado;}
     public String getCiudad() {return ciudad;}
     public String getPais() {return pais;}
     public EstadoEdicion getEstado() {return estado;}
@@ -141,6 +145,29 @@ public class EdicionEvento extends EntidadBase {
 
     public void rechazar() throws ReglaNegocioException {
         cambiarEstado(EstadoEdicion.RECHAZADA);
+    }
+
+    /**
+     * Una vez terminada, una edicion aceptada deja de estar disponible al
+     * publico. La fecha se recibe para mantener la regla testeable y para que
+     * la operacion del controlador no dependa de campos compartidos.
+     */
+    public void archivar(LocalDate hoy) throws ReglaNegocioException {
+        if (!estaAceptada()) {
+            throw new ReglaNegocioException("La edición \"" + nombre
+                    + "\" debe estar aceptada para archivarse.");
+        }
+        if (fechaFin == null || !fechaFin.isBefore(hoy)) {
+            throw new ReglaNegocioException("La edición \"" + nombre
+                    + "\" solo se puede archivar después de su fecha de fin.");
+        }
+        estado = EstadoEdicion.ARCHIVADA;
+        fechaArchivado = hoy;
+    }
+
+    /** La misma condicion que archivar(), sin cambiar la entidad. */
+    public boolean sePuedeArchivar(LocalDate hoy) {
+        return estaAceptada() && fechaFin != null && fechaFin.isBefore(hoy);
     }
 
     /**
@@ -470,8 +497,8 @@ public class EdicionEvento extends EntidadBase {
 
     /**
      * Quien puede ver esta edicion (letra, seccion 4): una Aceptada la ve
-     * cualquiera, incluso un visitante; una Ingresada o Rechazada, solo su
-     * organizador.
+     * cualquiera, incluso un visitante; una Ingresada, Rechazada o Archivada,
+     * solo su organizador.
      */
     public boolean puedeVerla(String solicitante) {
         return estaAceptada() || loOrganiza(solicitante);
