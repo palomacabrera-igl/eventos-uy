@@ -23,7 +23,7 @@ public class DTEdicionCompleto {
     private List<DTRegistro> registros = new ArrayList<>();
     private List<DTPatrocinio> patrocinios = new ArrayList<>();
 
-    /** Ingresada, Aceptada o Rechazada: la pagina decide con esto quien puede verla. */
+    /** Ingresada, Aceptada, Rechazada o Archivada: la pagina decide con esto quien puede verla. */
     private EstadoEdicion estado;
 
     /** Si hay que dibujar un <img> o el poster de color. Los bytes no viajan aca. */

@@ -186,6 +186,17 @@ public final class DatosDePrueba {
         manejadorUsuario.agregar(antel);
 
         // =========================
+        // Seguimientos
+        // =========================
+        // Sirven para recorrer el perfil con seguidores y seguidos desde el
+        // sitio: vale23 sigue a ambos organizadores y jperez tambien sigue a
+        // la IMM. Se arman dentro de la misma unidad de trabajo que persiste
+        // a los usuarios, asi los dos lados de cada relacion quedan guardados.
+        vale23.seguir(imm);
+        vale23.seguir(antel);
+        jperez.seguir(imm);
+
+        // =========================
         // Evento: JIAP
         // =========================
 
@@ -356,6 +367,10 @@ public final class DatosDePrueba {
         feriaLibro.agregarEdicion(libro2026);
         antel.agregarEdicion(libro2026);
 
+        // Evento finalizado. Queda guardado para demostrar que ya no
+        // aparece en la cartelera ni admite ediciones nuevas.
+        feriaLibro.finalizar();
+
         TipoRegistro libroGeneral = new TipoRegistro(
                 "General",
                 "Acceso a charlas y talleres de la semana.",
@@ -426,6 +441,9 @@ public final class DatosDePrueba {
         ));
         try {
             maraton2025.aceptar();
+            // Edicion archivada. Sigue disponible en el perfil de la
+            // IMM y para sus asistentes registrados, pero no para el publico.
+            maraton2025.archivar(LocalDate.of(2026, 11, 1));
         } catch (ReglaNegocioException e) {
             throw new IllegalStateException(e);
         }
@@ -609,6 +627,10 @@ public final class DatosDePrueba {
 
         comics.agregarEdicion(comics2026);
         imm.agregarEdicion(comics2026);
+
+        // Comics 2026 ya termino y sigue ACEPTADA, de modo que aparece
+        // en listarEdicionesArchivables("imm") y permite demostrar el caso de
+        // uso de archivar sin preparar datos manualmente.
 
         TipoRegistro entradaComics = new TipoRegistro(
                 "Entrada general",

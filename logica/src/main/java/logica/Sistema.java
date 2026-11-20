@@ -331,6 +331,11 @@ public class Sistema implements IControladorSistema {
     @Override
     public void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
                              String codigoPatrocinio) throws ReglaNegocioException {
+        altaRegistroBase(nickname, nombreEdicion, nombreTipo, codigoPatrocinio);
+    }
+
+    private void altaRegistroBase(String nickname, String nombreEdicion, String nombreTipo,
+                                  String codigoPatrocinio) throws ReglaNegocioException {
         // La edicion se resuelve por el nombre que llega como parametro, no por
         // la que quedo retenida de un llamado anterior.
         //
@@ -361,6 +366,11 @@ public class Sistema implements IControladorSistema {
         // OJO: esta operacion la usa el sitio, que atiende varias peticiones a
         // la vez, asi que NO deja nada "seleccionado" en los campos del Sistema
         // (antes hacia this.edicionSeleccionada = ed): esos campos son de todos.
+
+        if (!ed.estaAceptada()) {
+            throw new ReglaNegocioException(
+                    "Solo se puede realizar el registro a una edición ACEPTADA.");
+        }
 
         TipoRegistro tr = ed.buscarTipoRegistro(nombreTipo);
         if (tr == null) {
@@ -1018,14 +1028,13 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public Set<DTEvento> listarEventos(String nombreCategoria) {
-        // Sin categoria es la cartelera completa: el servlet llama siempre a esta.
-        if (nombreCategoria == null || nombreCategoria.isBlank()) {
-            return listarEventos();
-        }
-        // Una categoria que no existe no es un error: simplemente no tiene eventos.
         Set<DTEvento> resultado = new HashSet<>();
         for (Evento e : manejadorEvento.listar()) {
-            if (e.tieneCategoria(nombreCategoria)) {
+            // Esta es la version sin estado que publica el sitio: los
+            // finalizados siguen en la Estacion (listarEventos sin parametros),
+            // pero no salen en la cartelera web, ni siquiera sin categoria.
+            if (!e.estaFinalizado() && (nombreCategoria == null || nombreCategoria.isBlank()
+                    || e.tieneCategoria(nombreCategoria))) {
                 resultado.add(e.obtenerDT());
             }
         }
@@ -1034,13 +1043,23 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public DTEvento consultarEvento(String nombre) throws ReglaNegocioException {
-        return buscarEventoExistente(nombre).obtenerDT();
+        Evento evento = buscarEventoExistente(nombre);
+        if (evento.estaFinalizado()) {
+            throw new ReglaNegocioException("El evento \"" + evento.getNombre()
+                    + "\" ya finalizó y no está disponible.");
+        }
+        return evento.obtenerDT();
     }
 
     @Override
     public Set<DTEdicionEvento> listarEdicionesAceptadas(String nombreEvento)
             throws ReglaNegocioException {
-        return buscarEventoExistente(nombreEvento).obtenerEdicionesAceptadas();
+        Evento evento = buscarEventoExistente(nombreEvento);
+        if (evento.estaFinalizado()) {
+            throw new ReglaNegocioException("El evento \"" + evento.getNombre()
+                    + "\" ya finalizó y no está disponible.");
+        }
+        return evento.obtenerEdicionesAceptadas();
     }
 
     /**
@@ -1112,6 +1131,10 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException("Solo un organizador puede dar de alta ediciones.");
         }
         Evento evento = buscarEventoExistente(nombreEvento);
+        if (evento.estaFinalizado()) {
+            throw new ReglaNegocioException("El evento \"" + evento.getNombre()
+                    + "\" está finalizado y no admite ediciones nuevas.");
+        }
         if (datos == null) {
             throw new ReglaNegocioException("Faltan los datos de la edición.");
         }
@@ -1586,38 +1609,78 @@ public class Sistema implements IControladorSistema {
 
     @Override
     public void seguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
-        throw pendiente("seguirUsuario");
+        Usuario seguidor = exigirUsuario(solicitante);
+        Usuario seguido = exigirUsuario(nickname);
+        if (seguidor.getNickname().equals(seguido.getNickname())) {
+            throw new ReglaNegocioException("Un usuario no puede seguirse a sí mismo.");
+        }
+        if (!seguidor.seguir(seguido)) {
+            throw new ReglaNegocioException("Ya seguís al usuario \""
+                    + seguido.getNickname() + "\".");
+        }
     }
 
     @Override
     public void dejarDeSeguirUsuario(String solicitante, String nickname) throws ReglaNegocioException {
-        throw pendiente("dejarDeSeguirUsuario");
+        Usuario seguidor = exigirUsuario(solicitante);
+        Usuario seguido = exigirUsuario(nickname);
+        if (!seguidor.dejarDeSeguir(seguido)) {
+            throw new ReglaNegocioException("No seguís al usuario \""
+                    + seguido.getNickname() + "\".");
+        }
     }
 
     @Override
     public List<DTUsuario> listarSeguidores(String nickname) throws ReglaNegocioException {
-        throw pendiente("listarSeguidores");
+        return exigirUsuario(nickname).obtenerSeguidores();
     }
 
     @Override
     public List<DTUsuario> listarSeguidos(String nickname) throws ReglaNegocioException {
-        throw pendiente("listarSeguidos");
+        return exigirUsuario(nickname).obtenerSeguidos();
     }
 
     @Override
     public void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException {
-        throw pendiente("finalizarEvento");
+        Usuario usuario = exigirUsuario(solicitante);
+        if (!(usuario instanceof Organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede finalizar eventos.");
+        }
+        Evento evento = buscarEventoExistente(nombreEvento);
+        if (evento.estaFinalizado()) {
+            throw new ReglaNegocioException("El evento \"" + evento.getNombre()
+                    + "\" ya está finalizado.");
+        }
+        evento.finalizar();
     }
 
     @Override
     public void archivarEdicion(String solicitante, String nombreEdicion) throws ReglaNegocioException {
-        throw pendiente("archivarEdicion");
+        Usuario usuario = exigirUsuario(solicitante);
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede archivar ediciones.");
+        }
+        EdicionEvento edicion = buscarEdicionExistente(nombreEdicion);
+        if (!edicion.loOrganiza(organizador.getNickname())) {
+            throw new ReglaNegocioException("Solo el organizador de la edición puede archivarla.");
+        }
+        edicion.archivar(LocalDate.now());
     }
 
     @Override
     public List<DTEdicionEvento> listarEdicionesArchivables(String solicitante)
             throws ReglaNegocioException {
-        throw pendiente("listarEdicionesArchivables");
+        Usuario usuario = exigirUsuario(solicitante);
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede listar sus ediciones archivables.");
+        }
+        List<DTEdicionEvento> resultado = new ArrayList<>();
+        for (EdicionEvento edicion : organizador.getEdiciones()) {
+            if (edicion.sePuedeArchivar(LocalDate.now())) {
+                resultado.add(edicion.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     // ----- Video, busqueda y sitio para celular -----

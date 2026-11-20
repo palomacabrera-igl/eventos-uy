@@ -14,8 +14,8 @@ public class DTEdicionEvento {
     private DTFecha fechaAlta;
 
     /**
-     * Ingresada, Aceptada o Rechazada. El perfil del organizador muestra sus
-     * ediciones en los tres estados y la pagina necesita saber cual es cual.
+     * Ingresada, Aceptada, Rechazada o Archivada. El perfil del organizador
+     * muestra sus ediciones y la pagina necesita saber cual es cual.
      */
     private EstadoEdicion estado;
 
