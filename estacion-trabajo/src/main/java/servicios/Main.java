@@ -18,6 +18,8 @@ import java.util.List;
  *
  * <ol>
  *   <li>Lee la direccion del servicio de ~/.eventosUy/central.properties.</li>
+ *   <li>Deja lista la conexion con la base (ver prepararBase): asi el primer
+ *       pedido del sitio no tiene que esperar a que arranque Hibernate.</li>
  *   <li>Publica el Publicador con Endpoint.publish. Eso levanta un servidor HTTP
  *       liviano que trae el propio JDK (no se usa Tomcat de este lado), arma el
  *       WSDL leyendo las anotaciones y queda atendiendo pedidos en segundo plano.</li>
@@ -39,6 +41,8 @@ public final class Main {
     public static void main(String[] args) {
         Configuracion configuracion = Configuracion.cargar();
         String url = configuracion.urlServicio();
+
+        prepararBase();
 
         Endpoint endpoint;
         try {
@@ -70,6 +74,32 @@ public final class Main {
             return;
         }
         VentanaPrincipal.main(args);
+    }
+
+    /**
+     * Deja lista la conexion con la base ANTES de publicar el servicio.
+     *
+     * La primera operacion que llega arranca Hibernate (lee el mapeo, revisa las
+     * tablas y abre las conexiones), y eso tarda. Si esa primera operacion es un
+     * pedido del sitio, el sitio se queda esperando y puede cortar por tiempo
+     * ("Read timed out") justo al empezar la demostracion. Haciendolo aca, cuando
+     * la consola dice "Servicio publicado", el Central ya contesta rapido.
+     *
+     * Se usa una operacion comun del controlador (por la Fabrica, con su unidad de
+     * trabajo), no un acceso directo a la persistencia. Y si PostgreSQL no esta
+     * andando, se avisa con un mensaje claro y no se publica nada.
+     */
+    private static void prepararBase() {
+        System.out.println("Conectando con la base de datos...");
+        long inicio = System.currentTimeMillis();
+        try {
+            Fabrica.getInstancia().getControladorSistema().listarCategorias();
+        } catch (RuntimeException e) {
+            System.err.println("No se pudo conectar con la base de datos: " + e.getMessage());
+            System.err.println("Revisar que PostgreSQL este andando y los datos de conexion.");
+            System.exit(1);
+        }
+        System.out.println("Base de datos lista (" + (System.currentTimeMillis() - inicio) + " ms).");
     }
 
     /** Las IPv4 de las interfaces de red activas, sin contar la 127.0.0.1. */
