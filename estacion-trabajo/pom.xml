@@ -97,6 +97,68 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+
+            <!--
+                servidor.jar (letra, 7.9): un JAR ejecutable con TODO adentro, que
+                se arranca con "java -jar servidor.jar", sin IntelliJ ni Maven.
+
+                maven-shade-plugin junta en un solo JAR las clases de este modulo,
+                las de la logica y las de todas las bibliotecas (Hibernate, el
+                driver de PostgreSQL, JAX-WS, FlatLaf...). Lo arma al final de
+                "mvnw package" y lo deja en estacion-trabajo/target/servidor.jar.
+
+                Dos detalles que hacen que funcione fuera de IntelliJ:
+
+                  - ServicesResourceTransformer: varias bibliotecas declaran sus
+                    implementaciones en archivos META-INF/services con el MISMO
+                    nombre (Hibernate, JAXB, JAX-WS). Sin este transformer el JAR
+                    se queda con uno solo y aparecen errores como
+                    "Implementation of Jakarta XML Binding-API has not been found".
+                    Con el, los junta.
+                  - Se excluyen las firmas (*.SF, *.DSA, *.RSA) de las bibliotecas
+                    firmadas: al mezclarlas en un JAR nuevo dejan de valer y Java
+                    se niega a arrancar.
+
+                Es la misma configuracion que usa la demo del curso.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>servidor</finalName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>servicios.Main</mainClass>
+                                    <manifestEntries>
+                                        <!-- Varias bibliotecas traen clases distintas segun la version de Java. -->
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

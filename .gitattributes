@@ -1,0 +1,9 @@
+# Los scripts de bash y el Maven Wrapper de Linux/macOS (mvnw) tienen que tener
+# finales de linea de Linux (LF) siempre: con los de Windows (CRLF) bash no los
+# puede ejecutar. Esto vale aunque cada uno tenga Git configurado distinto.
+*.sh  text eol=lf
+mvnw  text eol=lf
+
+# Los de Windows, con finales de Windows.
+*.cmd text eol=crlf
+*.bat text eol=crlf
