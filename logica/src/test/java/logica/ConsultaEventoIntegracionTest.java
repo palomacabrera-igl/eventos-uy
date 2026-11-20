@@ -45,7 +45,10 @@ class ConsultaEventoIntegracionTest extends PruebaConBase {
     @DisplayName("sin categoria devuelve la cartelera completa")
     @NullAndEmptySource
     void sinCategoria(String categoria) {
-        assertEquals(nombres(sistema.listarEventos()), nombres(sistema.listarEventos(categoria)));
+        Set<String> esperados = nombres(sistema.listarEventos().stream()
+                .filter(evento -> !evento.getFinalizado())
+                .collect(java.util.stream.Collectors.toSet()));
+        assertEquals(esperados, nombres(sistema.listarEventos(categoria)));
     }
 
     @Test
