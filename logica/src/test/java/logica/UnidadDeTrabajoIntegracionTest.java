@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import persistencia.Configuracion;
 import persistencia.Persistencia;
 
 /**
@@ -131,8 +132,11 @@ class UnidadDeTrabajoIntegracionTest extends PruebaConBase {
         assertEquals(ORIGINAL, sistema.consultarInstitucion(INSTITUCION).getDescripcion());
 
         // "El otro programa" (la Estacion de Trabajo, si este es el sitio) tiene
-        // su propia fabrica de EntityManagers y escribe en la misma base.
-        EntityManagerFactory otroPrograma = Persistence.createEntityManagerFactory("eventosuy");
+        // su propia fabrica de EntityManagers y escribe en la misma base. Se
+        // conecta con la misma configuracion (~/.eventosUy/central.properties),
+        // porque persistence.xml ya no tiene la direccion ni las credenciales.
+        EntityManagerFactory otroPrograma = Persistence.createEntityManagerFactory("eventosuy",
+                Configuracion.cargar().conexionJpa());
         try {
             EntityManager em = otroPrograma.createEntityManager();
             try {

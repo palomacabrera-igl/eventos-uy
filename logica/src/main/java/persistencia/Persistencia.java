@@ -104,7 +104,10 @@ public final class Persistencia {
      */
     private static synchronized EntityManagerFactory fabrica() {
         if (emf == null) {
-            emf = Persistence.createEntityManagerFactory(UNIDAD);
+            // La direccion, el usuario y la contrasena de la base NO estan en
+            // persistence.xml: salen de ~/.eventosUy/central.properties (letra:
+            // nada de credenciales en el codigo). Lo demas sigue en persistence.xml.
+            emf = Persistence.createEntityManagerFactory(UNIDAD, Configuracion.cargar().conexionJpa());
         }
         return emf;
     }

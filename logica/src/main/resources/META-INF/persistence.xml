@@ -21,9 +21,12 @@
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
-            <property name="jakarta.persistence.jdbc.url"      value="jdbc:postgresql://localhost:5432/eventosuy"/>
-            <property name="jakarta.persistence.jdbc.user"     value="eventosuy"/>
-            <property name="jakarta.persistence.jdbc.password" value="eventosuy"/>
+            <!--
+                La direccion de la base, el usuario y la contrasena NO van aca:
+                salen de ~/.eventosUy/central.properties (bd.url, bd.usuario y
+                bd.password), como pide la letra. Los agrega Persistencia al crear
+                la fabrica (ver persistencia.Configuracion).
+            -->
 
             <property name="hibernate.hbm2ddl.auto"  value="update"/>
             <property name="hibernate.show_sql"      value="false"/>

@@ -27,10 +27,11 @@ if [ ! -f "$RUTA_SITIO/pom.xml" ]; then
 fi
 
 echo "==> Servidor Central y Estacion de Trabajo ($RAIZ_CENTRAL)"
-(cd "$RAIZ_CENTRAL" && ./mvnw -q package -DskipTests)
+# "clean" borra lo compilado antes, para que no se cuele nada viejo en los paquetes.
+(cd "$RAIZ_CENTRAL" && ./mvnw -q clean package -DskipTests)
 
 echo "==> Servidor Web ($RUTA_SITIO)"
-(cd "$RUTA_SITIO" && ./mvnw -q package)
+(cd "$RUTA_SITIO" && ./mvnw -q clean package)
 
 echo "==> Juntando los dos paquetes en $ENTREGA"
 mkdir -p "$ENTREGA"

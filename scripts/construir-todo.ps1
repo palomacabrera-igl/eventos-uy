@@ -73,6 +73,23 @@ if (-not (Test-Path (Join-Path $RutaSitio "pom.xml"))) {
     throw "No encuentro el repositorio del sitio en $RutaSitio. Indicarlo con -RutaSitio."
 }
 
+# ------------------------------------------- 0. Borrar lo compilado antes
+# Se arma siempre desde cero: si no, un archivo que se borro del codigo puede
+# seguir en target\ y colarse en servidor.jar.
+#
+# No se usa "mvnw clean" porque en algunas maquinas Windows las carpetas de
+# target\ quedan con el atributo de solo lectura y Maven no las puede borrar.
+# Remove-Item -Force si puede.
+Paso "Borrando lo compilado antes (target\)"
+foreach ($carpeta in @(
+        (Join-Path $RaizCentral "logica\target"),
+        (Join-Path $RaizCentral "estacion-trabajo\target"),
+        (Join-Path $RutaSitio "target"))) {
+    if (Test-Path $carpeta) {
+        Remove-Item $carpeta -Recurse -Force
+    }
+}
+
 # ------------------------------------------------- 1. Servidor Central (jar)
 Paso "Servidor Central y Estacion de Trabajo ($RaizCentral)"
 $argumentosCentral = @("-q", "package")
@@ -94,8 +111,14 @@ $war = Get-ChildItem -Path (Join-Path $RutaSitio "target") -Filter "*.war" | Sel
 if (-not (Test-Path $jar)) { throw "No se genero $jar" }
 if (-not $war) { throw "No se genero el WAR en $RutaSitio\target" }
 
-Copy-Item $jar (Join-Path $Entrega "servidor.jar") -Force
-Copy-Item $war.FullName (Join-Path $Entrega "web.war") -Force
+try {
+    Copy-Item $jar (Join-Path $Entrega "servidor.jar") -Force
+    Copy-Item $war.FullName (Join-Path $Entrega "web.war") -Force
+} catch {
+    # En Windows no se puede reemplazar un archivo que esta abierto.
+    throw "No se pudo copiar a $Entrega. Si el Servidor Central esta corriendo desde " +
+          "entrega\servidor.jar, cerralo (Ctrl+C o cerrando la Estacion) y volve a correr el script."
+}
 
 # ------------------------------------------------------------- resumen
 Write-Host ""

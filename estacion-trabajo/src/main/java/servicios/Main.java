@@ -2,6 +2,7 @@ package servicios;
 
 import jakarta.xml.ws.Endpoint;
 import logica.Fabrica;
+import persistencia.Configuracion;
 import presentacion.VentanaPrincipal;
 
 import java.net.Inet4Address;
@@ -42,7 +43,7 @@ public final class Main {
         Configuracion configuracion = Configuracion.cargar();
         String url = configuracion.urlServicio();
 
-        prepararBase();
+        prepararBase(configuracion);
 
         Endpoint endpoint;
         try {
@@ -89,17 +90,33 @@ public final class Main {
      * trabajo), no un acceso directo a la persistencia. Y si PostgreSQL no esta
      * andando, se avisa con un mensaje claro y no se publica nada.
      */
-    private static void prepararBase() {
-        System.out.println("Conectando con la base de datos...");
+    private static void prepararBase(Configuracion configuracion) {
         long inicio = System.currentTimeMillis();
         try {
+            // La contrasena no se muestra.
+            System.out.println("Conectando con la base de datos " + configuracion.urlBaseDeDatos()
+                    + " (usuario " + configuracion.usuarioBaseDeDatos() + ")...");
             Fabrica.getInstancia().getControladorSistema().listarCategorias();
         } catch (RuntimeException e) {
-            System.err.println("No se pudo conectar con la base de datos: " + e.getMessage());
-            System.err.println("Revisar que PostgreSQL este andando y los datos de conexion.");
+            System.err.println("No se pudo conectar con la base de datos: " + causaRaiz(e));
+            System.err.println("Revisar que PostgreSQL este andando y bd.url, bd.usuario y bd.password en "
+                    + Configuracion.ARCHIVO);
             System.exit(1);
         }
         System.out.println("Base de datos lista (" + (System.currentTimeMillis() - inicio) + " ms).");
+    }
+
+    /**
+     * El mensaje de la causa original. Hibernate envuelve el error de conexion
+     * en varias capas; el de abajo es el que dice que paso (por ejemplo, "la
+     * autentificacion password fallo para el usuario").
+     */
+    private static String causaRaiz(Throwable error) {
+        Throwable causa = error;
+        while (causa.getCause() != null && causa.getCause() != causa) {
+            causa = causa.getCause();
+        }
+        return causa.getMessage();
     }
 
     /** Las IPv4 de las interfaces de red activas, sin contar la 127.0.0.1. */
