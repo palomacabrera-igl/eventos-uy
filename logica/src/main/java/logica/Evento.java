@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -35,6 +36,11 @@ public class Evento extends EntidadBase {
     /** Un evento finalizado no admite ediciones nuevas y no sale en los listados ni en la busqueda. */
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean finalizado;
+
+    /** Organizador que dio de alta el evento; es quien puede finalizarlo. */
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @JoinColumn(name = "creador_id")
+    private Organizador creador;
 
     /** Imagen opcional (letra, seccion 7.2). Queda null cuando no tiene. */
     @Embedded
@@ -77,17 +83,24 @@ public class Evento extends EntidadBase {
     protected Evento() {}
 
     public Evento(String nombre, String descripcion, LocalDate fechaAlta, String sigla, List<Categoria> categorias) {
+        this(nombre, descripcion, fechaAlta, sigla, categorias, null);
+    }
+
+    public Evento(String nombre, String descripcion, LocalDate fechaAlta, String sigla,
+                  List<Categoria> categorias, Organizador creador) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.fechaAlta = fechaAlta;
         this.sigla = sigla;
         this.categorias.addAll(categorias);
+        this.creador = creador;
     }
 
     public String getNombre() {return nombre;}
     public String getSigla() {return sigla;}
     public String getDescripcion() {return descripcion;}
     public LocalDate getFechaAlta() {return fechaAlta;}
+    public Organizador getCreador() {return creador;}
 
     public void setNombre(String nombre) {this.nombre = nombre;}
     public void setSigla(String sigla) {this.sigla = sigla;}
@@ -221,6 +234,11 @@ public class Evento extends EntidadBase {
     // ===== Finalizar evento y busqueda (letra, 6.2 y 7.8) =====
 
     public boolean estaFinalizado() {return finalizado;}
+
+    /** True solo para el organizador que lo dio de alta. */
+    public boolean loCreo(String nickname) {
+        return creador != null && creador.getNickname().equals(nickname);
+    }
 
     /** Quien puede finalizarlo lo controla Sistema.finalizarEvento. */
     public void finalizar() {finalizado = true;}
