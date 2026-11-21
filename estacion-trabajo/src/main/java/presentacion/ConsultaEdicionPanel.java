@@ -130,7 +130,8 @@ public class ConsultaEdicionPanel implements Actualizable {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof DTEvento ev) setText(ev.getNombre());
+                // La letra (6.1): en las consultas los finalizados se ven, con su estado.
+                if (value instanceof DTEvento ev) setText(ev.getNombre() + (ev.getFinalizado() ? " (Finalizado)" : ""));
                 return this;
             }
         });

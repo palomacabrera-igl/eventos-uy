@@ -117,8 +117,10 @@ class OperacionesLab1IntegracionTest extends PruebaConBase {
 
     private void altaEvento() throws ReglaNegocioException {
         String categoria = sistema.listarCategorias().iterator().next().getNombre();
+        // El organizador responsable es uno de los datos de prueba, asi el
+        // evento se puede crear aunque el organizador de la prueba no exista.
         sistema.ingresarDatosEvento(EVENTO, "Evento de prueba del Lab 1",
-                LocalDate.now(), "TL1", List.of(categoria));
+                LocalDate.now(), "TL1", List.of(categoria), "imm");
     }
 
     private void altaEdicion() throws ReglaNegocioException {

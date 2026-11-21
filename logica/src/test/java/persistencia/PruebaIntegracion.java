@@ -39,7 +39,8 @@ public class PruebaIntegracion {
             System.out.println("\n=== C. Alta de Evento (necesita categorias persistidas) ===");
             String ev = "Congreso " + sufijo;
             c.ingresarDatosEvento(ev, "Evento de prueba", LocalDate.of(2025, 6, 1),
-                    "CG" + sufijo, List.of("Ingeniería", "Charlas"));
+                    "CG" + sufijo, List.of("Ingeniería", "Charlas"),
+                    c.listarOrganizadores().iterator().next().getNickname());
             System.out.println("  alta de '" + ev + "' con 2 categorias: OK");
 
             System.out.println("\n=== D. Alta de Usuario CON institucion ===");

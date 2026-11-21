@@ -46,9 +46,28 @@ public class ConsultaEvento implements Actualizable {
     private transient Runnable accionCerrar = () -> {
     };
 
+    /**
+     * Los nombres de los eventos finalizados. La letra (6.1): en las consultas
+     * de la Estacion el administrador ve tambien los eventos finalizados, "con
+     * su estado indicado". Se marca en el combo, como las ediciones con su estado.
+     */
+    private final transient java.util.Set<String> finalizados = new java.util.HashSet<>();
+
     public ConsultaEvento() {
         controlador = Fabrica.getInstancia().getControladorSistema();
         Actualizable.registrar(mainPanel, this);
+
+        EventoCBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null && finalizados.contains(value.toString())) {
+                    setText(value + " (Finalizado)");
+                }
+                return this;
+            }
+        });
 
         cargarEventos();
 
@@ -63,7 +82,19 @@ public class ConsultaEvento implements Actualizable {
      */
     @Override
     public void actualizar() {
-        Combos.sincronizar(EventoCBox, controlador.listarEventos().stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
+        Set<DTEvento> eventos = controlador.listarEventos();
+        recordarFinalizados(eventos);
+        Combos.sincronizar(EventoCBox, eventos.stream().map(DTEvento::getNombre).toList(), nombre -> nombre, 0);
+        EventoCBox.repaint();
+    }
+
+    private void recordarFinalizados(Set<DTEvento> eventos) {
+        finalizados.clear();
+        for (DTEvento ev : eventos) {
+            if (ev.getFinalizado()) {
+                finalizados.add(ev.getNombre());
+            }
+        }
     }
 
     public JPanel getMainPanel() {
@@ -81,6 +112,7 @@ public class ConsultaEvento implements Actualizable {
         try {
             // consultarEvento() : set<DTEvento> -- reutiliza listarEventos()
             Set<DTEvento> eventos = controlador.listarEventos();
+            recordarFinalizados(eventos);
             for (DTEvento ev : eventos) {
                 EventoCBox.addItem(ev.getNombre());
             }

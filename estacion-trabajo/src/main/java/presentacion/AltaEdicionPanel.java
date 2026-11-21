@@ -74,7 +74,7 @@ public class AltaEdicionPanel implements Actualizable {
      */
     @Override
     public void actualizar() {
-        Combos.sincronizar(comboEventos, controlador.listarEventos(), DTEvento::getNombre, 0);
+        Combos.sincronizar(comboEventos, eventosActivos(), DTEvento::getNombre, 0);
         Combos.sincronizar(comboOrganizadores, controlador.listarOrganizadores(),
                 DTOrganizador::getNickname, 0);
     }
@@ -114,9 +114,18 @@ public class AltaEdicionPanel implements Actualizable {
         });
     }
 
+    /**
+     * Los eventos que admiten ediciones nuevas. La letra (4): un evento
+     * finalizado "no admite nuevas ediciones", asi que no se ofrece (y si
+     * igual llegara, el Central lo rechaza).
+     */
+    private java.util.List<DTEvento> eventosActivos() {
+        return controlador.listarEventos().stream().filter(e -> !e.getFinalizado()).toList();
+    }
+
     private void cargarEventosYOrganizadores() {
         try {
-            for (DTEvento e : controlador.listarEventos()) {
+            for (DTEvento e : eventosActivos()) {
                 comboEventos.addItem(e);
             }
             for (DTOrganizador o : controlador.listarOrganizadores()) {

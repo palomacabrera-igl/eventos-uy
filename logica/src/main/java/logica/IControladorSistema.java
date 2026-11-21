@@ -241,8 +241,21 @@ public interface IControladorSistema {
      *         supera el 20% del aporte economico.
      */
     void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException;
+
+    /**
+     * Alta de Evento desde la Estacion de Trabajo (la usa el administrador).
+     *
+     * Laboratorio 3: el evento queda a cargo de un organizador, que es el unico
+     * que lo puede finalizar desde el sitio. Antes el administrador lo creaba
+     * sin organizador y ese evento no se podia finalizar nunca: por eso ahora
+     * es obligatorio elegirlo.
+     *
+     * @throws ReglaNegocioException si el nombre ya existe, si no hay ninguna
+     *         categoria o alguna no existe, o si "organizador" no es el
+     *         nickname de un organizador.
+     */
     void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
-                             String sigla, List<String> nombresCategorias)
+                             String sigla, List<String> nombresCategorias, String organizador)
             throws ReglaNegocioException;
 
     // =================================================================
@@ -556,15 +569,8 @@ public interface IControladorSistema {
     /**
      * Finaliza un evento. Un evento finalizado deja de aparecer en los listados
      * y en las busquedas, y no admite ediciones nuevas. Solo lo puede finalizar
-     * SU organizador.
-     *
-     * Ojo: hoy un Evento no guarda quien lo creo (altaEvento solo controla que
-     * el solicitante sea un organizador), y los eventos que crea el
-     * administrador desde la Estacion no tienen organizador. Para implementar
-     * esta operacion hay que agregar esa relacion, llenarla en altaEvento y en
-     * los datos de prueba, y decidir que pasa con los eventos sin organizador.
-     *
-     * El listado de los eventos no finalizados ya existe: es listarEventos.
+     * SU organizador: el que lo dio de alta en el sitio, o el que eligio el
+     * administrador al darlo de alta en la Estacion de Trabajo.
      */
     void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException;
 

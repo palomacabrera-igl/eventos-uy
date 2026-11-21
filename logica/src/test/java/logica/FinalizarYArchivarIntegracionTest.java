@@ -105,6 +105,63 @@ class FinalizarYArchivarIntegracionTest extends PruebaConBase {
         assertThrows(ReglaNegocioException.class, () -> sistema.consultarEdicion(EDICION, null));
     }
 
+    // ----- Lo que encontro la auditoria del 21/11 -----
+
+    @Test
+    @DisplayName("un evento de la Estacion queda a cargo del organizador elegido, que lo puede finalizar")
+    void eventoDeLaEstacionTieneResponsable() throws ReglaNegocioException {
+        String deLaEstacion = PREFIJO + " Estacion";
+
+        // Sin organizador, o con alguien que no es organizador, no se crea:
+        // si no, el evento no lo podria finalizar nadie.
+        assertThrows(ReglaNegocioException.class, () -> sistema.ingresarDatosEvento(deLaEstacion,
+                "Desde la Estacion", LocalDate.now(), "R2E", List.of("Tecnología"), null));
+        assertThrows(ReglaNegocioException.class, () -> sistema.ingresarDatosEvento(deLaEstacion,
+                "Desde la Estacion", LocalDate.now(), "R2E", List.of("Tecnología"), "no-existe"));
+
+        sistema.ingresarDatosEvento(deLaEstacion, "Desde la Estacion", LocalDate.now(), "R2E",
+                List.of("Tecnología"), DUENIO);
+
+        assertTrue(sistema.listarEventosFinalizables(DUENIO).stream()
+                .anyMatch(evento -> deLaEstacion.equals(evento.getNombre())));
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.finalizarEvento(OTRO_ORGANIZADOR, deLaEstacion));
+        sistema.finalizarEvento(DUENIO, deLaEstacion);
+        assertTrue(sistema.listarEventos(null).stream()
+                .noneMatch(evento -> deLaEstacion.equals(evento.getNombre())));
+    }
+
+    @Test
+    @DisplayName("la Estacion tampoco le agrega ediciones a un evento finalizado")
+    void estacionNoAgregaEdicionesAFinalizado() throws ReglaNegocioException {
+        sistema.finalizarEvento(DUENIO, EVENTO);
+
+        sistema.seleccionarEvento(EVENTO);
+        sistema.seleccionarOrganizador(DUENIO);
+        assertThrows(ReglaNegocioException.class, () -> sistema.ingresarDatosEdicion(
+                new DTEdicionEvento(EDICION, "R2", "Montevideo", "Uruguay",
+                        DTFecha.desde(LocalDate.now().plusDays(1)),
+                        DTFecha.desde(LocalDate.now().plusDays(2)),
+                        DTFecha.desde(LocalDate.now()))));
+    }
+
+    @Test
+    @DisplayName("una edicion archivada no admite tipos de registro ni patrocinios nuevos")
+    void archivadaNoAdmiteAgregados() throws ReglaNegocioException {
+        altaEdicion(EDICION, LocalDate.now().minusDays(3), LocalDate.now().minusDays(1));
+        sistema.aceptarEdicion(EDICION);
+        sistema.archivarEdicion(DUENIO, EDICION);
+
+        ReglaNegocioException tipo = assertThrows(ReglaNegocioException.class,
+                () -> sistema.altaTipoRegistro(DUENIO, EDICION, "General", "Entrada", 100, 10));
+        assertTrue(tipo.getMessage().contains("archivada"));
+
+        ReglaNegocioException patrocinio = assertThrows(ReglaNegocioException.class,
+                () -> sistema.altaPatrocinio(DUENIO, EDICION, new DTPatrocinio("R2COD",
+                        (DTFecha) null, 1000, "ORO", 0, "UTEC", "General")));
+        assertTrue(patrocinio.getMessage().contains("archivada"));
+    }
+
     @Test
     @DisplayName("no se archivan ediciones ingresadas ni ediciones que no terminaron")
     void archivarRechazaEstadoYFecha() throws ReglaNegocioException {

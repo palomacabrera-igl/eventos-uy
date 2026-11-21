@@ -212,6 +212,13 @@ public class Sistema implements IControladorSistema {
             throw new ReglaNegocioException(
                     "Primero hay que seleccionar el evento y el organizador de la edicion.");
         }
+        // La letra (4): un evento finalizado "no admite nuevas ediciones". La
+        // misma regla que altaEdicion (la del sitio), ahora tambien para la
+        // Estacion de Trabajo.
+        if (eventoSeleccionado.estaFinalizado()) {
+            throw new ReglaNegocioException("El evento \"" + eventoSeleccionado.getNombre()
+                    + "\" está finalizado y no admite ediciones nuevas.");
+        }
         // La edicion nueva viaja por el cascade del @OneToMany de Evento.
         eventoSeleccionado.altaEdicion(dt, organizadorSeleccionado);
     }
@@ -660,8 +667,16 @@ public class Sistema implements IControladorSistema {
     // ===== Alta Evento =====
     @Override
     public void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
-                                    String sigla, List<String> nombresCategorias)
+                                    String sigla, List<String> nombresCategorias,
+                                    String organizador)
             throws ReglaNegocioException {
+
+        // Sin organizador, el evento no lo podria finalizar nadie (solo lo
+        // finaliza su organizador): por eso se exige antes que nada.
+        if (!(find(limpiar(organizador)) instanceof Organizador responsable)) {
+            throw new ReglaNegocioException(
+                    "Hay que elegir el organizador responsable del evento.");
+        }
 
         if (findEvento(nombre) != null) {
             throw new ReglaNegocioException(
@@ -684,7 +699,8 @@ public class Sistema implements IControladorSistema {
             categoriasEvento.add(cat);
         }
 
-        Evento evento = new Evento(nombre, descripcion, fechaAlta, sigla, categoriasEvento);
+        Evento evento = new Evento(nombre, descripcion, fechaAlta, sigla, categoriasEvento,
+                responsable);
         manejadorEvento.agregar(evento);
     }
 
@@ -862,6 +878,19 @@ public class Sistema implements IControladorSistema {
     /** null y los espacios de los costados molestan en todas las validaciones. */
     private static String limpiar(String texto) {
         return texto == null ? "" : texto.trim();
+    }
+
+    /**
+     * Una edicion archivada ya termino y la letra la saca de los listados: no
+     * se le agregan tipos de registro ni patrocinios. El sitio ya no la ofrece;
+     * esto la frena aunque alguien mande el pedido igual.
+     */
+    private static void exigirNoArchivada(EdicionEvento edicion, String queSeAgrega)
+            throws ReglaNegocioException {
+        if (edicion.getEstado() == EstadoEdicion.ARCHIVADA) {
+            throw new ReglaNegocioException("La edición \"" + edicion.getNombre()
+                    + "\" está archivada: ya no admite " + queSeAgrega + " nuevos.");
+        }
     }
 
     @Override
@@ -1245,6 +1274,7 @@ public class Sistema implements IControladorSistema {
                     "El organizador no es responsable de la edicion \""
                             + edicion.getNombre() + "\".");
         }
+        exigirNoArchivada(edicion, "tipos de registro");
 
         String nombreLimpio = limpiar(nombre);
         if (nombreLimpio.isEmpty()) {
@@ -1408,6 +1438,7 @@ public class Sistema implements IControladorSistema {
                     "Solo el organizador de la edicion " + edicion.getNombre()
                             + " puede darle un patrocinio.");
         }
+        exigirNoArchivada(edicion, "patrocinios");
 
         NivelPatrocinio nivel = nivelDe(datos.getNivel());
 
