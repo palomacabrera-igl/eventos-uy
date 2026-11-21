@@ -75,6 +75,22 @@
     </dependencies>
 
     <build>
+        <!--
+            Los recursos (persistence.xml, la plantilla de central.properties y
+            las imagenes de los datos de prueba), sin los archivos que Windows o
+            Google Drive crean solos en las carpetas con imagenes (desktop.ini,
+            Thumbs.db). Pueden aparecer y desaparecer mientras Maven arma el JAR,
+            y la compilacion se cae con "Error assembling JAR: ...desktop.ini".
+        -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/desktop.ini</exclude>
+                    <exclude>**/Thumbs.db</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -31,3 +31,7 @@ tools/
 
 # Paquetes que arma scripts/construir-todo (no se suben: se generan con un comando)
 entrega/
+
+# Archivos que Windows o Google Drive crean solos en las carpetas
+desktop.ini
+Thumbs.db
