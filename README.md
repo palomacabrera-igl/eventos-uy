@@ -2,62 +2,56 @@
 
 Plataforma de gestión de eventos. Trabajo de Programación de Aplicaciones — Tecnólogo en Informática, UTEC.
 
-Este repositorio es el **Servidor Central** y su **Estación de Trabajo**:
+Este repositorio es el **Servidor Central** y su **Estación de Trabajo**. Los dos se entregan juntos en un solo programa, `servidor.jar`:
 
-- **Servidor Central** (`logica/`) — lógica de negocio y persistencia con JPA sobre PostgreSQL. Se empaqueta como un `.jar`.
-- **Estación de Trabajo** (`estacion-trabajo/`) — la interfaz de administración en Swing. Habla con la lógica únicamente a través de `IControladorSistema`.
+- **Servidor Central** (`logica/`): la lógica de negocio y la persistencia con JPA sobre PostgreSQL.
+- **Servicio web** (`estacion-trabajo/.../servicios/`): publica las operaciones del Central por SOAP, para que el sitio las use desde otra computadora.
+- **Estación de Trabajo** (`estacion-trabajo/`): la interfaz de administración en Swing. Corre en el mismo proceso que el Central y usa `IControladorSistema` directamente.
 
-El **sitio web** no está acá: vive en su propio repositorio, **eventos-uy-web**, y recibe la lógica ya compilada.
+El **sitio web** (escritorio y celular) vive en otro repositorio, **eventos-uy-web**, y habla con el Central **solo por el servicio web**.
 
 ```
-                     +-------------------------------+
- Cliente Web  ---->  | Servidor Web (JSP y Servlets) |   repo eventos-uy-web
-                     |  +-------------------------+  |
-                     |  | Servidor Central (JAR)  |  |  <-- este repositorio
-                     |  +-------------------------+  |
-                     +---------------+---------------+
-                                     | JPA
- Estación de Trabajo --------------->+--------> PostgreSQL
- (Swing, este repositorio)
+ Navegador (computadora o celular)
+          |  HTTP, puerto 8080
+ +--------v-----------------------+
+ | Servidor Web (Tomcat)          |   repo eventos-uy-web
+ |   servlets, JSP, sitio /movil  |
+ +--------+-----------------------+
+          |  SOAP, puerto 9128 (puede ser otra computadora)
+ +--------v-----------------------+
+ | servidor.jar                   |   este repositorio
+ |   servicio web (Publicador)    |
+ |   Servidor Central (logica)    |
+ |   Estación de Trabajo (Swing)  |
+ +--------+-----------------------+
+          |  JPA
+      PostgreSQL
 ```
 
 ## Por qué son dos repositorios
 
-Porque es lo que pide el diagrama de distribución de la letra (Figura 1): el Servidor Central **viaja embebido adentro** del Servidor Web, como una biblioteca, no como código que se compila junto con él.
+El profesor pidió que el Servidor Central y el Servidor Web sean lo más independientes posible. Lo único que comparten es el **contrato del servicio web** (el WSDL): el sitio genera sus clases a partir de él con `wsimport` y no tiene ninguna clase de la lógica ni de la persistencia.
 
-Mientras fueron un solo proyecto Maven, el sitio compilaba la lógica desde el código fuente. Eso parecía lo mismo y no lo es: borraba el límite entre los dos componentes, y el sitio no podía usar una versión distinta de la que estaba abierta en el editor.
-
-Ahora:
-
-- Acá se compila la lógica y sale `logica-3.0-SNAPSHOT.jar`.
-- `scripts/publicar-logica.ps1` deja ese JAR, con su ficha de dependencias, dentro del repositorio del sitio.
-- Allá, Maven lo toma como una biblioteca cualquiera y lo mete en el WAR, en `WEB-INF/lib`.
-
-El repositorio del sitio **no tiene ni una clase** de la lógica ni de la persistencia.
-
-### Son dos procesos, y cada operación tiene su propio EntityManager
-
-El Servidor Web corre dentro de Tomcat y la Estación de Trabajo es una aplicación de escritorio: son dos JVM distintas. Cada una levanta su propio `EntityManagerFactory` a partir del mismo `persistence.xml`, y las dos escriben en la misma base. No comparten ni sesión ni caché de JPA.
-
-Dentro de cada proceso, **cada operación del controlador abre un `EntityManager` nuevo, lo usa y lo cierra** (commit si salió bien, rollback si falló). Así cada operación lee la base de verdad —un cambio hecho por el otro programa se ve en la operación siguiente, sin botón de «Actualizar»—, no hace falta un candado entre hilos, y lo que se cambió en memoria y no llegó a guardarse se descarta solo.
-
-La Estación de Trabajo vuelve a leer sus listas sola cada 5 segundos.
+Así cada uno se compila, se prueba y se ejecuta por separado, y pueden estar en computadoras distintas.
 
 ## Requisitos
 
 | Herramienta   | Versión                                            |
 | ------------- | -------------------------------------------------- |
-| JDK           | 25 (Temurin / Adoptium)                            |
+| JDK           | 25 (Temurin / Adoptium), con `JAVA_HOME` apuntando a él |
 | PostgreSQL    | 17                                                 |
-| IntelliJ IDEA | 2026.2+ (con el plugin *Swing UI Designer* activo) |
+| Tomcat        | 11.0.26 (solo para el sitio)                       |
+| IntelliJ IDEA | 2026.2+, con el plugin *Swing UI Designer* (solo para editar las pantallas) |
 
 No hace falta instalar Maven: el repositorio incluye el Maven Wrapper (`mvnw` / `mvnw.cmd`).
 
+Los dos repositorios tienen que estar **uno al lado del otro**, en la misma carpeta: `eventos-uy` y `eventos-uy-web`.
+
 ## Puesta en marcha
 
-### 1. Crear la base de datos
+### 1. Crear la base de datos (una sola vez)
 
-Una sola vez por máquina, como superusuario (`postgres`):
+Como superusuario (`postgres`). Pide la contraseña que cada uno definió al instalar PostgreSQL.
 
 ```powershell
 & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts\crear-base.sql
@@ -67,65 +61,118 @@ Una sola vez por máquina, como superusuario (`postgres`):
 psql -U postgres -f scripts/crear-base.sql
 ```
 
-Pide la contraseña del usuario `postgres`, la que cada uno definió al instalar PostgreSQL. Crea el rol `eventosuy` y la base `eventosuy`, y se puede correr más de una vez sin romper nada.
+Crea el rol `eventosuy` y la base `eventosuy`. Se puede correr más de una vez sin romper nada. Las **tablas** no se crean acá: las genera Hibernate al arrancar (`hibernate.hbm2ddl.auto=update`).
 
-> Las **tablas** no se crean en este paso: las genera Hibernate en el primer arranque, porque `persistence.xml` usa `hibernate.hbm2ddl.auto=update`.
-
-### 2. Compilar
+### 2. Cargar los datos de prueba (una sola vez)
 
 ```powershell
-.\mvnw.cmd install -DskipTests
+.\mvnw.cmd -q -pl logica compile exec:java
 ```
 
-Genera `logica/target/logica-3.0-SNAPSHOT.jar` y `estacion-trabajo/target/estacion-trabajo-3.0-SNAPSHOT.jar`.
+Termina con `>>> Datos de prueba cargados.` Si ya estaban, avisa y no hace nada. Las imágenes de los datos viajan dentro del programa (`logica/src/main/resources/imagenes/`).
 
-### 3. Cargar los datos de prueba
+### 3. Compilar todo: el comando único
+
+La letra (7.9) pide un solo comando que genere los dos paquetes. Compila los dos repositorios y deja el resultado en `entrega/`:
 
 ```powershell
-.\mvnw.cmd -pl logica exec:java
+powershell -ExecutionPolicy Bypass -File .\scripts\construir-todo.ps1
 ```
 
-Deja en la base usuarios, eventos, ediciones, tipos de registro y patrocinios para poder recorrer los casos de uso. Es idempotente: si ya están, avisa y no hace nada. También se puede ejecutar `persistencia.CargarDatos` desde IntelliJ.
+```bash
+./scripts/construir-todo.sh
+```
 
-Las imágenes de esos datos viajan dentro del JAR, en `logica/src/main/resources/imagenes/`, así que funciona igual desde IntelliJ, desde Maven o desde el JAR empaquetado.
+| Archivo | Qué es |
+| --- | --- |
+| `entrega/servidor.jar` | Servidor Central + servicio web + Estación de Trabajo |
+| `entrega/web.war` | El sitio (escritorio y celular), para Tomcat |
 
-### 4. Ejecutar la Estación de Trabajo
+Si el sitio está en otra carpeta: `-RutaSitio C:\ruta\a\eventos-uy-web` (en Linux y macOS, como primer argumento). Con `-ConPruebas` corre también las pruebas antes de empaquetar.
+
+Si el Servidor Central está corriendo desde `entrega\servidor.jar`, hay que cerrarlo antes: Windows no deja reemplazar un archivo abierto.
+
+### 4. Arrancar el Servidor Central
 
 ```powershell
-.\mvnw.cmd -pl estacion-trabajo exec:java
+java -jar entrega\servidor.jar
 ```
 
-O desde IntelliJ, ejecutando `presentacion.VentanaPrincipal`.
+Prepara la base, publica el servicio web y abre la Estación de Trabajo. En la consola muestra a qué base se conectó, dónde quedó publicado el servicio y la IP de la computadora en la red. La terminal tiene que quedar abierta.
 
-## Publicar la lógica en el sitio
+Sin la ventana de la Estación (por ejemplo, en un servidor): `java -jar entrega\servidor.jar --sin-estacion`. Se detiene con Ctrl+C.
 
-Cada vez que cambia algo de `logica/`:
+### 5. Desplegar el sitio
 
-```powershell
-.\scripts\publicar-logica.ps1
+Se copia `entrega\web.war` a la carpeta `webapps` de Tomcat con el nombre `ROOT.war`, y queda en http://localhost:8080/. Los detalles están en el README de **eventos-uy-web**.
+
+## Configuración
+
+Nada de direcciones, puertos ni contraseñas queda escrito en el código. Todo está en la carpeta `.eventosUy` del usuario (en Windows, `C:\Users\<usuario>\.eventosUy`). Para cambiar algo se edita el archivo y se reinicia el programa, sin recompilar.
+
+`central.properties` (Servidor Central):
+
+| Clave | Por defecto | Para qué |
+| --- | --- | --- |
+| `servicio.host` | `localhost` | Dónde escucha el servicio. `localhost` = solo esta computadora; `0.0.0.0` = también las demás de la red. |
+| `servicio.puerto` | `9128` | Puerto del servicio web. |
+| `servicio.ruta` | `/eventosuy` | Ruta del servicio. |
+| `bd.url` | `jdbc:postgresql://localhost:5432/eventosuy` | Dirección de la base. |
+| `bd.usuario` | `eventosuy` | Usuario de la base. |
+| `bd.password` | `eventosuy` | Contraseña de la base. |
+
+Si el archivo no existe, se crea con estos valores la primera vez. Si existe pero le falta alguna clave (porque se creó con una versión anterior), se le agrega al final sin tocar lo demás.
+
+### Con el sitio en otra computadora
+
+1. En la computadora del Central: `servicio.host=0.0.0.0` y reiniciar. Windows pide permiso en el firewall: permitir en **redes privadas** (la red tiene que figurar como privada).
+2. En la computadora del sitio, en `web.properties`: `central.host=<IP de la computadora del Central>` (la muestra la consola del Central al arrancar).
+3. Para comprobarlo, desde la computadora del sitio: `http://<IP>:9128/eventosuy?wsdl` tiene que mostrar el contrato.
+
+## El servicio web
+
+La clase `servicios.Publicador` publica 44 operaciones de `IControladorSistema` con JAX-WS. Con el Central andando, el contrato está en:
+
+```
+http://localhost:9128/eventosuy?wsdl
 ```
 
-Compila la lógica y deja en el repositorio del sitio, dentro de `lib/`, cuatro archivos: el JAR, su ficha de dependencias (`.pom`) y los dos checksums. Después hay que commitearlos **allá**.
+- Los datos viajan como los `DT*` de la lógica. Las fechas viajan como `DTFecha`, no como `LocalDate`, para que el contrato no dependa de Java.
+- Un error de negocio (`ReglaNegocioException`) viaja como *SOAP Fault*, con el mismo mensaje. El sitio lo recibe como `ReglaNegocioException_Exception` y lo muestra.
+- Las imágenes y la constancia en PDF viajan como bytes dentro de la respuesta.
 
-Por defecto busca el repositorio del sitio en una carpeta `eventos-uy-web` al lado de esta. Si está en otro lado:
-
-```powershell
-.\scripts\publicar-logica.ps1 -Destino C:\ruta\a\eventos-uy-web
-```
-
-> La ficha `.pom` es la que se olvida siempre: es la que le dice a Maven que la lógica necesita Hibernate y el driver de PostgreSQL. Sin ella el sitio compila, arranca, y revienta en el primer acceso a la base. El script la genera leyendo el `pom.xml` de la lógica, así que si mañana se agrega una biblioteca, aparece sola.
+Si cambia el contrato (una operación o un DT nuevo), hay que actualizar la copia del WSDL en el sitio: con el Central andando, `scripts\actualizar-wsdl.ps1` en **eventos-uy-web**, y volver a compilar el sitio.
 
 ## Pruebas
 
 ```powershell
-.\mvnw.cmd -pl logica test
+.\mvnw.cmd test
 ```
 
-Las pruebas están en `logica/src/test/java/` y usan JUnit 5. El mismo comando genera el informe de cubrimiento de JaCoCo en `logica/target/site/jacoco/index.html` (letra, 7.5).
+Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación y el servicio web (`estacion-trabajo/src/test/java/`), con JUnit 5. El informe de cubrimiento de JaCoCo queda en `logica/target/site/jacoco/index.html` (letra, 7.5); los datos de prueba no cuentan para el cálculo.
 
-Las pruebas de integración necesitan PostgreSQL andando. Si no responde, se **saltean** solas y el resto corre igual: no hace falta configurar nada para compilar.
+- Las pruebas de integración usan la base de `central.properties` y necesitan los datos de prueba cargados. Lo que crean lleva el prefijo `IT` y lo borran al terminar.
+- Si PostgreSQL no responde, las de integración se **saltean** solas y el resto corre igual.
+- Las pruebas de la asistencia, la constancia, las visitas y la validación están explicadas en [`docs/Rol4-README-y-guion-de-defensa.md`](docs/Rol4-README-y-guion-de-defensa.md).
 
-Una prueba nueva refleja el paquete de la clase probada: las de `logica/` van en `logica/src/test/java/logica/` y se llaman `NombreDeLaClaseTest.java`.
+## Datos de prueba
+
+| Usuario | Contraseña | Tipo |
+| --- | --- | --- |
+| `imm` | `Imm2026!` | Organizador |
+| `antel` | `Antel2026!` | Organizador |
+| `vale23` | `Vale2026!` | Asistente |
+| `jperez` | `Juan2026!` | Asistente |
+| `lgomez` | `Lucia2026!` | Asistente |
+
+Qué registros tienen asistencia y cuáles no, y las visitas iniciales de cada evento, están en [`docs/Rol4-README-y-guion-de-defensa.md`](docs/Rol4-README-y-guion-de-defensa.md).
+
+Una demostración cambia la asistencia y las visitas. Para devolverlas a su valor inicial, sin recrear la base:
+
+```powershell
+$env:PGPASSWORD = "eventosuy"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U eventosuy -h localhost -d eventosuy -f scripts\restaurar-asistencia-y-visitas.sql
+```
 
 ## Cuando cambia el esquema de la base
 
@@ -134,72 +181,60 @@ Hibernate arranca con `hibernate.hbm2ddl.auto=update`, que **agrega** lo que fal
 | El cambio | ¿Hay que hacer algo? |
 | --- | --- |
 | Una columna **nullable** nueva | **No.** Hibernate la agrega sola en el próximo arranque. |
-| Una columna **`NOT NULL`** nueva, en una tabla que ya tiene filas | **Sí.** PostgreSQL no tiene con qué llenarla, así que la columna no se crea y después fallan las inserciones. |
-| Cambiar el tipo o el largo de una columna, o borrarla | **Sí.** `update` no modifica ni borra lo que ya existe. |
+| Una columna **`NOT NULL`** nueva, en una tabla que ya tiene filas | **Sí.** PostgreSQL no tiene con qué llenarla y después fallan las inserciones. |
+| Cambiar el tipo, el largo o los valores permitidos de una columna, o borrarla | **Sí.** `update` no modifica ni borra lo que ya existe. Por ejemplo, el estado `ARCHIVADA` en una base creada antes de que existiera. |
 
-Para dejar la base como nueva, sin pedir la contraseña de `postgres`:
+Para dejar la base como nueva, sin pedir la contraseña de `postgres` (antes hay que cerrar el Servidor Central y parar Tomcat):
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U eventosuy -d eventosuy -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-.\mvnw.cmd -pl logica exec:java
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U eventosuy -h localhost -d eventosuy -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+.\mvnw.cmd -q -pl logica compile exec:java
 ```
 
-Pide la contraseña `eventosuy`. Antes hay que parar Tomcat y cerrar la Estación de Trabajo, para que suelten las conexiones.
-
-> Quien cambia el esquema lo aclara en el mensaje de su commit y avisa en el grupo, así los demás recrean su base antes de seguir. Si no, el síntoma típico es un error de Hibernate al guardar, en una tabla que al resto le funciona bien.
-
-## Conexión a la base
-
-Lo que usa el sistema, definido en `logica/src/main/resources/META-INF/persistence.xml`:
-
-| Parámetro  | Valor       |
-| ---------- | ----------- |
-| host       | `localhost` |
-| puerto     | `5432`      |
-| base       | `eventosuy` |
-| usuario    | `eventosuy` |
-| contraseña | `eventosuy` |
-
-Sirve igual para conectarse desde pgAdmin o DBeaver.
+> Quien cambia el esquema lo aclara en el mensaje de su commit y avisa en el grupo, así los demás recrean su base antes de seguir.
 
 ## Estructura
 
 ```
-logica/                           JAR: el Servidor Central
-  src/main/java/logica/           Dominio, controlador (Sistema), manejadores y DTs
-  src/main/java/persistencia/     Acceso a JPA y carga de datos
-  src/main/resources/META-INF/    persistence.xml
-  src/main/resources/imagenes/    Imágenes de los datos de prueba
-  src/test/java/logica/           Pruebas JUnit 5
-estacion-trabajo/                 JAR: interfaz Swing (paneles .form + ventanas)
-scripts/crear-base.sql            Creación del rol y la base
-scripts/publicar-logica.ps1       Deja el JAR en el repositorio del sitio
-docs/                             Análisis y diseño, y registro de horas
-pom.xml                           POM padre: los dos módulos (Java 25)
+logica/                              El Servidor Central
+  src/main/java/logica/              Dominio, controlador (Sistema), manejadores y DTs
+  src/main/java/persistencia/        JPA, configuración (~/.eventosUy) y carga de datos
+  src/main/resources/                persistence.xml, plantilla de central.properties, imágenes
+  src/test/java/logica/              Pruebas JUnit 5
+estacion-trabajo/
+  src/main/java/servicios/           Main (arranque) y Publicador (el servicio web)
+  src/main/java/presentacion/        Estación de Trabajo: paneles .form + ventanas
+  src/test/java/                     Pruebas del servicio web y de la Estación
+scripts/construir-todo.ps1 / .sh     El comando único: deja servidor.jar y web.war en entrega/
+scripts/crear-base.sql               Creación del rol y la base
+scripts/restaurar-asistencia-y-visitas.sql   Deja la demostración como al principio
+docs/                                Análisis y diseño, guion de defensa y registro de horas
+pom.xml                              POM padre: los dos módulos (Java 25)
 ```
 
 ## Arquitectura
 
 El sistema está organizado en capas:
 
-- **Presentación** — Swing acá, servlets y JSP en el otro repositorio. Las dos acceden a la lógica únicamente a través de `IControladorSistema`.
-- **Lógica** (`logica`) — entidades del dominio, controlador y manejadores de las colecciones.
-- **Persistencia** (`persistencia`) — encapsula JPA. Ni la presentación ni la lógica de negocio conocen Hibernate.
+- **Presentación**: la Estación de Trabajo (Swing) y el servicio web (`Publicador`), en este repositorio; el sitio, en el otro. Las tres acceden a la lógica únicamente a través de `IControladorSistema`.
+- **Lógica** (`logica`): entidades del dominio, controlador y manejadores de las colecciones.
+- **Persistencia** (`persistencia`): encapsula JPA. Ni la presentación ni la lógica de negocio conocen Hibernate.
 
-Los objetos del dominio no cruzan hacia la presentación: la comunicación entre capas se hace con tipos de datos (`DT*`).
+Los objetos del dominio no cruzan hacia la presentación: la comunicación entre capas se hace con tipos de datos (`DT*`), que son también los que viajan por el servicio web.
 
-La letra, en 7.4: *«Toda consulta o modificación de datos del sitio pasa por un caso de uso de esa biblioteca»*.
+Cada operación del controlador abre un `EntityManager` nuevo, lo usa y lo cierra (commit si salió bien, rollback si falló). Así cada operación lee la base de verdad: lo que cambia el sitio se ve en la Estación de Trabajo sin un botón de «Actualizar». La Estación vuelve a leer sus listas sola cada 5 segundos.
 
 ## Documentación
 
 La documentación de análisis y diseño está en [`docs/`](docs/README.md):
 
-- **[Diseño de la solución web](docs/DisenioSolucionWeb.md)** — separación MVC, biblioteca JAR embebida, sesión, imágenes y estados de la edición.
-- Modelo de dominio actualizado y diagrama de clases de diseño.
-- Diagramas de secuencia del sistema de los casos de uso nuevos o modificados, y los del Laboratorio 1 con sus diagramas de comunicación.
+- **[Diseño de la solución web](docs/DisenioSolucionWeb.md)**: separación MVC, sesión, imágenes y estados de la edición.
+- **[Rol 4: asistencia, constancia, visitas y validación](docs/Rol4-README-y-guion-de-defensa.md)**: datos de prueba, pruebas y guion de defensa de esa parte.
+- Modelo de dominio y diagrama de clases de diseño.
+- Diagramas de secuencia del sistema y de comunicación.
 - Registro de horas del equipo.
 
-Los diagramas están en **PDF**, para leerlos directamente, y en formato **draw.io** (`.drawio.xml`), para abrirlos con zoom o editarlos.
+Los diagramas están en **PDF**, para leerlos directamente, y en formato **draw.io** (`.drawio.xml`), para editarlos.
 
 ## Equipo
 
