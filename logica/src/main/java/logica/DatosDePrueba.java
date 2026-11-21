@@ -498,7 +498,7 @@ public final class DatosDePrueba {
                 "Festival con artistas nacionales e internacionales.",
                 LocalDate.of(2023, 8, 20),
                 "MVDROCK",
-                Arrays.asList(musica), imm
+                Arrays.asList(musica), antel
         );
         rock.asignarImagen(imagenes.get(
                 "imagenes/eventos/MontevideoRock/rock.png"
