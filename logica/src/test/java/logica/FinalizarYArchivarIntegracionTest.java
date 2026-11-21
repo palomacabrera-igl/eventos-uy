@@ -58,15 +58,21 @@ class FinalizarYArchivarIntegracionTest extends PruebaConBase {
     }
 
     @Test
-    @DisplayName("un organizador finaliza un evento y ya no admite ediciones ni aparece al público")
+    @DisplayName("solo quien creó el evento puede finalizarlo")
     void finalizarEvento() throws ReglaNegocioException {
-        sistema.finalizarEvento(OTRO_ORGANIZADOR, EVENTO);
+        assertThrows(ReglaNegocioException.class,
+                () -> sistema.finalizarEvento(OTRO_ORGANIZADOR, EVENTO));
+        assertEquals(List.of(EVENTO), sistema.listarEventosFinalizables(DUENIO).stream()
+                .map(DTEvento::getNombre).toList());
+
+        sistema.finalizarEvento(DUENIO, EVENTO);
 
         assertTrue(sistema.listarEventos(null).stream()
                 .noneMatch(evento -> EVENTO.equals(evento.getNombre())));
         assertThrows(ReglaNegocioException.class, () -> sistema.consultarEvento(EVENTO));
         assertThrows(ReglaNegocioException.class, () -> altaEdicion(EDICION,
                 LocalDate.now().plusDays(1), LocalDate.now().plusDays(2)));
+        assertTrue(sistema.listarEventosFinalizables(DUENIO).isEmpty());
         assertThrows(ReglaNegocioException.class, () -> sistema.finalizarEvento(DUENIO, EVENTO));
     }
 

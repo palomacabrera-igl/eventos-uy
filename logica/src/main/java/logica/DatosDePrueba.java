@@ -205,7 +205,7 @@ public final class DatosDePrueba {
                 "Jornadas de Ingeniería",
                 LocalDate.of(2025, 1, 10),
                 "JIAP",
-                Arrays.asList(tecnologia)
+                Arrays.asList(tecnologia), imm
         );
         jiap.asignarImagen(imagenes.get(
                 "imagenes/eventos/JIAP/eventoIng.png"
@@ -339,7 +339,7 @@ public final class DatosDePrueba {
                 "Semana del libro",
                 LocalDate.of(2017, 1, 1),
                 "FL",
-                Arrays.asList(cultura)
+                Arrays.asList(cultura), antel
         );
         feriaLibro.asignarImagen(imagenes.get(
                 "imagenes/eventos/FeriaDelLibro/eventoLibro.png"
@@ -401,7 +401,7 @@ public final class DatosDePrueba {
                 "Competencia deportiva anual en la capital.",
                 LocalDate.of(2024, 3, 12),
                 "MARATON",
-                Arrays.asList(deporte)
+                Arrays.asList(deporte), imm
         );
         maraton.asignarImagen(imagenes.get(
                 "imagenes/eventos/MaratonDeMontevideo/maraton.png"
@@ -498,7 +498,7 @@ public final class DatosDePrueba {
                 "Festival con artistas nacionales e internacionales.",
                 LocalDate.of(2023, 8, 20),
                 "MVDROCK",
-                Arrays.asList(musica)
+                Arrays.asList(musica), imm
         );
         rock.asignarImagen(imagenes.get(
                 "imagenes/eventos/MontevideoRock/rock.png"
@@ -565,7 +565,7 @@ public final class DatosDePrueba {
                 "Encuentro de empresas y emprendedores del país.",
                 LocalDate.of(2025, 2, 5),
                 "EXPONEG",
-                Arrays.asList(negocios, tecnologia)
+                Arrays.asList(negocios, tecnologia), antel
         );
         expoNegocios.asignarImagen(imagenes.get(
                 "imagenes/eventos/ExpoNegociosUY/negocios.png"
@@ -600,7 +600,7 @@ public final class DatosDePrueba {
                 "Convención de historietas, cine y cultura geek.",
                 LocalDate.of(2022, 6, 30),
                 "MVDCOM",
-                Arrays.asList(cultura)
+                Arrays.asList(cultura), imm
         );
         comics.asignarImagen(imagenes.get(
                 "imagenes/eventos/MontevideoComics/eventoComic.png"

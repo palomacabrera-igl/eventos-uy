@@ -100,6 +100,7 @@ class PublicadorTest {
             op("listarSeguidos", "<nickname>ana</nickname>", null, "ana"),
             op("finalizarEvento", "<solicitante>imm</solicitante><nombreEvento>JIAP</nombreEvento>",
                     null, "imm", "JIAP"),
+            op("listarEventosFinalizables", "<solicitante>imm</solicitante>", null, "imm"),
             op("archivarEdicion", "<solicitante>imm</solicitante><nombreEdicion>JIAP 2027</nombreEdicion>",
                     null, "imm", "JIAP 2027"),
             op("listarEdicionesArchivables", "<solicitante>imm</solicitante>", null, "imm"),
@@ -453,6 +454,7 @@ class PublicadorTest {
                         case "obtenerImagenEvento" -> "JIAP".equals(args[0])
                                 ? new DTImagen(new byte[]{1, 2, 3}, "image/png")
                                 : null;
+                        case "listarEventosFinalizables" -> List.of();
                         case "altaRegistro", "altaEdicion" -> null;
                         default -> {
                             if (NOMBRES_NUEVAS.contains(metodo.getName())) {

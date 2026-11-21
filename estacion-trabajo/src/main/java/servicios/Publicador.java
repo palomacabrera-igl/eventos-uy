@@ -388,6 +388,12 @@ public class Publicador {
     }
 
     @WebMethod
+    public List<DTEvento> listarEventosFinalizables(@WebParam(name = "solicitante") String solicitante)
+            throws ReglaNegocioException {
+        return controlador.listarEventosFinalizables(solicitante);
+    }
+
+    @WebMethod
     public void archivarEdicion(@WebParam(name = "solicitante") String solicitante,
                                 @WebParam(name = "nombreEdicion") String nombreEdicion)
             throws ReglaNegocioException {

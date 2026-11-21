@@ -1084,7 +1084,7 @@ public class Sistema implements IControladorSistema {
                            List<String> nombresCategorias, DTImagen imagen)
             throws ReglaNegocioException {
         // Solo un organizador con sesion puede crear eventos.
-        if (!(find(limpiar(solicitante)) instanceof Organizador)) {
+        if (!(find(limpiar(solicitante)) instanceof Organizador organizador)) {
             throw new ReglaNegocioException("Solo un organizador puede dar de alta eventos.");
         }
         Evento.validarDatos(nombre, descripcion, sigla, nombresCategorias);
@@ -1113,7 +1113,7 @@ public class Sistema implements IControladorSistema {
 
         // La fecha de alta es la de hoy: la pone el sistema, no el formulario.
         Evento evento = new Evento(nombreLimpio, limpiar(descripcion), LocalDate.now(),
-                limpiar(sigla), categorias);
+                limpiar(sigla), categorias, organizador);
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
             evento.asignarImagen(crearImagen(imagen));
         }
@@ -1230,7 +1230,7 @@ public class Sistema implements IControladorSistema {
                                  String descripcion, double costo, int cupo)
             throws ReglaNegocioException {
         Usuario usuario = find(limpiar(solicitante));
-        if (!(usuario instanceof Organizador)) {
+        if (!(usuario instanceof Organizador organizador)) {
             throw new ReglaNegocioException(
                     "Solo un organizador puede dar de alta tipos de registro.");
         }
@@ -1287,7 +1287,7 @@ public class Sistema implements IControladorSistema {
                                 String sitioWeb, DTImagen imagen)
             throws ReglaNegocioException {
         Usuario usuario = find(limpiar(solicitante));
-        if (!(usuario instanceof Organizador)) {
+        if (!(usuario instanceof Organizador organizador)) {
             throw new ReglaNegocioException(
                     "Solo un organizador puede dar de alta instituciones.");
         }
@@ -1643,15 +1643,33 @@ public class Sistema implements IControladorSistema {
     @Override
     public void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException {
         Usuario usuario = exigirUsuario(solicitante);
-        if (!(usuario instanceof Organizador)) {
+        if (!(usuario instanceof Organizador organizador)) {
             throw new ReglaNegocioException("Solo un organizador puede finalizar eventos.");
         }
         Evento evento = buscarEventoExistente(nombreEvento);
+        if (!evento.loCreo(organizador.getNickname())) {
+            throw new ReglaNegocioException("Solo el organizador que creó el evento puede finalizarlo.");
+        }
         if (evento.estaFinalizado()) {
             throw new ReglaNegocioException("El evento \"" + evento.getNombre()
                     + "\" ya está finalizado.");
         }
         evento.finalizar();
+    }
+
+    @Override
+    public List<DTEvento> listarEventosFinalizables(String solicitante) throws ReglaNegocioException {
+        Usuario usuario = exigirUsuario(solicitante);
+        if (!(usuario instanceof Organizador organizador)) {
+            throw new ReglaNegocioException("Solo un organizador puede listar sus eventos finalizables.");
+        }
+        List<DTEvento> resultado = new ArrayList<>();
+        for (Evento evento : manejadorEvento.listar()) {
+            if (!evento.estaFinalizado() && evento.loCreo(organizador.getNickname())) {
+                resultado.add(evento.obtenerDT());
+            }
+        }
+        return resultado;
     }
 
     @Override

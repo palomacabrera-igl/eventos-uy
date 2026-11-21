@@ -568,6 +568,9 @@ public interface IControladorSistema {
      */
     void finalizarEvento(String solicitante, String nombreEvento) throws ReglaNegocioException;
 
+    /** Eventos activos creados por el organizador, que puede finalizar desde el sitio. */
+    List<DTEvento> listarEventosFinalizables(String solicitante) throws ReglaNegocioException;
+
     /**
      * Archiva una edicion. Solo su organizador, y solo si esta ACEPTADA y su
      * fecha de fin es anterior a hoy. La edicion pasa a ARCHIVADA, solo se
