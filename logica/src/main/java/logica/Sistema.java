@@ -213,6 +213,7 @@ public class Sistema implements IControladorSistema {
     @Override
     public void ingresarDatosUsuario(DTUsuario datos, TipoUsuario tipo)
             throws ReglaNegocioException {
+        exigirCorreoValido(datos.getCorreo());
         if (find(datos.getNickname()) != null) {
             throw new ReglaNegocioException(
                     "Ya existe un usuario con el nickname \"" + datos.getNickname() + "\".");
@@ -782,6 +783,7 @@ public class Sistema implements IControladorSistema {
         if (nickname.isEmpty() || nombre.isEmpty() || correo.isEmpty()) {
             throw new ReglaNegocioException("El nickname, el nombre y el correo son obligatorios.");
         }
+        exigirCorreoValido(correo);
 
         // 2. La contrasena y su confirmacion.
         if (password == null || password.isEmpty()) {
@@ -853,7 +855,7 @@ public class Sistema implements IControladorSistema {
         // 5. La imagen es opcional y se asigna antes de guardar, asi el alta
         //    entera es una sola escritura en la base.
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
-            usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+            usuario.asignarImagen(crearImagen(imagen));
         }
 
         manejadorUsuario.agregar(usuario);
@@ -1011,7 +1013,7 @@ public class Sistema implements IControladorSistema {
         // La imagen solo se reemplaza cuando eligieron una nueva. Un
         // formulario enviado sin elegir archivo deja la que ya estaba.
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
-            usuario.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+            usuario.asignarImagen(crearImagen(imagen));
         }
 
     }
@@ -1320,7 +1322,7 @@ public class Sistema implements IControladorSistema {
 
         Institucion institucion = new Institucion(nombreLimpio, descripcionLimpia, sitioWebLimpio);
         if (imagen != null && imagen.getContenido() != null && imagen.getContenido().length > 0) {
-            institucion.asignarImagen(new Imagen(imagen.getContenido(), imagen.getTipo()));
+            institucion.asignarImagen(crearImagen(imagen));
         }
         manejadorInstitucion.agregar(institucion);
     }
@@ -1370,12 +1372,31 @@ public class Sistema implements IControladorSistema {
                 : new DTImagen(imagen.getContenido(), imagen.getTipo());
     }
 
+    /**
+     * Los tipos de imagen que se aceptan. El sitio entrega cada imagen con el tipo guardado:
+     * si se aceptara cualquiera, un archivo HTML subido como "imagen" se abriria en el
+     * navegador como una pagina del sitio y podria ejecutar codigo.
+     */
+    private static final Set<String> TIPOS_DE_IMAGEN =
+            Set.of("image/jpeg", "image/png", "image/webp", "image/gif");
+
     private static Imagen crearImagen(DTImagen imagen) throws ReglaNegocioException {
         if (imagen == null || imagen.getContenido() == null || imagen.getContenido().length == 0
                 || imagen.getTipo() == null || imagen.getTipo().isBlank()) {
             throw new ReglaNegocioException("La imagen es obligatoria y debe tener contenido.");
         }
-        return new Imagen(imagen.getContenido(), imagen.getTipo());
+        String tipo = imagen.getTipo().trim().toLowerCase(Locale.ROOT);
+        if (!TIPOS_DE_IMAGEN.contains(tipo)) {
+            throw new ReglaNegocioException("La imagen tiene que ser JPEG, PNG, WebP o GIF.");
+        }
+        return new Imagen(imagen.getContenido(), tipo);
+    }
+
+    /** Un correo con algo antes y despues de una sola arroba, sin espacios. */
+    private static void exigirCorreoValido(String correo) throws ReglaNegocioException {
+        if (correo == null || !correo.trim().matches("[^@\\s]+@[^@\\s]+")) {
+            throw new ReglaNegocioException("El correo \"" + correo + "\" no tiene un formato válido.");
+        }
     }
 
     // ----- Consulta de Registro (CU 13) -----

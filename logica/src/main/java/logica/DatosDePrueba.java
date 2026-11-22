@@ -181,12 +181,15 @@ public final class DatosDePrueba {
         // Seguimientos
         // =========================
         // Sirven para recorrer el perfil con seguidores y seguidos desde el
-        // sitio: vale23 sigue a ambos organizadores y jperez tambien sigue a
-        // la IMM. Se arman dentro de la misma unidad de trabajo que persiste
-        // a los usuarios, asi los dos lados de cada relacion quedan guardados.
+        // sitio: vale23 sigue a ambos organizadores, jperez tambien sigue a
+        // la IMM, y la IMM sigue a vale23 (dos usuarios que se siguen entre
+        // si, como pide la letra). Se arman dentro de la misma unidad de
+        // trabajo que persiste a los usuarios, asi los dos lados de cada
+        // relacion quedan guardados.
         vale23.seguir(imm);
         vale23.seguir(antel);
         jperez.seguir(imm);
+        imm.seguir(vale23);
 
         // =========================
         // Evento: JIAP

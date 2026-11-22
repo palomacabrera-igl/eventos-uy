@@ -1,6 +1,7 @@
 package logica;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -167,6 +168,28 @@ class AltaUsuarioIntegracionTest extends PruebaConBase {
         assertThrows(ReglaNegocioException.class, () -> sistema.altaUsuario(
                 asistente(ASIS, correo), TipoUsuario.ASISTENTE,
                 "Clave1!", "Clave1!", null, null));
+    }
+
+    @ParameterizedTest(name = "el correo es \"{0}\"")
+    @DisplayName("rechaza un correo sin el formato nombre@dominio")
+    @ValueSource(strings = {"nocorreo", "a@b@c", "con espacio@mail.com", "@mail.com", "ana@"})
+    void correoSinFormato(String correo) {
+        assertThrows(ReglaNegocioException.class, () -> sistema.altaUsuario(
+                asistente(ASIS, correo), TipoUsuario.ASISTENTE,
+                "Clave1!", "Clave1!", null, null));
+        assertFalse(sistema.existeNickname(ASIS));
+    }
+
+    @ParameterizedTest(name = "el tipo es \"{0}\"")
+    @DisplayName("rechaza una imagen que no es JPEG, PNG, WebP ni GIF, y no crea el usuario")
+    @ValueSource(strings = {"text/html", "image/svg+xml", "application/javascript", "text/plain"})
+    void imagenDeTipoNoPermitido(String tipo) {
+        byte[] html = "<script>alert(1)</script>".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        ReglaNegocioException error = assertThrows(ReglaNegocioException.class,
+                () -> sistema.altaUsuario(asistente(ASIS, "test-it@mail.com"),
+                        TipoUsuario.ASISTENTE, "Clave1!", "Clave1!", null, new DTImagen(html, tipo)));
+        assertTrue(error.getMessage().contains("JPEG"));
+        assertFalse(sistema.existeNickname(ASIS));
     }
 
     @Test
