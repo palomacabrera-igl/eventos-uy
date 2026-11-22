@@ -1,10 +1,10 @@
 # Diseño del video, la búsqueda y la versión para celular
 
-**eventos.uy** — Laboratorio 3, Programación de Aplicaciones, UTEC. Parte del Rol 3.
+**eventos.uy** — Laboratorio 3, Programación de Aplicaciones, UTEC. Video, búsqueda y versión para celular.
 
-Este documento responde, para el Rol 3, al punto 2 de «Se pide»: *«Diseño de la solución distribuida: operaciones publicadas por el Servidor Central, datatypes que viajan por la red, manejo de excepciones remotas, configuración y versión para celular»*. Hay una sección por cada tema del rol (video, búsqueda y versión para celular), con la decisión que se tomó y por qué, y una última con las decisiones que la letra dejaba abiertas.
+Este documento responde, para estas tres partes, al punto 2 de «Se pide»: *«Diseño de la solución distribuida: operaciones publicadas por el Servidor Central, datatypes que viajan por la red, manejo de excepciones remotas, configuración y versión para celular»*. Hay una sección por cada tema (video, búsqueda y versión para celular), con la decisión que se tomó y por qué, y una última con las decisiones que la letra dejaba abiertas.
 
-Los DSS de los casos de uso que cambian (punto 1 de «Se pide») están en `Laboratorio3-Rol3.drawio.xml` y su PDF:
+Los DSS de los casos de uso que cambian (punto 1 de «Se pide») están en `DSS-Laboratorio3.drawio.xml` (y su PDF), que reúne los de todo el laboratorio. Los de este documento son:
 
 | Hoja | Qué tiene |
 | --- | --- |
@@ -20,7 +20,7 @@ La letra (4 y 6.2) pide que una edición pueda tener, de forma opcional, un vide
 
 ### Dónde vive el dato
 
-`EdicionEvento` tiene un atributo nuevo, `urlVideo`, que puede ser nulo. No hay una clase aparte para el video: es un solo dato de la edición, sin comportamiento propio. Es el único cambio que el Rol 3 le hace al modelo de dominio, y figura en el modelo general del grupo (`ModeloGeneral.drawio`).
+`EdicionEvento` tiene un atributo nuevo, `urlVideo`, que puede ser nulo. No hay una clase aparte para el video: es un solo dato de la edición, sin comportamiento propio. Es el único cambio que estas partes le hacen al modelo de dominio, y figura en el modelo general del grupo (`ModeloGeneral.drawio`).
 
 ### La validación va en la lógica
 
@@ -92,7 +92,7 @@ La letra (7.3) pide que forme parte del mismo `web.war`, bajo una ruta propia, c
 
 ### Los mismos servlets, otra página
 
-Ante la pregunta de si «reutilizar los servlets» quería decir los mismos servlets, el profesor respondió que sí, para no duplicar trabajo. Por eso cada servlet que necesita el celular atiende una ruta más (`@WebServlet({"/edicion", "/movil/edicion"})`), hace lo mismo en los dos casos y termina con `Paginas.forward(...)`. Ese método elige la página según la ruta del pedido: si empieza con `/movil`, usa la versión para celular de esa página (el mapa `PARA_CELULAR`). La lógica del sitio y las llamadas al Servidor Central no se duplican; lo único propio del celular son las JSP de `WEB-INF/jsp/movil/`.
+La letra pide que el sitio para celular reutilice los servlets del resto del sitio, y se interpretó como usar los mismos servlets, para no duplicar trabajo. Por eso cada servlet que necesita el celular atiende una ruta más (`@WebServlet({"/edicion", "/movil/edicion"})`), hace lo mismo en los dos casos y termina con `Paginas.forward(...)`. Ese método elige la página según la ruta del pedido: si empieza con `/movil`, usa la versión para celular de esa página (el mapa `PARA_CELULAR`). La lógica del sitio y las llamadas al Servidor Central no se duplican; lo único propio del celular son las JSP de `WEB-INF/jsp/movil/`.
 
 | Caso de uso (6.3) | Ruta | Servlet |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ Ante la pregunta de si «reutilizar los servlets» quería decir los mismos serv
 | Consulta de Registro | `/movil/registros`, `/movil/registro?edicion=...` | `ConsultarRegistro` |
 | Registro de Asistencia | `/movil/asistencia` | `RegistrarAsistencia` |
 
-`RegistrarAsistencia` es el único servlet nuevo, porque ese caso de uso no existe en el sitio de escritorio. Usa la operación `registrarAsistencia` del Rol 4.
+`RegistrarAsistencia` es el único servlet nuevo, porque ese caso de uso no existe en el sitio de escritorio. Usa la operación `registrarAsistencia`.
 
 ### Solo asistentes
 
@@ -127,7 +127,7 @@ Bootstrap 5 está incluido en el proyecto (`assets/vendor/bootstrap`). Los color
 
 ### Las visitas desde el celular
 
-El filtro de visitas del Rol 4 también atiende `/movil/evento`, así que las consultas desde el celular suman al ranking de eventos más visitados (7.7).
+El filtro de visitas también atiende `/movil/evento`, así que las consultas desde el celular suman al ranking de eventos más visitados (7.7).
 
 ## 4. Las decisiones que la letra dejaba abiertas
 

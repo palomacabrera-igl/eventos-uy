@@ -6,6 +6,8 @@ Este documento responde al punto 2 de «Se pide»: *«Diseño de la solución we
 
 ---
 
+> **Laboratorio 3.** La sección 2 (biblioteca JAR embebida) describe el Laboratorio 2: en esta iteración el sitio dejó de llevar la lógica y habla con el Servidor Central por servicios web. Ese cambio está en [`Laboratorio3-Diseno-distribuido.md`](Laboratorio3-Diseno-distribuido.md). Las demás secciones siguen valiendo.
+
 ## 1. Separación MVC
 
 El servidor web se organiza según el patrón Modelo–Vista–Controlador, como pide la Sección 7.4.

@@ -1595,17 +1595,11 @@ public class Sistema implements IControladorSistema {
     }
 
     // =================================================================
-    //  OPERACIONES NUEVAS DEL LABORATORIO 3 (esqueleto)
+    //  OPERACIONES NUEVAS DEL LABORATORIO 3
     // =================================================================
     //
-    //  Las firmas y las reglas de cada una estan en IControladorSistema. Cada
-    //  rol reemplaza "throw pendiente(...)" por la logica de las suyas, en su
-    //  propia seccion para que Git junte los cambios sin conflicto. Las
-    //  operaciones sin estado no escriben los campos "...Seleccionada".
-
-    private static UnsupportedOperationException pendiente(String operacion) {
-        return new UnsupportedOperationException("Operacion pendiente de implementar: " + operacion);
-    }
+    //  Las firmas y las reglas de cada una estan en IControladorSistema. Son
+    //  operaciones sin estado: no escriben los campos "...Seleccionada".
 
     // ----- Seguidores, finalizar evento y archivar edicion -----
 

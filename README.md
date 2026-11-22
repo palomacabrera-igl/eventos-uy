@@ -30,7 +30,7 @@ El **sitio web** (escritorio y celular) vive en otro repositorio, **eventos-uy-w
 
 ## Por qué son dos repositorios
 
-El profesor pidió que el Servidor Central y el Servidor Web sean lo más independientes posible. Lo único que comparten es el **contrato del servicio web** (el WSDL): el sitio genera sus clases a partir de él con `wsimport` y no tiene ninguna clase de la lógica ni de la persistencia.
+La letra pide que el Servidor Central y el Servidor Web sean lo más independientes posible. Lo único que comparten es el **contrato del servicio web** (el WSDL): el sitio genera sus clases a partir de él con `wsimport` y no tiene ninguna clase de la lógica ni de la persistencia.
 
 Así cada uno se compila, se prueba y se ejecuta por separado, y pueden estar en computadoras distintas.
 
@@ -153,7 +153,7 @@ Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación 
 
 - Las pruebas de integración usan la base de `central.properties` y necesitan los datos de prueba cargados. Lo que crean lleva el prefijo `IT` y lo borran al terminar.
 - Si PostgreSQL no responde, las de integración se **saltean** solas y el resto corre igual.
-- Las pruebas de la asistencia, la constancia, las visitas y la validación están explicadas en [`docs/Rol4-README-y-guion-de-defensa.md`](docs/Rol4-README-y-guion-de-defensa.md).
+- Las pruebas de la asistencia, la constancia, las visitas y la validación están explicadas en [`docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md`](docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md).
 
 ## Datos de prueba
 
@@ -165,7 +165,7 @@ Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación 
 | `jperez` | `Juan2026!` | Asistente |
 | `lgomez` | `Lucia2026!` | Asistente |
 
-Qué registros tienen asistencia y cuáles no, y las visitas iniciales de cada evento, están en [`docs/Rol4-README-y-guion-de-defensa.md`](docs/Rol4-README-y-guion-de-defensa.md).
+Qué registros tienen asistencia y cuáles no, y las visitas iniciales de cada evento, están en [`docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md`](docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md).
 
 Una demostración cambia la asistencia y las visitas. Para devolverlas a su valor inicial, sin recrear la base:
 
@@ -228,8 +228,10 @@ Cada operación del controlador abre un `EntityManager` nuevo, lo usa y lo cierr
 
 La documentación de análisis y diseño está en [`docs/`](docs/README.md):
 
-- **[Diseño de la solución web](docs/DisenioSolucionWeb.md)**: separación MVC, sesión, imágenes y estados de la edición.
-- **[Rol 4: asistencia, constancia, visitas y validación](docs/Rol4-README-y-guion-de-defensa.md)**: datos de prueba, pruebas y guion de defensa de esa parte.
+- **[Diseño de la solución distribuida](docs/Laboratorio3-Diseno-distribuido.md)**: operaciones publicadas, datatypes, excepciones remotas, configuración y empaquetado.
+- **[Video, búsqueda y versión para celular](docs/Laboratorio3-Video-Busqueda-Celular.md)**: diseño de esas tres partes.
+- **[Diseño de la solución web](docs/DisenioSolucionWeb.md)**: separación MVC, sesión, imágenes y estados de la edición (Laboratorio 2).
+- **[Asistencia, constancia, visitas y validación](docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md)**: datos de prueba, pruebas y guion de defensa de esa parte.
 - Modelo de dominio y diagrama de clases de diseño.
 - Diagramas de secuencia del sistema y de comunicación.
 - Registro de horas del equipo.

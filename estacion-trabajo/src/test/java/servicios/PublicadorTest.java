@@ -86,7 +86,7 @@ class PublicadorTest {
     private static final HttpClient HTTP = HttpClient.newHttpClient();
 
     /**
-     * Las operaciones nuevas del Laboratorio 3 (el esqueleto): el XML de sus
+     * Las operaciones nuevas del Laboratorio 3: el XML de sus
      * parametros, lo que la logica tiene que recibir y, si hace falta, algo que
      * tiene que aparecer en la respuesta. Cuando se agregue una operacion nueva
      * al Publicador, se agrega aca su fila.

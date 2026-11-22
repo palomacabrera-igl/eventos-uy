@@ -1,10 +1,10 @@
-# Rol 4 · asistencia, constancia, visitas y validación
+# Asistencia, constancia, visitas y validación: datos de prueba y guion de defensa
 
 Qué hay en este archivo, para quien arme el README y la defensa:
 
 | Parte | Para qué sirve |
 | --- | --- |
-| [A. Para el README](#a-para-el-readme) | Texto listo para pegar en el README del proyecto: los datos de prueba de mi parte, cómo correr sus pruebas y cómo dejar la demostración como al principio. |
+| [A. Para el README](#a-para-el-readme) | Texto listo para pegar en el README del proyecto: los datos de prueba de asistencia y visitas, cómo correr sus pruebas y cómo dejar la demostración como al principio. |
 | [B. Guion de defensa](#b-guion-de-defensa) | Qué mostrar y en qué orden, con qué usuarios y qué tiene que verse. |
 | [C. Preguntas probables](#c-preguntas-probables-en-la-defensa) | Qué contestar y en qué archivo está, porque en la defensa no hay IDE. |
 | [D. Antes de empezar](#d-lista-para-chequear-antes-de-empezar) | Lista corta para chequear en la computadora, antes de que empiece la defensa. |
@@ -15,7 +15,7 @@ Qué hay en este archivo, para quien arme el README y la defensa:
 
 ### Datos de prueba de asistencia y visitas
 
-`DatosDePrueba` (sección «Rol 4») carga registros con y sin asistencia, y visitas por evento, para recorrer todo sin armar nada a mano. La letra los pide: «registros con y sin asistencia».
+`DatosDePrueba` (sección «Asistencia y visitas») carga registros con y sin asistencia, y visitas por evento, para recorrer todo sin armar nada a mano. La letra los pide: «registros con y sin asistencia».
 
 | Edición | Organizador | Asistente | ¿Asistió? | Para qué sirve |
 | --- | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ Si el grupo cambia esos datos en `DatosDePrueba`, hay que cambiarlos también en
 
 Unos 8 minutos. Se asume: el Servidor Central y la Estación en una computadora, el sitio en otra, y el celular en la misma red. Antes de empezar, correr el script de restauración.
 
-> Los pasos del celular dependen de las pantallas del Rol 3. Si la ruta o el texto de un botón cambia, ajustar el paso.
+> Los pasos del celular dependen de las pantallas del celular. Si la ruta o el texto de un botón cambia, ajustar el paso.
 
 ### 1. Eventos más visitados (Estación de Trabajo)
 
@@ -143,7 +143,7 @@ La columna `visitas` es `updatable = false` en la entidad: cuando Hibernate guar
 Con un filtro (`jakarta.servlet.Filter`), `FiltroVisitas`, aplicado a `/evento` y a `/movil/evento`. Atiende la consulta y, cuando la página ya salió bien, le avisa al Servidor Central con `registrarVisita`. Si el Central no responde o el evento no existe, lo anota en el registro del servidor y la persona no se entera. El conteo se guarda en el Central, así que sobrevive a reiniciar el sitio.
 
 **¿Por qué `listarEventosMasVisitados` no está en el servicio web?**
-Solo la usa la Estación de Trabajo, que llama al controlador directamente, en el mismo programa. El profesor confirmó que se publican solo las operaciones que usan el sitio y el celular.
+Solo la usa la Estación de Trabajo, que llama al controlador directamente, en el mismo programa. Se publican solo las operaciones que usan el sitio y el celular.
 
 **¿Dónde y cómo se genera el PDF?**
 En el Servidor Central, en el momento de pedirlo, con OpenPDF. Viaja como `byte[]` (Base64 dentro del XML, como las imágenes) y el sitio lo entrega con el tipo `application/pdf`. No se guarda ningún archivo. Está en `ConstanciaAsistencia`. La regla de quién la recibe vive en la lógica: solo quien está registrado y ya registró su asistencia.
@@ -167,15 +167,15 @@ La ventana principal tiene un temporizador que cada 5 segundos llama a `actualiz
 
 | Qué | Archivo |
 | --- | --- |
-| Regla de asistencia y constancia | `logica/src/main/java/logica/EdicionEvento.java` (sección «Rol 4: asistencia») |
+| Regla de asistencia y constancia | `logica/src/main/java/logica/EdicionEvento.java` (sección «Asistencia») |
 | PDF | `logica/src/main/java/logica/ConstanciaAsistencia.java` |
-| Contador y ranking | `logica/src/main/java/logica/ManejadorEvento.java` (sección «Rol 4: visitas») |
+| Contador y ranking | `logica/src/main/java/logica/ManejadorEvento.java` (sección «Visitas») |
 | Verificación de nickname y correo | `logica/src/main/java/logica/Sistema.java` y `ManejadorUsuario.java` |
 | Ventana de más visitados | `estacion-trabajo/src/main/java/presentacion/VentanaEventosMasVisitados.java` |
 | Filtro de visitas | `eventos-uy-web/src/main/java/servlets/FiltroVisitas.java` |
 | Servlet de verificación y JavaScript | `servlets/Disponibilidad.java` y `assets/js/disponibilidad.js` |
 | Descarga de la constancia | `servlets/DescargarConstancia.java` |
-| Documentación de análisis | `docs/Laboratorio3-Rol4.drawio.pdf` |
+| Documentación de análisis | `docs/DSS-Laboratorio3.drawio.xml` (hojas de asistencia, constancia, visitas y validación) |
 
 ---
 
@@ -185,5 +185,4 @@ La ventana principal tiene un temporizador que cada 5 segundos llama a `actualiz
 - [ ] El Servidor Central está publicado y se ve su contrato (`?wsdl`) desde la computadora del sitio. Con `servicio.host=localhost` el sitio, en otra computadora, **no** lo alcanza: poner la IP de la computadora del Central.
 - [ ] La Estación de Trabajo abrió después de publicar el servicio.
 - [ ] El sitio muestra la cartelera, y el celular abre el sitio por la IP de la computadora del sitio.
-- [ ] La pantalla de inicio de sesión dice que `lgomez` es «Asistente de UTEC (sin registros)», pero ahora tiene registros: corregir ese texto en `login.jsp`.
 - [ ] No correr `mvnw install` en el repositorio del Central: si hay un `logica-1.0-SNAPSHOT.jar` viejo en `~/.m2`, tapa al nuevo y el Central arranca con la lógica de otra fecha.

@@ -2,7 +2,7 @@
 
 Diagramas del proyecto **eventos.uy** — Programación de Aplicaciones, UTEC.
 
-Hay documentación de las dos iteraciones. Los diagramas del **Laboratorio 2** son los que reflejan el estado actual del sistema; los del **Laboratorio 1** se conservan porque los casos de uso que esta iteración no modificó siguen valiendo.
+Hay documentación de las tres iteraciones. Los documentos del **Laboratorio 3** son los que reflejan el estado actual de la arquitectura; los del **Laboratorio 2** y del **Laboratorio 1** se conservan porque los casos de uso que las iteraciones siguientes no modificaron siguen valiendo.
 
 Cada diagrama está en **dos formatos**, con el mismo contenido:
 
@@ -24,13 +24,48 @@ docs/
 ├── README.md
 ├── ModeloGeneral.drawio.pdf          modelo de dominio y DCD
 ├── ModeloGeneral.drawio.xml
-├── DSS-Laboratorio2.drawio.pdf       los DSS de esta iteración
+├── DSS-Laboratorio3.drawio.pdf       los DSS del Laboratorio 3
+├── DSS-Laboratorio3.drawio.xml
+├── Laboratorio3-Diseno-distribuido.md
+├── Laboratorio3-Video-Busqueda-Celular.md
+├── Laboratorio3-Asistencia-Visitas-y-Defensa.md
+├── DisenioSolucionWeb.md             el diseño del Laboratorio 2
+├── DSS-Laboratorio2.drawio.pdf       los DSS del Laboratorio 2
 ├── DSS-Laboratorio2.drawio.xml
 ├── DSS y diagramas de comunicacion/  los del Laboratorio 1
 │   ├── Formato pdf/
 │   └── Formato xml/
 └── Registro de horas_.xlsx
 ```
+
+## Laboratorio 3
+
+Lo que pide la letra en «Se pide», puntos 1 y 2, ahora sobre la arquitectura distribuida.
+
+| Archivo | Contenido |
+|---|---|
+| `ModeloGeneral` | El modelo de dominio del grupo, con los cambios del Laboratorio 3 (seguidores, video, asistencia, estados de evento y edición, visitas) |
+| `DSS-Laboratorio3` · [PDF](DSS-Laboratorio3.drawio.pdf) · [draw.io](DSS-Laboratorio3.drawio.xml) | Los diagramas de secuencia de los casos de uso nuevos o modificados (12 hojas, abajo) |
+| [`Laboratorio3-Diseno-distribuido.md`](Laboratorio3-Diseno-distribuido.md) | **Diseño de la solución distribuida**: operaciones publicadas, datatypes que viajan por la red, excepciones remotas, configuración, empaquetado y varios clientes a la vez |
+| [`Laboratorio3-Video-Busqueda-Celular.md`](Laboratorio3-Video-Busqueda-Celular.md) | Diseño del video de YouTube, la búsqueda y la versión para celular |
+| [`Laboratorio3-Asistencia-Visitas-y-Defensa.md`](Laboratorio3-Asistencia-Visitas-y-Defensa.md) | Datos de prueba, pruebas y guion de defensa de asistencia, constancia, visitas y validación |
+
+Las doce hojas del DSS, agrupadas por área:
+
+| Área | Hoja | Caso de uso |
+|---|---|---|
+| Usuarios | `InicioDeSesionCelular` | Inicio de Sesión (celular) |
+| | `SeguirDejarDeSeguirUsuario` | Seguir / Dejar de Seguir Usuario (nuevo) |
+| | `ConsultaDeUsuario` | Consulta de Usuario (cambia: seguidores y seguidos) |
+| | `ValidacionDeDisponibilidad` | Alta de Usuario (cambia: nickname y correo mientras se escriben) |
+| Eventos y ediciones | `AltaDeEdicionConVideo` | Alta de Edición de Evento (cambia: video) |
+| | `ConsultaDeEdicionConVideo` | Consulta de Edición de Evento (cambia: video, asistencia) |
+| | `ConsultaDeEvento` | Consulta de Evento (cambia: cuenta una visita) |
+| | `FinalizarEvento` | Finalizar Evento (nuevo) |
+| | `ArchivarEdicion` | Archivar Edición de Evento (nuevo) |
+| | `EventosMasVisitados` | Consulta de Eventos más Visitados (nuevo, Estación de Trabajo) |
+| Registros | `RegistroDeAsistencia` | Registro de Asistencia a Edición (nuevo, celular) |
+| | `DescargaDeConstancia` | Descarga de Constancia de Asistencia (nuevo) |
 
 ## Laboratorio 2
 
@@ -83,7 +118,7 @@ Los 15 casos de uso de la Estación de Trabajo, agrupados por área del sistema 
 
 ## Diseño de la solución
 
-El **diseño de la solución web** —separación MVC, biblioteca JAR embebida, sesión, imágenes y estados de la edición— está en [`DisenioSolucionWeb.md`](DisenioSolucionWeb.md).
+El **diseño de la solución distribuida** (Laboratorio 3) está en [`Laboratorio3-Diseno-distribuido.md`](Laboratorio3-Diseno-distribuido.md). El **diseño de la solución web** del Laboratorio 2 —separación MVC, biblioteca JAR embebida, sesión, imágenes y estados de la edición— está en [`DisenioSolucionWeb.md`](DisenioSolucionWeb.md).
 
 Las decisiones de la capa lógica y de persistencia están en el [`README.md`](../README.md) de la raíz y en los comentarios del código, sobre todo en:
 

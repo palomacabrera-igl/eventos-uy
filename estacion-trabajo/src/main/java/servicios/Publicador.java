@@ -328,7 +328,7 @@ public class Publicador {
 
     // =====================================================================
     //  Seguidores, finalizar evento y archivar edicion
-    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
+    //  (operaciones del Laboratorio 3)
     // =====================================================================
 
     @WebMethod
@@ -386,7 +386,7 @@ public class Publicador {
 
     // =====================================================================
     //  Video, busqueda y sitio para celular
-    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
+    //  (operaciones del Laboratorio 3)
     //
     //  El video no tiene operaciones: viaja en el campo urlVideo de los DT de
     //  edicion. El sitio para celular usa las operaciones que ya estan.
@@ -406,7 +406,7 @@ public class Publicador {
 
     // =====================================================================
     //  Asistencia, constancia, visitas y validacion
-    //  (esqueleto del Laboratorio 3: la logica la completa cada rol en Sistema)
+    //  (operaciones del Laboratorio 3)
     //
     //  listarEventosMasVisitados lo usa solo la Estacion de Trabajo, que llama al
     //  controlador directamente: no se publica.
