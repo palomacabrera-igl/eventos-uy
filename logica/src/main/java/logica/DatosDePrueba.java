@@ -424,7 +424,7 @@ public final class DatosDePrueba {
             maraton2026.aceptar();
         } catch (ReglaNegocioException e) {
             throw new IllegalStateException(e);
-        };
+        }
 
         EdicionEvento maraton2025 = new EdicionEvento(
                 "Maratón 2025",
