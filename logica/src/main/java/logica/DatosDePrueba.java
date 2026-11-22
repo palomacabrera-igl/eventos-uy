@@ -219,7 +219,8 @@ public final class DatosDePrueba {
         jiap2026.asignarImagen(imagenes.get(
                 "imagenes/eventos/JIAP/ediciones/edicionIng2026.png"
         ));
-        jiap2026.asignarVideo("https://www.youtube.com/watch?v=jNQXAC9IVRw");
+        // Charla de la JIAP 2011, publicada por ASIAP.
+        jiap2026.asignarVideo("https://www.youtube.com/watch?v=w7Cu2-gjRc8");
         try {
             jiap2026.aceptar();
         } catch (ReglaNegocioException e) {
@@ -512,7 +513,8 @@ public final class DatosDePrueba {
         rock2026.asignarImagen(imagenes.get(
                 "imagenes/eventos/MontevideoRock/ediciones/rock2026.webp"
         ));
-        rock2026.asignarVideo("https://www.youtube.com/watch?v=9bZkp7q19f0");
+        // Presentacion de Montevideo Rock 2017 de TV Ciudad.
+        rock2026.asignarVideo("https://www.youtube.com/watch?v=iJrYobCrfdA");
         try {
             rock2026.aceptar();
         } catch (ReglaNegocioException e) {

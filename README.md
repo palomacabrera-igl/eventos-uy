@@ -168,7 +168,7 @@ Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación 
 Además de los cinco usuarios, los datos traen lo que pide la letra para recorrer el sistema:
 
 - **Seguidores:** `imm` y `vale23` se siguen entre sí; `vale23` sigue también a `antel`, y `jperez` a `imm`.
-- **Video:** JIAP 2026 y Montevideo Rock 2026.
+- **Video:** JIAP 2026 (una charla de la JIAP 2011, publicada por ASIAP) y Montevideo Rock 2026 (la presentación de Montevideo Rock 2017 de TV Ciudad).
 - **Evento finalizado:** Feria del libro.
 - **Edición archivada:** Maratón 2025 (solo aparece en el perfil de `imm`). **En condiciones de archivarse:** Comics 2026 (aceptada y ya terminó).
 
