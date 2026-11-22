@@ -4,15 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 /**
- * Imagen de una entidad (ver letra, seccion 7.2). El equipo decidio guardarla
- * en la base y no en el disco del servidor: la Estacion de Trabajo y el sitio
- * son dos procesos distintos y lo unico que comparten es la base, asi que una
- * imagen cargada desde el sitio se ve en Swing sin configurar rutas.
- *
- * &#64;Embeddable: NO genera una tabla propia. Sus dos campos se guardan como
- * columnas de la tabla de la entidad que la contiene, igual que si estuvieran
- * declarados ahi. Se usa cuando dos datos van siempre juntos y los necesitan
- * varias entidades, para no repetirlos en cada una.
+ * Imagen de una entidad (letra, seccion 7.2). Se guarda en la base y no en el disco: la
+ * Estacion de Trabajo y el sitio son dos procesos que solo comparten la base, asi que una
+ * imagen cargada desde el sitio se ve en Swing sin configurar rutas. Es @Embeddable: no
+ * genera una tabla propia, sus dos campos son columnas de la entidad que la contiene.
  */
 @Embeddable
 public class Imagen {

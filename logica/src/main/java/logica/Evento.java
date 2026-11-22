@@ -61,21 +61,16 @@ public class Evento extends EntidadBase {
                inverseJoinColumns = @JoinColumn(name = "categoria_id"))
     private List<Categoria> categorias = new ArrayList<>();
 
-    // ===== Rol 4: visitas =====
+    // ===== Visitas =====
 
     /**
-     * Cuantas veces se consulto el evento en el sitio (letra, 7.7). Sobrevive a
-     * los reinicios porque esta en la base.
-     *
-     * Solo se cambia con ManejadorEvento.sumarVisita, que hace un UPDATE
-     * atomico (visitas = visitas + 1). Por eso la columna es updatable = false:
-     * cuando otra operacion modifica el evento (por ejemplo, lo finaliza),
-     * Hibernate escribe todas las columnas con el valor que leyo, y si en el
-     * medio entro una visita la pisaria. Sin esta columna en su UPDATE, no puede.
-     *
-     * El valor por defecto esta en la columna: con hbm2ddl.auto=update, una
-     * columna NOT NULL nueva en una tabla con filas no se crea si la base no
-     * sabe con que llenarla (ver README).
+     * Cuantas veces se consulto el evento en el sitio (letra, 7.7); sobrevive a los
+     * reinicios porque esta en la base. Solo se cambia con ManejadorEvento.sumarVisita, que
+     * hace un UPDATE atomico (visitas = visitas + 1). La columna es updatable = false para
+     * que, cuando otra operacion modifique el evento (por ejemplo, lo finalice), Hibernate
+     * no escriba un valor viejo encima de una visita que entro en el medio. El valor por
+     * defecto esta en la columna porque con hbm2ddl.auto=update una columna NOT NULL nueva
+     * no se crea en una tabla con filas si la base no sabe con que llenarla.
      */
     @Column(nullable = false, updatable = false, columnDefinition = "bigint default 0")
     private long visitas;

@@ -16,27 +16,15 @@ import org.openpdf.text.Phrase;
 import org.openpdf.text.pdf.PdfWriter;
 
 /**
- * Arma la constancia de asistencia en PDF (letra, 7.5).
+ * Arma la constancia de asistencia en PDF (letra, 7.5): nombre y apellido del
+ * asistente, evento, edicion, ciudad, fechas de la edicion y fecha de emision.
  *
- * <h2>Que lleva</h2>
- * El nombre y el apellido del asistente, el nombre del evento y de la edicion, la
- * ciudad, las fechas de la edicion y la fecha de emision.
- *
- * <h2>Como se usa</h2>
- * Es una funcion: recibe los datos y devuelve los bytes del PDF. No guarda
- * nada: la constancia se genera en el momento en que se pide y no queda ningun
- * archivo (la letra lo pide asi). Quien decide si corresponde emitirla es
- * {@link EdicionEvento#obtenerConstancia}; aca no hay reglas de negocio.
- *
- * <h2>Por que vive en la logica</h2>
- * El PDF se genera en el Servidor Central y viaja como byte[] (en Base64 dentro del
- * XML, igual que las imagenes). La regla "solo si registro su asistencia" queda en
- * la logica, y el sitio solo descarga los bytes con el tipo application/pdf.
- *
- * <h2>Letras</h2>
- * Usa Helvetica, que trae el propio formato PDF: no hace falta incluir ninguna
- * fuente. Cubre el castellano (tildes, enie, dieresis). Un caracter que Helvetica
- * no tiene, por ejemplo un emoji, no sale, pero tampoco rompe la generacion.
+ * Recibe los datos y devuelve los bytes del PDF, sin guardar nada: la constancia
+ * se genera en el momento. Quien decide si corresponde emitirla es
+ * {@link EdicionEvento#obtenerConstancia}; aca no hay reglas de negocio. El PDF se
+ * genera en el Servidor Central y viaja como byte[]; el sitio solo lo descarga.
+ * Usa Helvetica, que trae el propio formato PDF: cubre el castellano, y un
+ * caracter que no tiene (un emoji) no sale pero tampoco rompe la generacion.
  */
 public final class ConstanciaAsistencia {
 

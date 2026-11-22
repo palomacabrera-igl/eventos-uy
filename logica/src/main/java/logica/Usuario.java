@@ -21,22 +21,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Entidad de dominio abstracta que representa un usuario de la plataforma.
- * No se instancia directamente: todo usuario es o bien un {@link Asistente}
- * o bien un {@link Organizador} (ver letra, seccion 4 - Vision).
- *
- * El nickname y el correo electronico son unicos en la plataforma y no se
- * pueden modificar una vez creado el usuario (ver caso de uso
- * "Modificar Datos de Usuario": el administrador puede editar el resto de
- * los datos, pero no estos dos).
+ * Entidad de dominio abstracta que representa un usuario de la plataforma: todo
+ * usuario es un {@link Asistente} o un {@link Organizador} (letra, seccion 4). El
+ * nickname y el correo son unicos y no se pueden modificar despues de crearlo.
  */
 /*
  * Herencia SINGLE_TABLE: Usuario, Asistente y Organizador comparten la tabla
- * 'usuario', y la columna 'tipo_usuario' distingue cada fila.
- *
- * Ventaja: no hay que unir tablas para leer un usuario.
- * Costo: las columnas propias de un subtipo aceptan NULL, porque en las
- * filas del otro subtipo van vacias.
+ * 'usuario' y la columna 'tipo_usuario' distingue cada fila. No hay que unir tablas
+ * para leer un usuario, y las columnas propias de un subtipo aceptan NULL.
  */
 @Entity
 @Table(name = "usuario",
@@ -159,14 +151,9 @@ public abstract class Usuario extends EntidadBase {
     }
 
     /**
-     * Polimorfico: cada subtipo concreto arma su propio DT (DTAsistente o
-     * DTOrganizador), que extiende a DTUsuario con sus campos propios.
-     */
-    /**
-     * Si quien pregunta es el duenio de este perfil (CU 4).
-     *
-     * Se compara contra el nickname de la entidad y no contra el texto que
-     * llego, asi unos espacios de mas no deciden quien ve que.
+     * Si quien pregunta es el duenio de este perfil (CU 4). Se compara contra el
+     * nickname de la entidad, no contra el texto recibido, para que unos espacios de mas
+     * no decidan quien ve que.
      */
     public boolean esSuPropioPerfil(String solicitante) {
         return solicitante != null && nickname.equals(solicitante.trim());
@@ -212,6 +199,7 @@ public abstract class Usuario extends EntidadBase {
         return resultado;
     }
 
+    /** Polimorfico: cada subtipo arma su propio DT (DTAsistente o DTOrganizador). */
     public abstract DTUsuario obtenerDT();
 
     /**

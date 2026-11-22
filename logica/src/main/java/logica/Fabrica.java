@@ -1,16 +1,10 @@
 package logica;
 
 /**
- * Singleton. Es el unico punto donde se instancia Sistema; la
- * capa de presentacion obtiene el controlador exclusivamente a traves de
- * IControladorSistema.
- *
- * El controlador que entrega NO es el Sistema "pelado": es el Sistema envuelto
- * en ControladorConUnidadDeTrabajo, que abre un EntityManager nuevo al empezar
- * cada operacion y lo cierra al terminar (commit si salio bien, rollback si
- * fallo). Por eso la presentacion tiene que pedir el controlador SIEMPRE por
- * aca: un Sistema creado con "new Sistema()" no tiene unidad de trabajo y sus
- * operaciones fallan.
+ * Singleton: el unico punto donde se instancia Sistema. La presentacion obtiene el
+ * controlador solo a traves de IControladorSistema, y siempre por aca: lo que entrega es
+ * el Sistema envuelto en ControladorConUnidadDeTrabajo, y un "new Sistema()" no tiene
+ * unidad de trabajo y sus operaciones fallan.
  */
 public class Fabrica {
 

@@ -90,7 +90,7 @@
                 <plugin>
                     <!--
                         Cubrimiento de sentencias de la capa logica (letra, 7.5).
-                        Es la version que usa la demo del curso. La 0.8.12 no lee
+                        La 0.8.12 no lee
                         las clases de Java 25 y el informe sale vacio.
                     -->
                     <groupId>org.jacoco</groupId>

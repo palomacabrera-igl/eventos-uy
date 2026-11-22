@@ -15,24 +15,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Arranque de servidor.jar: el Servidor Central y la Estacion de Trabajo.
- *
- * <ol>
- *   <li>Lee la direccion del servicio de ~/.eventosUy/central.properties.</li>
- *   <li>Deja lista la conexion con la base (ver prepararBase): asi el primer
- *       pedido del sitio no tiene que esperar a que arranque Hibernate.</li>
- *   <li>Publica el Publicador con Endpoint.publish. Eso levanta un servidor HTTP
- *       liviano que trae el propio JDK (no se usa Tomcat de este lado), arma el
- *       WSDL leyendo las anotaciones y queda atendiendo pedidos en segundo plano.</li>
- *   <li>Recien despues abre la ventana de la Estacion de Trabajo, como pide la
- *       letra: cuando aparece la ventana, el servicio ya esta disponible.</li>
- * </ol>
- *
- * La Estacion sigue llamando al controlador directamente, dentro de este mismo
- * programa; el servicio web es para el sitio, que esta en otra computadora.
- *
- * Con el argumento --sin-estacion publica el servicio y no abre la ventana: sirve
- * para probar el sitio sin la Estacion, o en una maquina sin pantalla.
+ * Arranque de servidor.jar: el Servidor Central y la Estacion de Trabajo. Lee la
+ * direccion de ~/.eventosUy/central.properties, deja lista la conexion con la base
+ * (prepararBase), publica el Publicador con Endpoint.publish (servidor HTTP del
+ * propio JDK, sin Tomcat) y recien despues abre la ventana de la Estacion, asi
+ * cuando aparece el servicio ya esta disponible. La Estacion llama al controlador
+ * directamente, en este mismo programa. Con --sin-estacion no abre la ventana.
  */
 public final class Main {
 
@@ -78,17 +66,10 @@ public final class Main {
     }
 
     /**
-     * Deja lista la conexion con la base ANTES de publicar el servicio.
-     *
-     * La primera operacion que llega arranca Hibernate (lee el mapeo, revisa las
-     * tablas y abre las conexiones), y eso tarda. Si esa primera operacion es un
-     * pedido del sitio, el sitio se queda esperando y puede cortar por tiempo
-     * ("Read timed out") justo al empezar la demostracion. Haciendolo aca, cuando
-     * la consola dice "Servicio publicado", el Central ya contesta rapido.
-     *
-     * Se usa una operacion comun del controlador (por la Fabrica, con su unidad de
-     * trabajo), no un acceso directo a la persistencia. Y si PostgreSQL no esta
-     * andando, se avisa con un mensaje claro y no se publica nada.
+     * Deja lista la conexion con la base antes de publicar el servicio. La primera
+     * operacion arranca Hibernate y tarda; si fuera un pedido del sitio, este podria
+     * cortar por tiempo ("Read timed out"). Usa una operacion comun del controlador
+     * y, si PostgreSQL no esta andando, avisa y no publica nada.
      */
     private static void prepararBase(Configuracion configuracion) {
         long inicio = System.currentTimeMillis();

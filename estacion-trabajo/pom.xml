@@ -52,9 +52,9 @@
 
         <!--
             Servicios web SOAP (Jakarta XML Web Services). Es la implementacion de
-            referencia, la misma version que usa la demo del curso. Trae las
-            anotaciones (@WebService, @WebMethod...), la clase Endpoint que publica
-            el servicio, y JAXB, que convierte los DT en XML y viceversa.
+            referencia. Trae las anotaciones (@WebService, @WebMethod...), la clase
+            Endpoint que publica el servicio, y JAXB, que convierte los DT en XML y
+            viceversa.
             Desde Java 11 el JDK ya no la incluye.
         -->
         <dependency>
@@ -118,8 +118,6 @@
                   - Se excluyen las firmas (*.SF, *.DSA, *.RSA) de las bibliotecas
                     firmadas: al mezclarlas en un JAR nuevo dejan de valer y Java
                     se niega a arrancar.
-
-                Es la misma configuracion que usa la demo del curso.
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

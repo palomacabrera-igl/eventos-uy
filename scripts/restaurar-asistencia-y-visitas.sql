@@ -1,5 +1,5 @@
 -- Deja la asistencia y las visitas de los datos de prueba como las carga
--- DatosDePrueba (seccion "Rol 4"), para repetir la demostracion sin recrear la base.
+-- DatosDePrueba (seccion de asistencia y visitas), para repetir la demostracion sin recrear la base.
 --
 -- Una demostracion los cambia: el asistente que registra su asistencia desde el
 -- celular, las visitas que suma el sitio al consultar un evento. Este script los

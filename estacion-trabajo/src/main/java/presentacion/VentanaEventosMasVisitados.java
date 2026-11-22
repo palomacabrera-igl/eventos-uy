@@ -20,22 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Consulta de los eventos mas visitados (letra, Estacion de Trabajo): una tabla
- * con los 5 eventos que mas veces se consultaron, desde el sitio de escritorio y
- * el de celular, con su posicion y su cantidad de visitas.
- *
- * <h2>Que muestra</h2>
- * Solo los eventos con al menos una visita, del que mas tiene al que menos (a
- * igualdad, por nombre). Incluye los eventos finalizados: la Estacion es la que
- * los sigue viendo. Si todavia nadie visito ninguno, la tabla queda vacia y un
- * cartel lo dice.
- *
- * <h2>Se actualiza sola</h2>
- * El sitio cuenta una visita cada vez que alguien abre un evento. Con la ventana
- * abierta, el administrador ve subir los numeros: cada 5 segundos la ventana
- * principal le pide {@link #actualizar()} (ver {@link Actualizable}). Usa
- * listarEventosMasVisitados, que no deja nada seleccionado en el controlador, asi
- * que es seguro llamarla sola.
+ * Consulta de los eventos mas visitados (letra, Estacion de Trabajo): una tabla con
+ * los 5 eventos mas consultados desde el sitio de escritorio y el de celular, con su
+ * posicion y su cantidad de visitas. Muestra solo los que tienen al menos una visita,
+ * del que mas tiene al que menos (a igualdad, por nombre), incluidos los finalizados;
+ * si no hay ninguna, la tabla queda vacia y un cartel lo dice. Se actualiza sola
+ * (ver {@link Actualizable}) con una operacion que no deja nada seleccionado.
  */
 public class VentanaEventosMasVisitados extends JInternalFrame implements Actualizable {
 

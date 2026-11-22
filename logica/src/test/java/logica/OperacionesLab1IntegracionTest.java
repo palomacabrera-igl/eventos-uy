@@ -29,7 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  * <p>Estas operaciones trabajan <b>con estado</b>: el alta de usuario son tres
  * llamadas encadenadas, y el alta de edicion o de tipo de registro necesitan
  * que antes se haya seleccionado un evento o una edicion. Por eso las pruebas
- * se recorren <b>en orden</b>, como la demo del curso: cada paso deja al
+ * se recorren <b>en orden</b>: cada paso deja al
  * controlador en la situacion que el siguiente necesita.
  *
  * <pre>

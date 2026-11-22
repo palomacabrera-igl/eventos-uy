@@ -18,7 +18,7 @@ public abstract class EntidadBase {
      * Clave primaria tecnica (subrogada). La genera la base de datos:
      * IDENTITY = columna autoincremental de PostgreSQL (BIGSERIAL).
      *
-     * Ojo: esto NO reemplaza a las claves del dominio. Esas siguen siendo unicas y se marcan
+     * No reemplaza a las claves del dominio. Esas siguen siendo unicas y se marcan
      * con @Column(unique = true) en cada entidad.
      */
     @Id

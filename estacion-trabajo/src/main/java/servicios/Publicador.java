@@ -28,52 +28,29 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * La fachada de servicios web del Servidor Central: lo unico que el sitio (el
- * Servidor Web) puede pedirle a la logica desde otra computadora.
+ * La fachada de servicios web del Servidor Central: lo unico que el sitio puede
+ * pedirle a la logica desde otra computadora. Cada metodo publico es una operacion
+ * del contrato (WSDL); JAX-WS lee las anotaciones y atiende los pedidos SOAP.
+ * La publica Main con Endpoint.publish.
  *
- * <h2>Que es</h2>
- * Cada metodo publico de esta clase es una operacion del contrato (el WSDL).
- * JAX-WS lee las anotaciones, arma el contrato solo y atiende los pedidos
- * SOAP que llegan. Quien la publica es el Main: Endpoint.publish(url, new Publicador()).
+ * Reglas de la clase:
+ * - Es una fachada delgada: cada metodo llama al controlador (que se pide a la
+ *   Fabrica, nunca con new Sistema()) y devuelve lo que contesta, sin reglas de
+ *   negocio ni JPA.
+ * - Solo operaciones sin estado (las del Laboratorio 1 guardan datos en campos de
+ *   un unico Sistema y con varios clientes se pisarian) y con nombre unico (SOAP
+ *   no admite sobrecargas).
+ * - Todos los parametros llevan @WebParam(name = "..."); si no, el contrato los
+ *   llama arg0, arg1...
+ * - Las colecciones van como List y no Set (el cliente generado usa List), y solo
+ *   viajan DT, tipos simples, enumerados y byte[].
+ * - Los errores de negocio se declaran en el throws: ReglaNegocioException viaja
+ *   como SOAP Fault con su mensaje.
  *
- * <h2>Reglas para tocar esta clase</h2>
- * <ol>
- *   <li><b>Es una fachada delgada.</b> Cada metodo hace UNA cosa: llamar al
- *       controlador y devolver lo que contesta. Nada de reglas de negocio, ni
- *       de JPA, ni de transacciones: eso ya vive en la logica, y la
- *       transaccion la abre el intermediario que da la Fabrica
- *       (ControladorConUnidadDeTrabajo). Por eso el controlador se pide a la
- *       Fabrica y nunca con new Sistema().</li>
- *   <li><b>Solo operaciones SIN estado.</b> Las del Laboratorio 1
- *       (seleccionarXxx, ingresarXxx) guardan datos en campos compartidos de
- *       un unico Sistema; con varios clientes a la vez se pisarian. Las que se
- *       publican reciben TODO lo que necesitan en una sola llamada.</li>
- *   <li><b>Cada operacion tiene un nombre unico.</b> SOAP no admite dos
- *       operaciones con el mismo nombre. El controlador tiene sobrecargas
- *       (por ejemplo listarEventos() y listarEventos(categoria)): aca se
- *       publica una sola version de cada una, la que no depende del estado.</li>
- *   <li><b>@WebParam(name = "...") en todos los parametros.</b> Sin el, en el
- *       contrato se llaman arg0, arg1... y el codigo que genera el sitio queda
- *       ilegible.</li>
- *   <li><b>List y no Set.</b> En XML no existe el "conjunto", solo elementos
- *       que se repiten, y el cliente que genera wsimport siempre usa List. El
- *       controlador devuelve Set en varias operaciones: se convierte aca.</li>
- *   <li><b>Solo viajan DT, tipos simples, enumerados y byte[].</b> Nunca
- *       entidades del dominio ni LocalDate (ver DatatypesJaxbTest).</li>
- *   <li><b>Los errores de negocio se declaran en el throws.</b>
- *       ReglaNegocioException se convierte en un SOAP Fault que conserva el
- *       mensaje. Una excepcion NO declarada llegaria al sitio como un error
- *       generico, sin mensaje util.</li>
- * </ol>
- *
- * <h2>Por que @XmlSeeAlso</h2>
- * Varias operaciones declaran DTUsuario, pero lo que viaja de verdad es un
- * DTAsistente o un DTOrganizador. JAXB solo incluye en el contrato los tipos
- * que aparecen en las firmas; sin esta anotacion no conoceria las subclases y
- * fallaria al responder. Con ella el XML lleva el tipo real del usuario.
- *
- * <h2>Donde agregar una operacion nueva</h2>
- * Al final, en la seccion de su tema, y con su prueba en PublicadorTest.
+ * @XmlSeeAlso: varias operaciones declaran DTUsuario pero viaja un DTAsistente o
+ * un DTOrganizador; JAXB solo conoce los tipos de las firmas y hay que indicarle
+ * las subclases. Una operacion nueva va en la seccion de su tema, con su prueba
+ * en PublicadorTest.
  */
 @WebService
 @XmlSeeAlso({DTAsistente.class, DTOrganizador.class})

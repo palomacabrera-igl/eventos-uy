@@ -11,19 +11,11 @@ import java.util.function.Function;
 
 /**
  * Ayuda para que un combo se actualice solo sin pisar lo que la persona eligio.
- *
- * Volver a cargar un combo "a lo bruto" (removeAllItems y addItem de nuevo) tiene
- * dos problemas que se notan cada 5 segundos:
- *
- *   - Se pierde lo elegido: la persona esta mirando el evento X y, de golpe, el
- *     combo vuelve a quedar sin nada.
- *   - Cada cambio dispara el ActionListener del combo, que en estas pantallas
- *     carga las listas de abajo (ediciones, registros...) y vacia el detalle.
- *
- * sincronizar() evita las dos cosas: no hace nada si la lista es la misma, y si
- * cambio la reescribe conservando lo elegido y SIN avisarle al panel, salvo que
- * lo elegido haya desaparecido de la base (ahi si hay que limpiar lo que
- * dependia de eso).
+ * Volver a cargarlo de cero (removeAllItems y addItem) pierde la seleccion y
+ * dispara el ActionListener, que en estas pantallas carga las listas de abajo.
+ * sincronizar() no hace nada si la lista es la misma; si cambio, la reescribe
+ * conservando lo elegido y sin avisarle al panel, salvo que lo elegido haya
+ * desaparecido de la base (ahi hay que limpiar lo que dependia de eso).
  */
 final class Combos {
 
@@ -31,17 +23,14 @@ final class Combos {
     }
 
     /**
-     * Pone en el combo los elementos de {@code nuevos}, si es que cambiaron.
+     * Pone en el combo los elementos de {@code nuevos}, si cambiaron.
      *
      * @param combo      el combo a actualizar
-     * @param nuevos     lo que hay ahora en la base (en cualquier orden: se
-     *                   compara y se ordena por la clave)
-     * @param clave      lo que identifica a cada elemento (el nombre, el
-     *                   nickname); asi dos lecturas de lo mismo se consideran
-     *                   iguales aunque sean objetos distintos
-     * @param reservados cuantos elementos del principio NO vienen de la base
-     *                   (por ejemplo "(Elegi un evento)" o "(sin institucion)"):
-     *                   no se tocan
+     * @param nuevos     lo que hay ahora en la base
+     * @param clave      lo que identifica a cada elemento (nombre, nickname), para
+     *                   comparar dos lecturas de lo mismo
+     * @param reservados cuantos elementos del principio no vienen de la base (por
+     *                   ejemplo "(Elegi un evento)"): no se tocan
      */
     static <T> void sincronizar(JComboBox<T> combo, Collection<T> nuevos,
                                 Function<T, String> clave, int reservados) {

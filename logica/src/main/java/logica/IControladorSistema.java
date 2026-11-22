@@ -132,14 +132,13 @@ public interface IControladorSistema {
             throws ReglaNegocioException;
 
     /**
-     * Igual que altaRegistro(nickname, nombreEdicion, nombreTipo), pero el
-     * asistente presenta un codigo de patrocinio y el registro no se cobra.
+     * Igual que altaRegistro(nickname, nombreEdicion, nombreTipo), pero el asistente
+     * presenta un codigo de patrocinio y el registro no se cobra.
      *
      * @param codigoPatrocinio codigo que le dio su institucion; null si paga.
-     * @throws ReglaNegocioException si el codigo no es de un patrocinio de esa
-     *         edicion, si el asistente no pertenece a la institucion que lo
-     *         otorga, si el tipo de registro no es el que el patrocinio regala,
-     *         o si ya se usaron todos los registros gratuitos.
+     * @throws ReglaNegocioException si el codigo no es de un patrocinio de esa edicion, si
+     *         el asistente no es de la institucion que lo otorga, si el tipo de registro no
+     *         es el que regala o si ya se usaron todos los registros gratuitos.
      */
     void altaRegistro(String nickname, String nombreEdicion, String nombreTipo,
                       String codigoPatrocinio) throws ReglaNegocioException;
@@ -228,31 +227,23 @@ public interface IControladorSistema {
     // ===== Alta de Patrocinio =====
 
     /**
-     * Precondicion: se ejecuto listarTiposRegistroDeEdicion() previamente
-     * (Sistema recuerda la EdicionEvento), existe una Institucion con el
-     * nombre de dt.institucion y un TipoRegistro con el nombre de
-     * dt.tipoRegistro en esa edicion.
+     * Precondicion: se ejecuto listarTiposRegistroDeEdicion() (Sistema recuerda la
+     * EdicionEvento) y existen la Institucion de dt.institucion y el TipoRegistro de
+     * dt.tipoRegistro en esa edicion. Postcondicion: se crea un Patrocinio de esa
+     * institucion y tipo en la edicion recordada.
      *
-     * Postcondicion: se crea un Patrocinio asociado a la edicion recordada,
-     * a la institucion y al tipo de registro indicados.
-     *
-     * @throws ReglaNegocioException si la institucion ya tiene un patrocinio
-     *         para esa edicion, o si el valor de los registros gratuitos
-     *         supera el 20% del aporte economico.
+     * @throws ReglaNegocioException si la institucion ya patrocina esa edicion o si el
+     *         valor de los registros gratuitos supera el 20% del aporte.
      */
     void altaPatrocinio(DTPatrocinio dt) throws ReglaNegocioException;
 
     /**
-     * Alta de Evento desde la Estacion de Trabajo (la usa el administrador).
+     * Alta de Evento desde la Estacion de Trabajo (la usa el administrador). El evento queda
+     * a cargo de un organizador, que es el unico que lo puede finalizar desde el sitio; por
+     * eso es obligatorio elegirlo.
      *
-     * Laboratorio 3: el evento queda a cargo de un organizador, que es el unico
-     * que lo puede finalizar desde el sitio. Antes el administrador lo creaba
-     * sin organizador y ese evento no se podia finalizar nunca: por eso ahora
-     * es obligatorio elegirlo.
-     *
-     * @throws ReglaNegocioException si el nombre ya existe, si no hay ninguna
-     *         categoria o alguna no existe, o si "organizador" no es el
-     *         nickname de un organizador.
+     * @throws ReglaNegocioException si el nombre ya existe, si no hay categorias o alguna no
+     *         existe, o si "organizador" no es el nickname de un organizador.
      */
     void ingresarDatosEvento(String nombre, String descripcion, LocalDate fechaAlta,
                              String sigla, List<String> nombresCategorias, String organizador)
@@ -261,22 +252,11 @@ public interface IControladorSistema {
     // =================================================================
     //  OPERACIONES PARA EL SITIO WEB
     // =================================================================
-    //
-    //  Se agregan sin tocar las de arriba, que son las del Laboratorio 1 y
-    //  las sigue usando la Estacion de Trabajo.
-    //
-    //  Dos diferencias con aquellas:
-    //
-    //  1. Reciben TODO lo que necesitan en una sola llamada. No dependen de
-    //     que antes se haya llamado a un seleccionar*, porque en la web cada
-    //     peticion llega sola y no hay forma de saber si la anterior fue del
-    //     mismo usuario.
-    //
-    //  2. Varias reciben "solicitante": el nickname de quien tiene la sesion
-    //     iniciada, o null si es un visitante. Es lo que le permite a la
-    //     LOGICA decidir que datos devuelve. La letra (7.4) no deja que esa
-    //     decision la tome la pagina: si la JSP esconde un dato, el dato
-    //     igual viajo hasta el navegador.
+    //  Se suman a las del Laboratorio 1, que sigue usando la Estacion. Reciben todo lo que
+    //  necesitan en una sola llamada (en la web cada peticion llega sola, sin un
+    //  seleccionar* previo), y varias reciben "solicitante": el nickname de quien tiene la
+    //  sesion, o null si es un visitante. Asi decide la logica que datos devuelve; si lo
+    //  hiciera la JSP, el dato igual viajaria hasta el navegador (letra, 7.4).
 
     // ----- Sesion y usuarios (CU 1 a 5) -----
 
@@ -414,15 +394,10 @@ public interface IControladorSistema {
                           String descripcion, double costo, int cupo)
             throws ReglaNegocioException;
 
-    /** Consulta de Tipo de Registro (CU 11). */
     /**
-     * Los tipos de registro de una edicion, sin depender de que antes se
-     * haya seleccionado un evento.
-     *
-     * Es la version sin estado de listarTiposRegistroDeEdicion(), que en el
-     * Laboratorio 1 solo funcionaba despues de seleccionar el evento. La
-     * necesita cualquier formulario que tenga que ofrecer los tipos de una
-     * edicion: el Alta de Patrocinio y el Registro a Edicion.
+     * Consulta de Tipo de Registro (CU 11): los tipos de registro de una edicion, sin
+     * depender de haber seleccionado un evento antes (version sin estado de
+     * listarTiposRegistroDeEdicion). La usan el Alta de Patrocinio y el Registro a Edicion.
      */
     Set<DTTipoRegistro> listarTiposDeRegistro(String nombreEdicion)
             throws ReglaNegocioException;
@@ -525,24 +500,12 @@ public interface IControladorSistema {
     // =================================================================
     //  OPERACIONES NUEVAS DEL LABORATORIO 3
     // =================================================================
-    //
-    //  Esqueleto: las firmas estan acordadas y los cuerpos de Sistema dicen
-    //  "pendiente". Cada rol reemplaza el cuerpo de las suyas.
-    //
-    //  Siguen las mismas reglas que las operaciones del sitio de arriba:
-    //
-    //   - Sin estado: reciben todo lo que necesitan en una sola llamada.
-    //   - "solicitante" (el nickname de quien tiene la sesion, o null si es un
-    //     visitante) va primero si la operacion cambia algo, y ultimo si consulta.
-    //   - Devuelven List y no Set: la busqueda y los mas visitados dependen del orden.
-    //   - Los errores de negocio son ReglaNegocioException, con un mensaje que se
-    //     le pueda mostrar a quien uso la pantalla.
-    //
-    //  Si una firma no le sirve a la pantalla que la usa, se cambia en un commit
-    //  aparte y se avisa al grupo: el sitio genera su cliente a partir de ellas.
-    //
-    //  Las reglas de cada operacion son las que resume el documento del grupo a
-    //  partir de la letra. Al implementar, confirmarlas con la letra.
+    //  Siguen las reglas de las operaciones del sitio de arriba: sin estado; "solicitante"
+    //  (el nickname de quien tiene la sesion, o null si es un visitante) primero si la
+    //  operacion cambia algo y ultimo si consulta; List y no Set donde importa el orden; y
+    //  errores de negocio como ReglaNegocioException con un mensaje que se pueda mostrar.
+    //  El sitio genera su cliente a partir de estas firmas: si se cambia una, hay que
+    //  avisar al grupo.
 
     // ----- Seguidores, finalizar evento y archivar edicion -----
 

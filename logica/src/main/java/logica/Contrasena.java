@@ -10,32 +10,17 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * Calculo y verificacion de la huella de una contrasena.
+ * Calculo y verificacion de la huella de una contrasena. No se guarda la
+ * contrasena sino su huella (un hash: no se puede volver a la contrasena); para
+ * verificar un login se recalcula la huella de lo que se escribio y se comparan.
  *
- * No se guarda la contrasena, se guarda su huella. Un hash va en un solo
- * sentido: de la contrasena sale la huella, pero de la huella no se puede
- * volver a la contrasena. Para verificar un login se recalcula la huella de
- * lo que la persona escribio y se comparan las dos huellas.
+ * Usa PBKDF2, que viene en el JDK, y es lento a proposito para que probar muchas
+ * contrasenas sea caro. Cada contrasena lleva su propia sal (un valor al azar), asi
+ * dos personas con la misma contrasena no tienen la misma huella.
  *
- * Se usa PBKDF2, que viene en el JDK y no agrega ninguna dependencia. Es un
- * hash LENTO a proposito: un hash rapido como SHA-256 a secas permitiria
- * probar millones de contrasenas por segundo contra las huellas robadas.
- *
- * Cada contrasena lleva su propia SAL: un valor al azar que se mezcla antes
- * de calcular la huella. Sin sal, dos personas con la misma contrasena
- * tendrian la misma huella (se notaria mirando la tabla) y servirian las
- * tablas de huellas ya calculadas que circulan para las contrasenas comunes.
- *
- * Formato de lo que se guarda, en una sola columna:
- *
- *     iteraciones:sal:huella        con la sal y la huella en Base64
- *
- * Son 76 caracteres, asi que entran en el varchar(100) de Usuario. Guardar
- * las iteraciones adentro permite subirlas mas adelante sin invalidar las
- * contrasenas ya guardadas.
- *
- * De paquete (sin public) a proposito: solo la logica calcula huellas. Un
- * servlet o una JSP no tienen nada que hacer aca.
+ * Se guarda en una sola columna con el formato iteraciones:sal:huella (sal y huella
+ * en Base64, 76 caracteres: entra en el varchar(100) de Usuario). Es de paquete a
+ * proposito: solo la logica calcula huellas.
  */
 final class Contrasena {
 

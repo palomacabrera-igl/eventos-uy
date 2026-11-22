@@ -6,30 +6,15 @@ import java.time.LocalDate;
 import java.util.*;
 
 /**
- * Controlador del sistema (patron GRASP Controller, mapea a :Sistema en
- * los diagramas).
+ * Controlador del sistema (patron GRASP Controller; es el :Sistema de los diagramas).
+ * Solo coordina el caso de uso: aplica las reglas de negocio y guarda las referencias
+ * retenidas entre llamados.
  *
- * Sistema solo coordina el caso de uso: valida reglas de negocio y guarda
- * las referencias retenidas entre llamados.
- *
- * <h2>No hay que "guardar" a mano</h2>
- *
- * Cada operacion de esta clase corre dentro de una unidad de trabajo que abre
- * y cierra ControladorConUnidadDeTrabajo (ver tambien persistencia.Persistencia):
- * un EntityManager nuevo y una transaccion. Eso significa que:
- *
- *   - Una entidad que se LEE de un Manejador queda "conectada": si se le cambia
- *     algo (edicion.aceptar(), usuario.modificarDatos(...), agregarle un tipo de
- *     registro a una edicion), JPA lo detecta solo y lo guarda al terminar la
- *     operacion. No hace falta llamar a ningun "guardar" despues.
- *   - Una entidad NUEVA si hay que persistirla con manejador.agregar(...).
- *   - Si la operacion lanza una excepcion (una ReglaNegocioException o cualquier
- *     otra), se hace rollback y se tira el EntityManager entero: nada de lo que
- *     se haya cambiado en memoria llega a la base ni queda dando vueltas para
- *     la proxima operacion.
- *
- * Por eso no se ve ningun try / catch ni commit en esta clase: estan una sola
- * vez, en el intermediario.
+ * Cada operacion corre en una unidad de trabajo que abre ControladorConUnidadDeTrabajo,
+ * asi que no hace falta "guardar": una entidad leida de un Manejador esta conectada y
+ * JPA guarda sus cambios al terminar; una entidad nueva si se persiste con
+ * manejador.agregar(...); y si la operacion lanza una excepcion se hace rollback.
+ * Por eso aca no hay try / catch ni commit.
  */
 public class Sistema implements IControladorSistema {
 
@@ -370,9 +355,8 @@ public class Sistema implements IControladorSistema {
                     + " no esta aceptada: no admite registros.");
         }
 
-        // OJO: esta operacion la usa el sitio, que atiende varias peticiones a
-        // la vez, asi que NO deja nada "seleccionado" en los campos del Sistema
-        // (antes hacia this.edicionSeleccionada = ed): esos campos son de todos.
+        // La usa el sitio, que atiende varias peticiones a la vez: no deja nada
+        // "seleccionado" en los campos del Sistema, que son de todos.
 
         if (!ed.estaAceptada()) {
             throw new ReglaNegocioException(
@@ -1594,25 +1578,12 @@ public class Sistema implements IControladorSistema {
     // ----- Estado retenido entre llamados (Laboratorio 1) -----
 
     /**
-     * Vuelve a conectar a la base lo que el Laboratorio 1 dejo "seleccionado".
-     *
-     * Operaciones como seleccionarEdicionEvento() guardan la edicion elegida en
-     * un campo, para que la siguiente (ingresarDatosTipoRegistro) la use. Pero
-     * cada operacion tiene su propio EntityManager, y el de la primera se cerro
-     * al terminar: esa edicion quedo "desconectada" (detached), con los datos de
-     * ese momento y sin poder leer sus colecciones ni guardar cambios.
-     *
-     * Lo llama ControladorConUnidadDeTrabajo ANTES de cada operacion, ya con el
-     * EntityManager nuevo abierto. Cada campo se vuelve a buscar por su id: la
-     * operacion siguiente trabaja con la fila de hoy, no con una copia vieja.
-     * Si la fila ya no existe, el campo queda en null y la operacion avisa que
-     * hay que seleccionar de nuevo, como si nunca se hubiera elegido.
-     *
-     * Quien llama a esto es el intermediario y no cada operacion para que no se
-     * pueda olvidar: una operacion nueva que use estos campos funciona sin
-     * acordarse de nada.
-     *
-     * No es publico: no es parte del contrato con la presentacion.
+     * Vuelve a conectar a la base lo que el Laboratorio 1 dejo "seleccionado". Esas
+     * operaciones guardan la entidad elegida en un campo, pero el EntityManager de la
+     * primera llamada ya se cerro y la entidad quedo desconectada. Lo llama
+     * ControladorConUnidadDeTrabajo antes de cada operacion: cada campo se vuelve a
+     * buscar por id, y si la fila ya no existe queda en null (como si nunca se hubiera
+     * elegido). No es publico: no es parte del contrato con la presentacion.
      */
     void reanclarSeleccion() {
         usuarioSeleccionado = Persistencia.reanclar(usuarioSeleccionado, Usuario.class);

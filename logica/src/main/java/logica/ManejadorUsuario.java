@@ -71,7 +71,7 @@ public class ManejadorUsuario {
                 .getResultList();
     }
 
-    // ===== Rol 4: validacion asincronica =====
+    // ===== Validacion asincronica =====
     //
     // Solo cuentan, no traen el usuario: se llaman mientras alguien escribe en
     // el formulario, y buscar() leeria la fila entera, con su imagen.

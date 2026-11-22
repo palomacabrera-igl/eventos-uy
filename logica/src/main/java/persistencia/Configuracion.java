@@ -16,26 +16,13 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * La configuracion del Servidor Central, leida de ~/.eventosUy/central.properties.
+ * La configuracion del Servidor Central, leida de ~/.eventosUy/central.properties:
+ * donde publicar el servicio web (servicio.*) y como conectarse a PostgreSQL (bd.*).
+ * Nada de eso queda escrito en el codigo. Vive en la logica porque tambien la usan
+ * las pruebas y la carga de datos.
  *
- * La letra pide que ninguna direccion, puerto ni credencial quede escrita en el
- * codigo: cada computadora tiene la suya y se cambia editando el archivo, sin
- * recompilar. Aca estan las dos cosas que necesita el Servidor Central:
- *
- * <ul>
- *   <li>Donde publicar el servicio web (servicio.host, servicio.puerto, servicio.ruta).
- *       Lo usa servicios.Main.</li>
- *   <li>Como conectarse a PostgreSQL (bd.url, bd.usuario, bd.password). Lo usa
- *       Persistencia al crear la fabrica de EntityManager: por eso esta clase
- *       vive en la logica, y no en la Estacion, porque la logica tambien se usa
- *       sin el Main (las pruebas y la carga de datos de prueba) y todos tienen
- *       que leer el mismo archivo.</li>
- * </ul>
- *
- * Si el archivo no existe, se crea copiando la plantilla que viaja dentro del
- * programa (src/main/resources/central.properties). Si existe pero le falta
- * alguna clave de la plantilla (por ejemplo, porque se creo con una version
- * anterior), se le agrega al final, sin tocar lo que la persona ya edito.
+ * Si el archivo no existe se crea desde la plantilla que viaja en el programa; si
+ * le faltan claves nuevas se agregan al final, sin tocar lo que ya se edito.
  */
 public final class Configuracion {
 

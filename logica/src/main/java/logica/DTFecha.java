@@ -5,16 +5,11 @@ import jakarta.xml.bind.annotation.XmlType;
 import java.time.LocalDate;
 
 /**
- * Una fecha (dia, mes, anio) que puede viajar por la red.
- *
- * Es la unica forma de mandar una fecha dentro de un DT: java.time.LocalDate
- * no sirve para los servicios web porque JAXB, la biblioteca que convierte los
- * objetos en XML, no sabe armarlo.
- *
- * Todos los DT cumplen las reglas de JAXB: constructor vacio, un getter y un
- * setter por campo, y @XmlType(name = "su nombre") para que la clase que genera
- * el sitio se llame igual (sin esto saldria DtFecha). La prueba
- * DatatypesJaxbTest lo comprueba.
+ * Una fecha (dia, mes, anio) que puede viajar por la red. Es la forma de mandar una fecha
+ * dentro de un DT: JAXB, que convierte los objetos en XML, no sabe armar un
+ * java.time.LocalDate. Como todos los DT, cumple las reglas de JAXB (constructor vacio, un
+ * getter y un setter por campo, y @XmlType con su nombre para que el sitio genere DTFecha
+ * y no DtFecha); DatatypesJaxbTest lo comprueba.
  */
 @XmlType(name = "DTFecha")
 public class DTFecha {

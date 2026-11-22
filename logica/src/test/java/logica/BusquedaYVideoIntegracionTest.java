@@ -45,7 +45,7 @@ class BusquedaYVideoIntegracionTest extends PruebaConBase {
 
     @BeforeEach
     void crearEvento() throws ReglaNegocioException {
-        sistema.altaEvento("imm", EVENTO, "Evento de las pruebas del Rol 3", "ITR3",
+        sistema.altaEvento("imm", EVENTO, "Evento de las pruebas de busqueda", "ITR3",
                 List.of("Tecnología"), null);
     }
 

@@ -5,8 +5,8 @@
 
 .DESCRIPTION
   La letra (seccion 7.9) pide un unico comando, documentado, que genere los dos
-  paquetes. El codigo esta en DOS repositorios (lo pidio el profesor: lo mas
-  independientes posible), asi que este script compila los dos y deja el
+  paquetes. El codigo esta en DOS repositorios, lo mas independientes
+  posible, asi que este script compila los dos y deja el
   resultado en una sola carpeta:
 
     entrega\servidor.jar   se arranca con:  java -jar servidor.jar

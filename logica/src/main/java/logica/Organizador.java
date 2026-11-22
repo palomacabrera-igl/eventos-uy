@@ -101,14 +101,9 @@ public class Organizador extends Usuario {
     }
 
     /**
-     * Las ediciones de este organizador, segun quien las este mirando (CU 4).
-     *
-     * Para cualquiera: solo las Aceptada. Para el propio organizador: las
-     * tres, como pide la letra. Una edicion Ingresada o Rechazada es asunto
-     * de quien la propuso: un visitante no tiene por que enterarse de que
-     * alguien propuso algo que todavia no se acepto, o que se rechazo.
-     *
-     * solicitante es null cuando el sitio lo mira alguien sin sesion.
+     * Las ediciones de este organizador, segun quien las mire (CU 4): cualquiera ve solo las
+     * Aceptadas y el propio organizador ve las tres, como pide la letra. solicitante es null
+     * cuando mira alguien sin sesion.
      */
     public Set<DTEdicionEvento> obtenerEdicionesPara(String solicitante) {
         boolean esSuPropioPerfil = esSuPropioPerfil(solicitante);

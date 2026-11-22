@@ -91,19 +91,11 @@ public class ManejadorEvento {
     }
 
     /**
-     * Igual que buscarEdicion(), pero TRABA la fila de la edicion en la base
-     * hasta que termine la unidad de trabajo (el commit o el rollback).
-     *
-     * Es un bloqueo "pesimista": SELECT ... FOR UPDATE. Si otra operacion
-     * quiere traer la misma edicion con este metodo mientras la primera no
-     * termino, la base la hace ESPERAR. Cuando la primera hace commit, la
-     * segunda sigue y lee los datos ya actualizados.
-     *
-     * Se usa al registrar un asistente. Antes, el candado global hacia que el
-     * sitio atendiera las paginas de a una y eso evitaba que dos registros
-     * simultaneos se pasaran del cupo. Sin ese candado, el cupo y los registros
-     * gratuitos se protegen aca, solo para la edicion que se esta tocando, y
-     * solo mientras dura la operacion.
+     * Igual que buscarEdicion(), pero traba la fila de la edicion en la base hasta que
+     * termine la unidad de trabajo (SELECT ... FOR UPDATE, bloqueo pesimista): otra
+     * operacion que pida la misma edicion espera y despues lee los datos ya actualizados.
+     * Se usa al registrar un asistente, para que dos registros simultaneos no se pasen del
+     * cupo ni de los registros gratuitos, solo para esa edicion y mientras dura la operacion.
      */
     public EdicionEvento buscarEdicionBloqueandola(String nombreEdicion) {
         return Persistencia.getEntityManager()
@@ -116,7 +108,7 @@ public class ManejadorEvento {
                 .orElse(null);
     }
 
-    // ===== Rol 4: visitas =====
+    // ===== Visitas =====
 
     /**
      * Suma una visita al evento con UN solo UPDATE en la base:

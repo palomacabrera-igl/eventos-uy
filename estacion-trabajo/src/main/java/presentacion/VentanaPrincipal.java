@@ -179,17 +179,11 @@ public class VentanaPrincipal extends JFrame {
     private void abrirEventosMasVisitados() { abrir(new VentanaEventosMasVisitados(controlador)); }
 
     /**
-     * Cada 5 segundos le pide a cada ventana abierta que se vuelva a leer de la
-     * base, si es de las que se actualizan solas (ver Actualizable).
-     *
-     * Ya no hay que "refrescar" ni cerrar ventanas: cada operacion del
-     * controlador lee la base de verdad (abre su propio EntityManager), asi que
-     * alcanza con volver a pedir la lista. Lo que la persona eligio o escribio se
-     * conserva (ver Combos.sincronizar).
-     *
-     * Si una actualizacion falla (por ejemplo, la base se cayo un momento) NO se
-     * muestra un cartel: se anota en la consola, una sola vez, y se vuelve a
-     * intentar a los 5 segundos. Un cartel cada 5 segundos no se aguanta.
+     * Cada 5 segundos le pide a cada ventana abierta que se vuelva a leer de la base,
+     * si es de las que se actualizan solas (ver Actualizable). Lo elegido o escrito se
+     * conserva (ver Combos.sincronizar). Si una actualizacion falla (por ejemplo, la
+     * base se cayo un momento) no se muestra un cartel: se anota en la consola y se
+     * reintenta a los 5 segundos.
      */
     private void actualizarVentanas() {
         for (JInternalFrame ventana : escritorio.getAllFrames()) {

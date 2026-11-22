@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  *  CI  Ingresada o Rechazada, un asistente                -&gt; false
  *  CI  Ingresada o Rechazada, visitante (null)            -&gt; false
  *
- *  obtenerDTCompletoPara(solicitante) -- requisito R14
+ *  obtenerDTCompletoPara(solicitante) -- registros solo para el organizador
  *  CV  su organizador     -&gt; con registros y codigos de patrocinio
  *  CI  cualquier otro     -&gt; sin registros y con los patrocinios sin codigo
  *  Los tipos de registro y los patrocinios los ven todos.

@@ -10,56 +10,19 @@ import java.sql.SQLException;
 import java.util.Set;
 
 /**
- * El intermediario que le pone una "unidad de trabajo" a cada operacion del
+ * El intermediario que le pone una unidad de trabajo a cada operacion del
  * controlador.
  *
- * <h2>Que problema resuelve</h2>
+ * Toda llamada a IControladorSistema tiene que abrir un EntityManager y una
+ * transaccion, correr la operacion, hacer commit si sale bien o rollback si lanza
+ * algo, y cerrar el EntityManager. Repetirlo en cada metodo de Sistema seria
+ * escribir el mismo try / catch decenas de veces; aca se escribe una vez.
  *
- * Cada vez que la Estacion de Trabajo o el sitio llaman a una operacion de
- * IControladorSistema (por ejemplo altaRegistro), tiene que pasar siempre lo
- * mismo, en este orden:
- *
- * <pre>
- *   1. abrir un EntityManager nuevo y empezar una transaccion
- *   2. correr la operacion
- *   3. si salio bien  -> commit    (se guarda todo junto)
- *      si lanzo algo  -> rollback  (no se guarda nada)
- *   4. cerrar el EntityManager, que descarta todo lo que tenia en memoria
- * </pre>
- *
- * Escribir eso a mano en cada uno de los ~60 metodos de Sistema seria repetir
- * el mismo try / catch 60 veces, y alcanza con que se olvide uno para que
- * vuelva el error de siempre: una operacion cambia objetos en memoria, falla
- * a la mitad, y esos cambios quedan vivos aunque nunca lleguen a la base.
- *
- * En cambio se escribe UNA vez, aca.
- *
- * <h2>Como funciona</h2>
- *
- * Es un "proxy dinamico" de Java: un objeto que implementa IControladorSistema
- * pero que, en lugar de tener codigo propio para cada metodo, tiene UN solo
- * metodo (invoke) por el que pasan TODAS las llamadas. Ahi se abre la unidad
- * de trabajo, se le pasa la llamada al Sistema de verdad, y se cierra.
- *
- * <pre>
- *   la pantalla / el servlet
- *         |  controlador.altaRegistro(...)
- *         v
- *   ControladorConUnidadDeTrabajo.invoke(...)   <- abre la unidad
- *         |  metodo.invoke(sistema, ...)
- *         v
- *   Sistema.altaRegistro(...)                   <- solo reglas de negocio
- *         |
- *         v
- *   Manejadores -> Persistencia.getEntityManager()  <- el EntityManager de la unidad
- * </pre>
- *
- * Y como el proxy implementa la interfaz, ni la pantalla ni el servlet se
- * enteran: siguen escribiendo controlador.altaRegistro(...) como siempre. Si
- * manana se agrega un metodo a IControladorSistema, tambien queda cubierto sin
- * escribir nada aca.
- *
- * Lo crea la Fabrica, que es el unico lugar que entrega el controlador.
+ * Es un proxy dinamico de Java: implementa IControladorSistema pero todas las
+ * llamadas pasan por un unico metodo, invoke, que abre la unidad, le pasa la
+ * llamada al Sistema real y la cierra. Como implementa la interfaz, las pantallas
+ * y los servlets no se enteran, y un metodo nuevo de la interfaz queda cubierto
+ * sin tocar nada. Lo crea la Fabrica.
  */
 final class ControladorConUnidadDeTrabajo implements InvocationHandler {
 
@@ -120,18 +83,10 @@ final class ControladorConUnidadDeTrabajo implements InvocationHandler {
     // ------------------------------------------------------------------
 
     /**
-     * Si la operacion fallo porque OTRA, hecha al mismo tiempo, se le adelanto,
-     * lo convierte en un mensaje que se puede mostrar en lugar de un error de
-     * Hibernate con su pila de lineas.
-     *
-     * Ahora que no hay un candado global, dos personas pueden registrarse a la
-     * vez. Las restricciones unicas de la base (un asistente no puede quedar
-     * registrado dos veces en la misma edicion, un nombre no se repite, etc.)
-     * son la red de seguridad: la base rechaza la segunda, y aca se le explica
-     * a la persona que fue por eso y que no se guardo nada.
-     *
-     * Solo se traduce si la operacion declara ReglaNegocioException, que es lo
-     * unico que las pantallas saben mostrar; si no, se devuelve tal cual.
+     * Si la operacion fallo porque otra, hecha al mismo tiempo, se le adelanto (lo
+     * impiden las restricciones unicas de la base), lo convierte en un mensaje que
+     * se puede mostrar en vez de un error de Hibernate. Solo se traduce si la
+     * operacion declara ReglaNegocioException; si no, se devuelve tal cual.
      */
     static Throwable traducir(Throwable fallo, Method metodo) {
         if (esConflictoConOtraOperacion(fallo) && declaraReglaNegocio(metodo)) {

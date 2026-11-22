@@ -377,24 +377,14 @@ public class EdicionEvento extends EntidadBase {
         return cantidad;
     }
 
-    // ===== Rol 4: asistencia =====
+    // ===== Asistencia =====
 
     /**
-     * Registra la asistencia de un asistente a esta edicion (letra, 6.3).
-     *
-     * <ul>
-     *   <li>Solo puede hacerlo quien esta registrado en ella: a cualquier otro
-     *       (un organizador, un asistente que no se registro, un visitante) le
-     *       llega el mismo mensaje.</li>
-     *   <li>Una sola vez: la segunda es un error.</li>
-     *   <li>La edicion tiene que estar Aceptada (una Archivada ya no admite
-     *       cambios) y tiene que haber empezado: no se puede haber asistido a algo
-     *       que todavia no paso. Despues de su fecha de fin si se puede, hasta
-     *       que el organizador la archive.</li>
-     * </ul>
-     *
-     * "hoy" llega como parametro, como en altaRegistro, para poder probar la
-     * regla de la fecha sin depender del reloj.
+     * Registra la asistencia de un asistente a esta edicion (letra, 6.3). Solo quien esta
+     * registrado en ella (a cualquier otro le llega el mismo mensaje), una sola vez, y con
+     * la edicion Aceptada (no Archivada) y ya empezada; despues de su fin se puede, hasta
+     * que se archive. "hoy" llega como parametro para probar la regla de la fecha sin
+     * depender del reloj.
      */
     public void registrarAsistencia(String nickname, LocalDate hoy) throws ReglaNegocioException {
         Registro registro = buscarRegistroDe(nickname);
@@ -411,14 +401,10 @@ public class EdicionEvento extends EntidadBase {
     }
 
     /**
-     * La constancia de asistencia en PDF (letra, 6.2 y 7.5). Solo la recibe quien
-     * esta registrado en la edicion y ya registro su asistencia; a cualquier otro
-     * le llega un error, no un PDF vacio.
-     *
-     * No mira el estado de la edicion: una edicion archivada conserva sus
-     * registros y cada asistente sigue viendo el suyo, constancia incluida.
-     * "hoy" es la fecha de emision y llega como parametro, como en
-     * registrarAsistencia, para poder probarla.
+     * La constancia de asistencia en PDF (letra, 6.2 y 7.5). Solo la recibe quien esta
+     * registrado y ya registro su asistencia; a cualquier otro le llega un error. No mira
+     * el estado de la edicion: una archivada conserva sus registros y cada asistente sigue
+     * viendo el suyo. "hoy" es la fecha de emision.
      */
     public byte[] obtenerConstancia(String nickname, LocalDate hoy) throws ReglaNegocioException {
         Registro registro = buscarRegistroDe(nickname);
@@ -505,15 +491,8 @@ public class EdicionEvento extends EntidadBase {
     }
 
     /**
-     * La edicion completa, recortada segun quien pregunta (requisito R14):
-     * el listado de registros y los codigos de patrocinio son solo para su
-     * organizador. A cualquier otro le llegan sin registros y con los
-     * patrocinios sin codigo. Que la regla este aca, y no en la JSP, es lo
-     * que impide que una pagina la olvide.
-     */
-    /**
-     * Los patrocinios de la edicion (CU 16). El codigo de patrocinio viaja
-     * solo si quien pregunta es su organizador; para el resto llega en null.
+     * Los patrocinios de la edicion (CU 16). El codigo de patrocinio viaja solo si quien
+     * pregunta es su organizador; para el resto llega en null.
      */
     public Set<DTPatrocinio> obtenerPatrociniosPara(String solicitante) {
         boolean conCodigo = loOrganiza(solicitante);
@@ -540,6 +519,11 @@ public class EdicionEvento extends EntidadBase {
                 + "\" no patrocina la edición \"" + nombre + "\".");
     }
 
+    /**
+     * La edicion completa, recortada segun quien pregunta: el listado de registros y los
+     * codigos de patrocinio son solo para su organizador. La regla esta aca y no en la
+     * JSP para que ninguna pagina pueda olvidarla.
+     */
     public DTEdicionCompleto obtenerDTCompletoPara(String solicitante) {
         boolean esSuOrganizador = loOrganiza(solicitante);
 

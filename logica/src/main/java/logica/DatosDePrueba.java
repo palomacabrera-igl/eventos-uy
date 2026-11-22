@@ -15,18 +15,10 @@ public final class DatosDePrueba {
     }
 
     /**
-     * Carga los datos de prueba. Devuelve false si ya estaban cargados.
-     *
-     * TODO se carga dentro de UNA sola unidad de trabajo (un EntityManager y
-     * una transaccion). Dos consecuencias buenas:
-     *
-     *   - Los objetos se pueden referenciar entre si sin problemas: la UTEC que
-     *     se guarda al principio es la misma que despues se le asigna a un
-     *     asistente, no una copia "desconectada" de otro EntityManager.
-     *   - Es todo o nada: si falla a la mitad (una imagen que no esta, un nombre
-     *     repetido) se hace rollback y la base queda como estaba, en lugar de
-     *     quedar con la mitad de los datos y hacer que la proxima corrida diga
-     *     "ya estaban cargados".
+     * Carga los datos de prueba. Devuelve false si ya estaban cargados. Todo se carga en una
+     * sola unidad de trabajo: los objetos se referencian entre si sin copias desconectadas y
+     * es todo o nada (si algo falla se hace rollback, y la proxima corrida no dice "ya
+     * estaban cargados" con la mitad de los datos).
      */
     public static boolean cargar() {
         try {
@@ -648,13 +640,12 @@ public final class DatosDePrueba {
     }
 
     // =========================
-    // Rol 4: asistencia y visitas
+    // Asistencia y visitas
     // =========================
 
     /**
-     * Registros con y sin asistencia, y visitas por evento, para poder ver todo lo
-     * de asistencia y de "mas visitados" sin tener que armarlo a mano antes de cada
-     * prueba o demostracion.
+     * Registros con y sin asistencia, y visitas por evento, para ver lo de asistencia y
+     * "mas visitados" sin armarlo a mano.
      *
      * <pre>
      *  Edicion (organizador)        Asistente  Asistio   Para que sirve
@@ -668,16 +659,10 @@ public final class DatosDePrueba {
      *  Libro1 (antel)               nadie                edicion que ya empezo sin registros
      * </pre>
      *
-     * La asistencia se registra con la misma regla del sistema, el dia que empieza
-     * cada edicion: asi los datos no dependen de la fecha en que se carguen.
-     *
-     * Visitas: de mas a menos Montevideo Rock, JIAP, Maratón, Comics y Feria del
-     * libro. Expo Negocios no tiene ninguna, asi que no esta entre los mas
-     * visitados; con unas pocas visitas desde el sitio entra y se ve moverse el
-     * ranking.
-     *
-     * Se llama al final, con todo lo anterior ya guardado, y busca lo que necesita
-     * por su nombre: no depende de las variables de cargarTodo().
+     * La asistencia se registra con la regla del sistema el dia que empieza cada edicion,
+     * asi los datos no dependen de cuando se carguen. Visitas, de mas a menos: Montevideo
+     * Rock, JIAP, Maraton, Comics y Feria del libro; Expo Negocios no tiene ninguna y entra
+     * al ranking con unas pocas visitas. Se llama al final y busca lo que necesita por nombre.
      */
     private static void cargarAsistenciaYVisitas() {
         registrar("JIAP 2026", "Estudiante", "lgomez", LocalDate.of(2026, 9, 10));
@@ -793,15 +778,9 @@ public final class DatosDePrueba {
     }
 
     /**
-     * Lee una imagen de las que viajan DENTRO del jar de la logica, en
-     * src/main/resources/imagenes.
-     *
-     * <p>Antes se leian del disco, con una ruta relativa que entraba en la
-     * carpeta del servidor web. Eso tenia dos problemas: ataba el Servidor
-     * Central a archivos de otro componente, justo al reves de como va la
-     * dependencia, y solo funcionaba si el programa se corria parado en la
-     * raiz del proyecto. Desde el classpath anda igual corriendolo desde
-     * IntelliJ, desde Maven o desde el jar ya empaquetado.
+     * Lee una imagen de las que viajan dentro del jar de la logica, en
+     * src/main/resources/imagenes. Desde el classpath anda igual desde IntelliJ, Maven o el
+     * jar empaquetado, y no depende de archivos de otro componente.
      */
     private static Imagen leerImagenObligatoria(String recurso) {
         byte[] contenido;
