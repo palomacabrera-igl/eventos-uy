@@ -131,7 +131,7 @@ Si el archivo no existe, se crea con estos valores la primera vez. Si existe per
 
 ## El servicio web
 
-La clase `servicios.Publicador` publica 44 operaciones de `IControladorSistema` con JAX-WS. Con el Central andando, el contrato está en:
+La clase `servicios.Publicador` publica 45 operaciones de `IControladorSistema` con JAX-WS. Con el Central andando, el contrato está en:
 
 ```
 http://localhost:9128/eventosuy?wsdl
