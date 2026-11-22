@@ -96,7 +96,7 @@ Ante la pregunta de si «reutilizar los servlets» quería decir los mismos serv
 
 | Caso de uso (6.3) | Ruta | Servlet |
 | --- | --- | --- |
-| Inicio de Sesión | `/movil`, `/movil/`, `/movil/iniciar-sesion` | `IniciarSesion` |
+| Inicio de Sesión | `/movil`, `/movil/iniciar-sesion` | `IniciarSesion` |
 | Cierre de Sesión | `/movil/cerrar-sesion` | `CerrarSesion` |
 | Consulta de Edición | `/movil/eventos`, `/movil/evento`, `/movil/edicion` | `ListarEventos`, `ConsultarEvento`, `ConsultarEdicion` |
 | Consulta de Registro | `/movil/registros`, `/movil/registro?edicion=...` | `ConsultarRegistro` |
