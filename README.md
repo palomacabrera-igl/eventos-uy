@@ -104,7 +104,7 @@ Sin la ventana de la Estación (por ejemplo, en un servidor): `java -jar entrega
 
 ### 5. Desplegar el sitio
 
-Se copia `entrega\web.war` a la carpeta `webapps` de Tomcat con el nombre `ROOT.war`, y queda en http://localhost:8080/. Los detalles están en el README de **eventos-uy-web**.
+Se copia `entrega\web.war` a la carpeta `webapps` de Tomcat y queda en http://localhost:8080/web (el sitio para celular, en `/web/movil`). Los detalles están en el README de **eventos-uy-web**.
 
 ## Configuración
 
@@ -149,7 +149,7 @@ Si cambia el contrato (una operación o un DT nuevo), hay que actualizar la copi
 .\mvnw.cmd test
 ```
 
-Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación y el servicio web (`estacion-trabajo/src/test/java/`), con JUnit 5. El informe de cubrimiento de JaCoCo queda en `logica/target/site/jacoco/index.html` (letra, 7.5); los datos de prueba no cuentan para el cálculo.
+Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación y el servicio web (`estacion-trabajo/src/test/java/`), con JUnit 5. El informe de cubrimiento de JaCoCo queda en `logica/target/site/jacoco/index.html`; los datos de prueba no cuentan para el cálculo. La letra (7.10) pide medirlo en IntelliJ con *Run with Coverage*: la capa lógica da **90 % de líneas** (1546 de 1705).
 
 - Las pruebas de integración usan la base de `central.properties` y necesitan los datos de prueba cargados. Lo que crean lleva el prefijo `IT` y lo borran al terminar.
 - Si PostgreSQL no responde, las de integración se **saltean** solas y el resto corre igual.
