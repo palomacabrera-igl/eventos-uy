@@ -39,7 +39,7 @@ Así cada uno se compila, se prueba y se ejecuta por separado, y pueden estar en
 | Herramienta   | Versión                                            |
 | ------------- | -------------------------------------------------- |
 | JDK           | 25 (Temurin / Adoptium), con `JAVA_HOME` apuntando a él |
-| PostgreSQL    | 17                                                 |
+| PostgreSQL    | 17 o posterior (en el grupo hay 17 y 18)           |
 | Tomcat        | 11.0.26 (solo para el sitio)                       |
 | IntelliJ IDEA | 2026.2+, con el plugin *Swing UI Designer* (solo para editar las pantallas) |
 
@@ -51,7 +51,7 @@ Los dos repositorios tienen que estar **uno al lado del otro**, en la misma carp
 
 ### 1. Crear la base de datos (una sola vez)
 
-Como superusuario (`postgres`). Pide la contraseña que cada uno definió al instalar PostgreSQL.
+Como superusuario (`postgres`). Pide la contraseña que cada uno definió al instalar PostgreSQL. En las rutas de Windows de este README, el `17` es la versión instalada: con la 18 queda `PostgreSQL\18\bin\psql.exe`.
 
 ```powershell
 & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -f scripts\crear-base.sql
@@ -170,7 +170,7 @@ Además de los cinco usuarios, los datos traen lo que pide la letra para recorre
 - **Seguidores:** `imm` y `vale23` se siguen entre sí; `vale23` sigue también a `antel`, y `jperez` a `imm`.
 - **Video:** JIAP 2026 (una charla de la JIAP 2011, publicada por ASIAP) y Montevideo Rock 2026 (la presentación de Montevideo Rock 2017 de TV Ciudad).
 - **Evento finalizado:** Feria del libro.
-- **Edición archivada:** Maratón 2025 (solo aparece en el perfil de `imm`). **En condiciones de archivarse:** Comics 2026 (aceptada y ya terminó).
+- **Edición archivada:** Maratón 2025 (solo aparece en el perfil de `imm`). **En condiciones de archivarse** (aceptadas y ya terminadas): JIAP 2026, Comics 2026 y Maratón 2026 de `imm`, y Libro1 de `antel`. Para mostrar la asistencia desde el celular conviene no archivar Maratón 2026: una edición archivada ya no la admite.
 
 Qué registros tienen asistencia y cuáles no, y las visitas iniciales de cada evento, están en [`docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md`](docs/Laboratorio3-Asistencia-Visitas-y-Defensa.md).
 
