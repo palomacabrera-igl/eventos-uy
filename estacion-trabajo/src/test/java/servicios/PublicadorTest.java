@@ -160,7 +160,7 @@ class PublicadorTest {
 
         assertEquals(enLaClase, enElWsdl,
                 "Las operaciones del WSDL y los metodos publicos de Publicador tienen que ser las mismas");
-        assertTrue(enElWsdl.size() >= 30, "Se esperan al menos las 30 operaciones que usa el sitio hoy");
+        assertEquals(45, enElWsdl.size(), "Se esperan las 45 operaciones que usa el sitio");
     }
 
     @Test

@@ -149,7 +149,7 @@ Si cambia el contrato (una operación o un DT nuevo), hay que actualizar la copi
 .\mvnw.cmd test
 ```
 
-Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación y el servicio web (`estacion-trabajo/src/test/java/`), con JUnit 5. El informe de cubrimiento de JaCoCo queda en `logica/target/site/jacoco/index.html`; los datos de prueba no cuentan para el cálculo. La letra (7.10) pide medirlo en IntelliJ con *Run with Coverage*: la capa lógica da **90 % de líneas** (1546 de 1705).
+Corre las pruebas de la lógica (`logica/src/test/java/`) y las de la Estación y el servicio web (`estacion-trabajo/src/test/java/`), con JUnit 5. El informe de cubrimiento de JaCoCo queda en `logica/target/site/jacoco/index.html`; los datos de prueba no cuentan para el cálculo. Son 590 pruebas: 540 de la lógica y 50 de la Estación y el servicio web. La letra (7.10) pide medir el cubrimiento en IntelliJ con *Run with Coverage*; con JaCoCo la capa lógica da **89 % de líneas** (1808 de 2029) y 81 % de ramas.
 
 - Las pruebas de integración usan la base de `central.properties` y necesitan los datos de prueba cargados. Lo que crean lleva el prefijo `IT` y lo borran al terminar.
 - Si PostgreSQL no responde, las de integración se **saltean** solas y el resto corre igual.
